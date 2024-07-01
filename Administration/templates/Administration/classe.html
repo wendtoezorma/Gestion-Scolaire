@@ -1,0 +1,68 @@
+
+{% extends "Administration/base.html" %}
+{% block title %}Liste des étudiants{% endblock %}
+{% block content %}
+<h1>Liste des étudiants</h1><br>
+        <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
+        <table border="1"><br>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Sexe</th>
+                    <th>Matricule</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        <td>{{ etudiant.sexe_etudiant }}</td>
+                        <td>{{ etudiant.matricule }}</td>
+                    </tr>
+                {% endfor %}
+                <h2><a href="{% url 'select_module' filiere_id niveau %}">ajouter des notes</a></h2><br>
+                <a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
+
+            </tbody>
+        </table>
+
+{% endblock %}
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des étudiants</title>
+</head>
+<body>
+   
+    <body>
+        <h1>Liste des étudiants</h1>
+        <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Sexe</th>
+                    <th>Matricule</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        <td>{{ etudiant.sexe_etudiant }}</td>
+                        <td>{{ etudiant.matricule }}</td>
+                    </tr>
+                {% endfor %}
+                <h2><a href="{% url 'select_module' filiere_id niveau %}">ajouter des notes</a></h2>
+                <a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a>
+
+            </tbody>
+        </table>
+    </body>
+</body>-->

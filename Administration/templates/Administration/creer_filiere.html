@@ -1,0 +1,16 @@
+{% extends "Administration/base.html" %}
+{% block title %}Créer une filière{% endblock %}
+
+{{ block.super }}
+
+{% block content %}
+<div class="main">
+    <h1>Créer une filière</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Enregistrer</button>
+    </form>
+</div>  
+{% endblock %}
+

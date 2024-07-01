@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer un étudiant</title>
+</head>
+<body>
+    <h1>Créer un nouvel étudiant</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Créer étudiant</button>
+    </form>
+    <button id="add_student_button">Ajouter un nouvel étudiant</button>
+    
+    <script>
+        document.getElementById("add_student_button").addEventListener("click", function() {
+            // Cloner le premier formulaire et l'ajouter à la fin du corps du document
+            var formClone = document.querySelector("form").cloneNode(true);
+            document.body.appendChild(formClone);
+        });
+    </script>
+</body>
+</html>

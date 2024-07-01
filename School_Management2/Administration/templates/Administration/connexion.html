@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-image: url("{% static 'Administration/images/connexion_.jpeg' %}");
+            background-size: cover; /* Pour couvrir tout l'écran */
+            background-position: center; /* Pour centrer l'image */
+            background-repeat: no-repeat; /* Pour ne pas répéter l'image */
+        }
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.8); /* Fond blanc avec transparence */
+            padding: 20px; /* Espace autour du formulaire */
+            border-radius: 20px; /* Coins arrondis pour un meilleur aspect visuel */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ombre légère pour le contraste */
+            width: 100%; /* Largeur par défaut */
+            max-width: 800px; /* Largeur maximale augmentée */
+            margin: 0 auto; /* Centrer horizontalement */
+            position: relative;
+        }
+        .user-icon {
+            font-size: 50px;
+            color: #007bff;
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            width: 50px;
+        }
+        .password-wrapper {
+            position: relative; /* Assurez-vous que le conteneur est en position relative */
+        }
+        .password-wrapper i {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
+    <title>Formulaire de Connexion</title>
+</head>
+<body>
+    <br>
+    <br>
+    <br>
+    <div class="container">
+        <div class="row mt-5">
+            
+            <div class="col-lg-6 m-auto form-container">
+                
+                <i class="fas fa-user user-icon"></i>
+            <h2 class="text-center">Connexion</h2>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                        <!-- Name input -->
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                        <input type="text" name="nom" class="form-control" placeholder="Nom" required>
+                    </div>
+    
+                        <!-- Email input -->
+                    <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" placeholder="E-mail" required>
+                        </div>
+                        
+                        <!-- Password input -->
+                    <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                            <input type="password" name="mot_de_passe" class="form-control" placeholder="Mot de passe" required>
+                        </div>
+                        
+                        <!-- 2 column grid layout for inline styling -->
+                        <div class="row mb-4">
+                            <div class="col d-flex justify-content-center">
+                                <!-- Checkbox -->
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="form1Example3" checked />
+                                    <label class="form-check-label" for="form1Example3"> Se Souvenir de moi </label>
+                                </div>
+                            </div>
+                          
+                            <div class="col">
+                                <!-- Simple link -->
+                                <a href="/reset_password">Mot de passe oublié?</a>
+                            </div>
+                        </div >
+                              
+                        <!-- Submit button -->
+                        <button data-mdb-ripple-init type="submit" class="btn btn-primary btn-block">Se connecter</button>
+                    </form>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p class="text-center text-danger">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    
+</body>
+</html>
