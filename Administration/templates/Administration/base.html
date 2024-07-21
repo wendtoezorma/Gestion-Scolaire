@@ -20,7 +20,7 @@
       * {
           font-family: "Ubuntu", sans-serif;
           margin: 0;
-          padding: 0;
+          padding: 0; 
           box-sizing: border-box;
       }
 
@@ -182,6 +182,7 @@
   white-space: nowrap;
 }
 
+
 /* --------- curve outside ---------- */
 .navigation ul li:hover a::before,
 .navigation ul li.hovered a::before {
@@ -253,6 +254,9 @@
   font-size: 2.5rem;
   cursor: pointer;
 }
+/* Style général pour le bouton de déconnexion */
+
+
 
   </style>
   {% endblock %}
@@ -262,11 +266,15 @@
       <link rel="stylesheet" href="assets/Administration/css/style.css">
   {% endif %}
   {% endblock %}
+  
 </head>
 <body>
+  
   <!-- =============== Navigation ================ -->
+</form>
   <div class="container">
     <div class="navigation"> 
+      
       <ul>
         <li>
           <a href="#" class="active"> <!-- Ajoutez la classe 'active' pour le lien actif -->
@@ -274,8 +282,10 @@
               <i class="fas fa-desktop"></i>
             </span>
             <span class="title">BIENVENUE</span>
+            
           </a>
         </li>
+        
         <li>
           <a href="{% url 'admin_dashboard' %}">
             <span class="icon">
@@ -342,14 +352,6 @@
           </a>
         </li>
         <li>
-          <a href="/connexion">
-            <span class="icon">
-              <ion-icon name="log-out-outline"></ion-icon>
-            </span>
-            <span class="title">Sign Out</span>
-          </a>
-        </li>
-        <li>
           <a href="{% url 'creer_cours' %}">
             <span class="icon">
               <ion-icon name="log-out-outline"></ion-icon>
@@ -365,7 +367,18 @@
               <span class="title">emploi du temps</span>
           </a>
       </li>
-
+      <li class="menu-item logout">
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="menu-link">
+            <span class="icon">
+              <ion-icon name="log-out-outline"></ion-icon>
+            </span>
+            <span class="title">Déconnexion</span>
+          </button>
+        </form>
+      </li>
+      
       </ul>
     </div>
     
@@ -374,6 +387,11 @@
       <div class="topbar">
         <div class="logo">
           <!-- Logo de l'application (ajout par défaut) -->
+        <!-- Ajoutez ce code à la topbar -->
+        <div class="toggle">
+          <i class="fas fa-bars"></i> <!-- Icône de menu -->
+        </div>
+
           <img src="{% static 'Administration/images/default_logo.png' %}" alt="Logo">
           <span>Nom de l'ecode </span>
         </div>
@@ -395,6 +413,7 @@
       </div>
     </div>
   </div>
+ 
 
   <!-- =========== Pied de page ========== 
   <div class="footer">

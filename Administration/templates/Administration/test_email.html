@@ -1,0 +1,18 @@
+<!-- templates/test_email.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Email</title>
+</head>
+<body>
+    <h1>Test de l'Envoi d'Email</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Envoyer un Email de Test</button>
+    </form>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+</body>
+</html>

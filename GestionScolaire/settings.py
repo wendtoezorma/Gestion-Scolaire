@@ -149,7 +149,70 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Email configuration
 #EMAIL_BACKEND = "anymail.backends.sendinblue.EmailBackend"
 
-'''ANYMAIL = {
-    "SENDINBLUE_API_KEY": "C7gHyhnEWb6rsFJ",
+
+# Configuration du backend d'email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Remplace par le serveur SMTP que tu utilises
+EMAIL_PORT = 587  # Port pour TLS, ou 465 pour SSL, ou 25 pour non sécurisé
+EMAIL_USE_TLS = True  # True si tu utilises TLS, False sinon
+EMAIL_USE_SSL = False  # True si tu utilises SSL, False sinon
+EMAIL_HOST_USER = 'bonfilswendtoe@gmail.com'  # Ton adresse email
+EMAIL_HOST_PASSWORD = 'cmta uzvr ooqs snvo'  # Le mot de passe de ton adresse email
+DEFAULT_FROM_EMAIL = 'bonfilswendtoe@gmail.com'  # L'adresse email par défaut utilisée pour envoyer les emails
+
+
+# settings.py
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+
 }
-'''
+DEBUG = True
+
+AUTHENTICATION_BACKENDS = [
+    
+    'Administration.backends.AdministrationBackend',  # Pour les utilisateurs lambda
+    'django.contrib.auth.backends.ModelBackend',  # Pour les superutilisateurs
+]
+
+
+from django.urls import reverse_lazy
+AUTH_USER_MODEL = 'Administration.Administration'
+
+LOGIN_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = ('admin_dashboard')
+LOGOUT_REDIRECT_URL = ('login')
+
+
+#LOGIN_URL = '/login/'  # URL de la page de connexion
+#LOGIN_REDIRECT_URL = '/admin_dashboard'  # URL de redirection après connexion réussie
+#LOGOUT_REDIRECT_URL = 'login/'  # URL de redirection après déconnexion
+# Utilisez la session de base de Django
+#SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Autres paramètres de session
+#SESSION_COOKIE_NAME = 'your_sessionid'
+#SESSION_COOKIE_AGE = 60 * 60 * 24 * 365 * 10  # 10 ans en secondes
+#SESSION_SAVE_EVERY_REQUEST = True
+#
+#
+#PASSWORD_HASHERS = [
+ #   'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+  #  'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+  #  'django.contrib.auth.hashers.Argon2PasswordHasher',
+   # 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+#]

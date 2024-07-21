@@ -1,7 +1,19 @@
 from typing import Iterable
 from django.db import models
 from  django.contrib.auth.models import AbstractUser
-
+import datetime
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db import models
+from django.contrib.auth.models import UserManager
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils.translation import gettext_lazy as _
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager,PermissionsMixin, Group, Permission
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import make_password, check_password
 
 #La classe Filiere
 class Filiere(models.Model):
@@ -77,27 +89,7 @@ class Cours_Module(models.Model):
         return self.nom_module
     
 
-#pour que celui qui cree un cours ai les droit admin pour securite 
-'''
-class Utilisateur(AbstractUser):
-    is_admin = models.BooleanField(default=False)
-    
-    # Ajouter des related_name uniques pour éviter les conflits
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='utilisateurs',  # Nom unique pour éviter les conflits
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        verbose_name='groups',
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='utilisateurs_permissions',  # Nom unique pour éviter les conflits
-        blank=True,
-        help_text='Specific permissions for this user.',
-        verbose_name='user permissions',
-    )
-'''
+
 
 class Etudiant(models.Model):
     matricule = models.BigAutoField(primary_key=True)
@@ -138,7 +130,7 @@ class Etudiant(models.Model):
     def __str__(self):
         return self.nom_etudiant
     
-    
+
 class Notes(models.Model):
     Id_note = models.AutoField(primary_key=True)
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='notes', null=True)
@@ -159,15 +151,22 @@ class Notes(models.Model):
 
     def __str__(self):
         return f"{self.etudiant.nom_etudiant} - {self.matiere_module.nom_module} - Moyenne: {self.moyenne}"
-    
-    
-
 # La classe étudiant à présent
-class Administration(models.Model):
+from django.contrib.auth.models import AbstractUser
+
+from django.contrib.auth.models import BaseUserManager
+from django.utils.translation import gettext_lazy as _
+
+
+    # Pas de méthode create_superuser ici
+    # Les superutilisateurs seront gérés par le modèle User par défaut de Django
+from .managers import AdministrationManager
+# La classe étudiant à présent
+class Administration(AbstractBaseUser, PermissionsMixin):
     Identifiant = models.AutoField(primary_key=True)
     nom = models.CharField(max_length=150)
     prenom = models.CharField(max_length=250)
-    email = models.EmailField(max_length=300)
+    email = models.EmailField(max_length=300, unique=True)
     Numero = models.CharField(max_length=15)
     date_naissance = models.DateField()
     num_CNIB = models.CharField(max_length=20)
@@ -178,19 +177,127 @@ class Administration(models.Model):
     ]
     sexe = models.CharField(max_length=12, choices=choix_sexe, default='SELECTIONNER')
     date_ajout = models.DateField(auto_now=True)
-    mot_de_passe = models.CharField(max_length=500, blank=True)
+    is_active = models.BooleanField(default=True)#actif automatiquement 
+    is_staff = models.BooleanField(default=False)# par defaut il n'est pas admin 
+    #mot_de_passe = models.CharField(max_length=500, blank=True)
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='administration_user_set',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        verbose_name='groups'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='administration_user_set',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions'
+    )
 
+    USERNAME_FIELD = 'email'  # Le champ utilisé pour l'identification des utilisateurs
+    REQUIRED_FIELDS = ['nom', 'prenom', 'Numero', 'date_naissance', 'num_CNIB', 'sexe']  # Champs requis pour créer un utilisateur
+    objects = AdministrationManager()
     class Meta:
         ordering = ['-date_ajout']
         #db_table = 'Administration' Pour renommer la table
         verbose_name = "Administration"
         verbose_name_plural = "Administrations"
+
+
+    """def set_password(self, raw_password):
+        self.mot_de_passe = make_password(raw_password)  # Hash le mot de passe
+        self.save()
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.mot_de_passe)"""
     
 
     def __str__(self):
         return self.nom
-
     
+    
+
+    @staticmethod
+    def create_superuser(email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        user = Administration(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=user._db)
+        return user
+
+
+"""
+# models.py
+class AdministrationManager(BaseUserManager):
+    def create_user(self, email, nom, mot_de_passe, **kwargs):
+        if not email:
+            raise ValueError(_('L\'adresse email est obligatoire'))
+        email = self.normalize_email(email)
+        user = self.model(email=email, nom=nom, **kwargs)
+        user.set_password(mot_de_passe)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, nom, mot_de_passe=None, **kwargs):
+    
+        kwargs.setdefault('is_staff', True)
+        kwargs.setdefault('is_superuser', True)
+
+        if kwargs.get('is_staff') is not True:
+            raise ValueError(_('Le superutilisateur doit avoir is_staff=True.'))
+        if kwargs.get('is_superuser') is not True:
+            raise ValueError(_('Le superutilisateur doit avoir is_superuser=True.'))
+
+        # Appelle create_user avec le mot de passe fourni par la commande createsuperuser
+        return self.create_user(email, nom, mot_de_passe, **kwargs)
+
+
+class Administration(AbstractBaseUser, PermissionsMixin):
+    Identifiant = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=150)
+    prenom = models.CharField(max_length=250)
+    email = models.EmailField(max_length=300, unique=True)
+    Numero = models.CharField(max_length=15)
+    date_naissance = models.DateField(default=datetime.date(2000, 1, 1))
+    num_CNIB = models.CharField(max_length=20)
+    choix_sexe = [
+        ('SELECTIONNER', "SELECTIONNER"),
+        ('MASCULIN', "MASCULIN"),
+        ('FEMININ', "FEMININ")
+    ]
+    sexe = models.CharField(max_length=12, choices=choix_sexe, default='SELECTIONNER')
+    date_ajout = models.DateField(auto_now=True)
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nom']
+
+    objects = AdministrationManager()
+
+    class Meta:
+        ordering = ['-date_ajout']
+        verbose_name = "Administration"
+        verbose_name_plural = "Administrations"
+    
+    def __str__(self):
+        return self.nom
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser or self.is_active
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser or self.is_active
+
+"""
+
+
+
+
 ############# On crée à ce niveau une classe pour prof et filiere ######### 
 class Enseignement(models.Model):
     professeur=models.ForeignKey(professeurs,related_name='prof',on_delete=models.CASCADE)

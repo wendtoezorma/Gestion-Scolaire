@@ -1,31 +1,39 @@
-from .decorators import admin_required, student_required
 
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import check_password, make_password
+from .models import Etudiant
+from .forms import EtudiantCreationForm, EtudiantLoginForm, UpdatePasswordForm
+from .paswords_generators import generateur_mdp
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from .models import Administration
 from .forms import *
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LogoutView
+from django.urls import reverse_lazy
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import SetPasswordForm
+import pandas as pd
+from django.http import HttpResponse
+from .models import Emploi
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from django.shortcuts import render
+from .forms import GenerateTimetableForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
 
 from django.contrib.auth.models import User
-
 from django.http import HttpResponseForbidden
-
-#debut
-
-from .decorators import admin_required, student_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from .models import *
-from .forms import *
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import SetPasswordForm
@@ -34,91 +42,80 @@ from django.contrib.auth.decorators import login_required
 from .models import Etudiant, Notes, Enseignement, Cours_Module
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
 from django.contrib.auth.models import User
-
 from django.http import HttpResponseForbidden
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import check_password, make_password
 from .models import Etudiant
 from .forms import EtudiantCreationForm, EtudiantLoginForm, UpdatePasswordForm
-
 from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from GestionScolaire.settings import EMAIL_HOST_USER
+from django.contrib.auth.forms import PasswordResetForm
+from django.core.mail import send_mail
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import io
+import os
+from django.conf import settings
+# Exemple de vue pour envoyer un email de réinitialisation
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.tokens import default_token_generator
 
 
 
-# Create your views here.
+
+
+
 def index(request):
     return render(request,"Administration/index.html")
 
 
-def connexion(request):
+
+
+from django.contrib.auth import authenticate, login  # Importer le login et authenticate
+from django.contrib import messages  # Importer messages
+
+def administration_login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            nom = form.cleaned_data.get('nom')
             email = form.cleaned_data.get('email')
-            mot_de_passe = form.cleaned_data.get('mot_de_passe')
-            try:
-                user = Administration.objects.get(email=email,nom=nom) 
-                if mot_de_passe == user.mot_de_passe and nom == user.nom:
-                    #auth_login(request, user)
-                    return redirect('admin_dashboard')  # Rediriger vers une page d'accueil ou tableau de bord
-                else:
-                    messages.error(request, "Mot de passe incorrect.")
-            except Administration.DoesNotExist:
-                messages.error(request, "Adresse email non trouvée.")
-        else:
-            messages.error(request, "Veuillez vérifier les informations saisies.")
+            password = form.cleaned_data.get('password')
+            user = authenticate(request=request, email=email, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('admin_dashboard')
+            else:
+                form.add_error(None, 'Email ou mot de passe incorrect.')
     else:
         form = LoginForm()
-    return render(request, "Administration/connexion.html", {'form': form})
 
-######################## MOT DE PASSE OUBLIE  ######################
-
-
-def forgot_password(request):
-    if request.method=='POST':
-        email= request.POST.get("email")
-        #La ligne suivante verifie si l'email existe dans la base de donnée, plus précisement dans la table Administration
-        user = Administration.objects.filter(email=email).first()
-        
-        """subject='Mot de passe oublié'
-        message = f"Mr/Mme.{user.nom}  merci pour votre boulot"
-    
-        recipient_list = [email]
-        send_mail(subject, message, EMAIL_HOST_USER, recipient_list, fail_silently=True)"""
-         
-        
-        '''if user:
-            print("send email")
-            msg=EmailMessage(
-                "Test send email django",
-                "Bonjour juste un test",
-                ######## EMETEUR ########
-                "gedeonouedraogo15@gmail.com",
-                ######### Recepteur #######
-                [user.email]
-            )
-            
-        else:
-            print("user does not exist")'''
-    return render(request,"Administration/forgot_password.html", {})
-
-######################## MOT DE PASSE OUBLIE  ######################
-
-def update_password(request):
-    return render(request,"Administration/update_password.html")
+    return render(request, 'registration/login.html', {'form': form})
 
 
+class CustomLogoutView(LogoutView):
+    template_name = None
+    success_url = reverse_lazy('home')
 
 # la page ou il y aura tous les elements concernant l'admin
 
-#@login_required(login_url='connexion')
+@login_required(login_url='login')
 def admin_dashboard (request):
     total_etudiants = Etudiant.objects.count()
     total_etudiants_masculin = Etudiant.objects.filter(sexe_etudiant='Masculin').count()
@@ -139,12 +136,8 @@ def admin_dashboard (request):
     return render(request,"Administration/admin_dashboard.html",context)
 
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.hashers import check_password, make_password
-from .models import Etudiant
-from .forms import EtudiantCreationForm, EtudiantLoginForm, UpdatePasswordForm
-from .paswords_generators import generateur_mdp
 
+@login_required(login_url='login')
 def inscription_etudiant(request):
     if request.method == 'POST':
         form = EtudiantCreationForm(request.POST)
@@ -189,36 +182,11 @@ def etudiant_login(request):
     return render(request, 'Administration/etudiant_login.html', {'form': form})
 
 
-def update_password(request, etudiant_id):
-    try:
-        etudiant = Etudiant.objects.get(matricule=etudiant_id)
-    except Etudiant.DoesNotExist:
-        return redirect('etudiant_login')
-
-    if request.method == 'POST':
-        form = UpdatePasswordForm(request.POST)
-        if form.is_valid():
-            nouveau_mot_de_passe = form.cleaned_data['nouveau_mot_de_passe']
-            etudiant.mdp_etudiant = make_password(nouveau_mot_de_passe)
-            etudiant.password_updated = True
-            etudiant.save()
-            # Authentifier l'étudiant et créer une session
-            request.session['etudiant_id'] = etudiant.matricule
-            return redirect('student_dashboard')#admin_dashboard
-    else:
-        form = UpdatePasswordForm()
-    return render(request, 'Administration\changer_mot_de_passe_etudiant.html', {'form': form})
-
-
 def student_dashboard(request):
 
-    return render(request, 'Administration\student_dashboard.html')
+    return render(request, 'Administration/student_dashboard.html')
     
-
-#vue pour l'enregistrement d'un cours
-
-#creer une filiere 
-
+@login_required(login_url='login')
 def creer_filiere(request):
     if request.method == 'POST':
         form = FiliereForm(request.POST)
@@ -229,7 +197,7 @@ def creer_filiere(request):
         form = FiliereForm()
     return render(request, 'Administration/creer_filiere.html', {'form': form})
 
-
+@login_required(login_url='login')
 def creer_cours(request): 
 
 
@@ -248,7 +216,8 @@ def creer_cours(request):
 
 
 
-# vue pur creer un prof 
+# vue pur creer un prof
+@login_required(login_url='login') 
 def creer_professeur(request):
     if request.method == 'POST':
         form = ProfesseurForm(request.POST)
@@ -259,10 +228,7 @@ def creer_professeur(request):
         form = ProfesseurForm()
     return render(request, 'Administration/creer_professeur.html', {'form': form})
 
-
-#cajouter des notes
-
-
+@login_required(login_url='login')
 def creer_note(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
@@ -295,7 +261,7 @@ def creer_note(request):
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée
 
-
+@login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
     etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
     context = {
@@ -306,19 +272,13 @@ def liste_etudiants_par_classe(request, filiere_id, niveau):
     return render(request, 'Administration/classe.html', context)
 
 
-
-
-#selectionner le niveau et la filiere 
+@login_required(login_url='login')
 def tri_pour_classe(request):
     filieres = Filiere.objects.all()
     niveaux = Etudiant.objects.values_list('niveau_etudiant', flat=True).distinct()
     return render(request, 'Administration/tri_pour_classe.html', {'filieres': filieres, 'niveaux': niveaux})
 
-
- 
-
-
-
+@login_required(login_url='login')
 def select_module(request, filiere_id, niveau):
     modules = Cours_Module.objects.filter(filiere_id=filiere_id)
     context = {
@@ -330,7 +290,7 @@ def select_module(request, filiere_id, niveau):
 
 
 
-
+@login_required(login_url='login')
 def creer_note(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
@@ -361,9 +321,9 @@ def creer_note(request):
             )
             note.save()
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée
+        return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée 
     
-
+@login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
     etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
     modules = Cours_Module.objects.filter(filiere_id=filiere_id)
@@ -377,13 +337,13 @@ def liste_etudiants_par_classe(request, filiere_id, niveau):
 
 
 #selectionner le niveau et la filiere 
-
+@login_required(login_url='login')
 def tri_pour_classe(request):
     filieres = Filiere.objects.all()
     niveaux = Etudiant.objects.values_list('niveau_etudiant', flat=True).distinct()
     return render(request, 'Administration/tri_pour_classe.html', {'filieres': filieres, 'niveaux': niveaux})
 
-# vue pour afficher la moyenne d'un etudiant 
+ 
 
 #@login_required
 def student_Notes(request):
@@ -452,7 +412,7 @@ def student_Notes(request):
     # Rend le template avec le contexte contenant les notes de l'étudiant
     return render(request, 'Administration/student_voir_note.html', context)
 
-
+@login_required(login_url='login')
 def modifier_note(request, note_id):
     note = get_object_or_404(Notes, Id_note=note_id)
     
@@ -501,18 +461,7 @@ def voir_notes(request, filiere_id, niveau):
     else:
         return redirect('admin_dashboard')
 
-
-
-
-
-import pandas as pd
-from django.http import HttpResponse
-from .models import Emploi
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from reportlab.lib import colors
-from django.shortcuts import render
-from .forms import GenerateTimetableForm
-
+@login_required(login_url='login')
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -561,12 +510,6 @@ def upload_file(request):
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
 
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-import io
-import os
-from django.conf import settings
-
 def display_table(request):
     file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_excel.xlsx')
     df = pd.read_excel(file_path)
@@ -575,3 +518,64 @@ def display_table(request):
     table_html = df.to_html(index=False)
 
     return render(request, 'display_table.html', {'table_html': table_html})
+ ### tous ece qui concerne le mdp oublier 
+
+ # pour l'amin 
+
+def password_reset_request(request):
+    if request.method == "POST":
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            # Vérifiez si l'email existe dans la base de données
+            if User.objects.filter(email=email).exists():
+                user = User.objects.get(email=email)
+                subject = "Réinitialisation de votre mot de passe"
+                email_template_name = 'registration/password_reset_email.html'
+                c = {
+                    'email': email,
+                    'domain': get_current_site(request).domain,
+                    'site_name': 'Votre Site',
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'user': user,
+                    'token': default_token_generator.make_token(user),
+                    'protocol': 'https' if request.is_secure() else 'http',
+                }
+                email_message = render_to_string(email_template_name, c)
+                send_mail(subject, email_message, settings.DEFAULT_FROM_EMAIL, [email])
+            return redirect('password_reset_done')
+    else:
+        form = PasswordResetForm()
+    return render(request, 'registration/password_reset_form.html', {'form': form})
+
+
+class CustomPasswordResetView(PasswordResetView):
+    email_template_name = 'registration/password_reset_email.html'
+    success_url = reverse_lazy('password_reset_done')
+    subject_template_name = 'registration/password_reset_subject.txt'
+    token_generator = default_token_generator
+    template_name = 'registration/password_reset_form.html'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    
+def test_email_view(request):
+    if request.method == 'POST':
+        send_mail(
+            'Test Email',
+            'Ceci est un email de test depuis Django.',
+            'bonfilswendtoe@gmail.com',  # Ton adresse Gmail
+            ['wendtoezorma@gmail.com'],  # Adresse du destinataire
+            fail_silently=False,
+        )
+        return render(request, 'Administration/test_email.html', {'message': 'Email de test envoyé avec succès!'})
+    return render(request, 'Administration/test_email.html')
+
+
+
+
+
+
+
+
+
+
+
