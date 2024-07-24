@@ -9,10 +9,14 @@ from django.contrib.auth.admin import UserAdmin
     form = AdministrationAdminForm"""
     
 class AdminEtudiant(admin.ModelAdmin):
+<<<<<<< HEAD
     list_display=("matricule",'nom_etudiant','prenom_etudiant',"niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout')
 
 class AdminBoursier(admin.ModelAdmin):
     list_display=('type_bourse',"reduction")
+=======
+    list_display=("matricule",'nom_etudiant','prenom_etudiant',"email_etudiant","boursier","mdp_etudiant",'date_ajout')
+>>>>>>> origin/master
 
 class AdminFiliere(admin.ModelAdmin):
     list_display=('nom_filiere',)
@@ -105,5 +109,9 @@ admin.site.register(Cours_Module,Adminmodule)
 admin.site.register(professeurs,AdminProfesseur)
 admin.site.register(Enseignement,AdminEnseignement)
 admin.site.register(Scolarite,AdminScolarite)
+<<<<<<< HEAD
 admin.site.register(Boursier,AdminBoursier)
+=======
+
+>>>>>>> origin/master
 

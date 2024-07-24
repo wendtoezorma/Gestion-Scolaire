@@ -88,6 +88,7 @@ class Cours_Module(models.Model):
     def __str__(self):
         return self.nom_module
     
+<<<<<<< HEAD
 class Boursier(models.Model):
     TYPE_CHOICES = [
         ('non_boursier', 'Non Boursier'),
@@ -100,6 +101,9 @@ class Boursier(models.Model):
 
     def __str__(self):
         return self.type_bourse
+=======
+
+>>>>>>> origin/master
 
 
 class Etudiant(models.Model):
@@ -131,9 +135,14 @@ class Etudiant(models.Model):
     date_ajout = models.DateField(auto_now=True)
     filiere = models.ForeignKey(Filiere, related_name='etudiants', on_delete=models.CASCADE, null=True)
     password_updated = models.BooleanField(default=False)  # Ajoutez ce champ pour vérifier si le mot de passe a été mis à jour
+<<<<<<< HEAD
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
     Connecter=models.BooleanField(default=False,null=True)
     
+=======
+    boursier=models.BooleanField(default=False,null=True)
+    Connecter=models.BooleanField(default=False,null=True)
+>>>>>>> origin/master
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
