@@ -1,0 +1,146 @@
+{% extends "Administration/base.html" %}
+{% block title %}Sélection du module pour ajouter des notes{% endblock %}
+
+{% block content %}
+<div class="background">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+</div>
+
+<h1>Sélection du module pour ajouter des notes</h1><br>
+<form method="get" action="{% url 'creer_note' %}">
+    <label for="module">Choisir un module :</label>
+    <select name="module_id" id="module">
+        {% for module in modules %}
+            <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+        {% endfor %}
+    </select>
+    <input type="hidden" name="filiere_id" value="{{ filiere_id }}">
+    <input type="hidden" name="niveau" value="{{ niveau }}">
+    <button type="submit">Sélectionner</button>
+</form>
+{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+
+<style>
+/* Styles spécifiques au template enfant */
+body {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
+    background: none !important; /* Supprime l'arrière-plan par défaut */
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
+    animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+}
+
+@keyframes bubbleAnimation {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-100%, 100%); }
+    100% { transform: translate(0, 0); }
+}
+
+form {
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    text-align: center;
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 2;
+}
+
+form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+form select,
+form button {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+form button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+</style>
+{% endblock %}
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélection du module</title>
+</head>
+<body>
+    <h1>Sélection du module pour ajouter des notes</h1>
+    <form method="get" action="{% url 'creer_note' %}">
+        <label for="module">Choisir un module:</label>
+        <select name="module_id" id="module">
+            {% for module in modules %}
+                <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="filiere_id" value="{{ filiere_id }}">
+        <input type="hidden" name="niveau" value="{{ niveau }}">
+        <button type="submit">Sélectionner</button>
+    </form>
+</body>
+</html>-->
+

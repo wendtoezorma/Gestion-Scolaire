@@ -1,0 +1,76 @@
+/* form.css */
+
+/* Styles pour l'arrière-plan animé */
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #0e0e0e;
+}
+
+.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.bubble {
+    position: absolute;
+    bottom: -100px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: rise 20s infinite;
+}
+
+@keyframes rise {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-1000px);
+        opacity: 0;
+    }
+}
+
+/* Styles pour varier la taille et la position des bulles */
+.bubble:nth-child(1) {
+    width: 40px;
+    height: 40px;
+    left: 20%;
+    animation-duration: 25s;
+    animation-delay: 2s;
+}
+
+.bubble:nth-child(2) {
+    width: 20px;
+    height: 20px;
+    left: 40%;
+    animation-duration: 20s;
+    animation-delay: 4s;
+}
+
+.bubble:nth-child(3) {
+    width: 50px;
+    height: 50px;
+    left: 60%;
+    animation-duration: 22s;
+    animation-delay: 0s;
+}
+
+.bubble:nth-child(4) {
+    width: 30px;
+    height: 30px;
+    left: 80%;
+    animation-duration: 18s;
+    animation-delay: 6s;
+}
+
+.bubble:nth-child(5) {
+    width: 60px;
+    height: 60px;
+    left: 50%;
+    animation-duration: 23s;
+    animation-delay: 8s;
+}

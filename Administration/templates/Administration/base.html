@@ -1,0 +1,474 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Dashboard{% endblock %}</title>
+  <!-- ======= Styles ====== -->
+  <link rel="stylesheet" href="{% static 'Administration/css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  {% block styles %}
+  <style>
+      /* =========== Google Fonts ============ */
+      @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap");
+
+      /* =============== Globals ============== */
+      * {
+          font-family: "Ubuntu", sans-serif;
+          margin: 0;
+          padding: 0; 
+          box-sizing: border-box;
+      }
+
+      :root {
+          --blue: #070768;
+          --white: #fff;
+          --gray: #f5f5f5;
+          --black1: #222;
+          --black2: #999;
+      }
+
+      body {
+          min-height: 100vh;
+          overflow-x: hidden;
+          background-color: var(--gray);
+      }
+
+      .container {
+          position: relative;
+          width: 100%;
+      }
+
+      /* ===================== Entête ===================== */
+      
+
+      .topbar .logo {
+          display: flex;
+          align-items: center;
+      }
+
+      .topbar .logo img {
+          width: 50px;
+          height: 50px;
+          margin-right: 10px;
+      }
+
+      .topbar .logo span {
+          font-size: 1.5rem;
+          font-weight: 700;
+      }
+
+      .topbar .search {
+          position: relative;
+          width: 400px;
+      }
+
+      .topbar .search label {
+          position: relative;
+          width: 100%;
+      }
+
+      .topbar .search label input {
+          width: 100%;
+          height: 40px;
+          border-radius: 40px;
+          padding: 5px 20px;
+          padding-left: 35px;
+          font-size: 18px;
+          outline: none;
+          border: 1px solid var(--black2);
+      }
+
+      .topbar .search label ion-icon {
+          position: absolute;
+          top: 0;
+          left: 10px;
+          font-size: 1.2rem;
+      }
+
+      /* ===================== Pied de page ===================== */
+      .topbar {
+  width: calc(100% - 300px); /* Largeur totale moins la largeur du menu */
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background: var(--white);
+  color: var(--black1);
+  position: fixed;
+  top: 0;
+  left: 300px; /* Déplacer .topbar pour qu'il commence après le menu */
+  z-index: 1000; /* Assurez-vous que c'est plus élevé que le menu */
+}
+.navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px; /* Largeur du menu latéral */
+  height: 100vh; /* Hauteur complète de la fenêtre */
+  background: var(--blue); /* Couleur de fond du menu */
+  color: var(--white); /* Couleur du texte dans le menu */
+  z-index: 900; /* Assurez-vous que le menu est en dessous de .topbar */
+  overflow: auto; /* Ajoute un défilement si le contenu dépasse la hauteur */
+  display: flex;
+  flex-direction: column;
+}
+.navigation.active {
+  width: 80px;
+}
+
+.navigation ul {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.navigation ul li {
+  position: relative;
+  width: 100%;
+  list-style: none;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+}
+
+.navigation ul li:hover,
+.navigation ul li.hovered {
+  background-color: var(--white);
+}
+
+.navigation ul li:nth-child(1) {
+  margin-bottom: 40px;
+  pointer-events: none;
+}
+
+.navigation ul li a {
+  position: relative;
+  display: block;
+  width: 100%;
+  display: flex;
+  text-decoration: none;
+  color: var(--white);
+}
+.navigation ul li:hover a,
+.navigation ul li.hovered a {
+  color: var(--blue);
+}
+
+.navigation ul li a .icon {
+  position: relative;
+  display: block;
+  min-width: 60px;
+  height: 60px;
+  line-height: 75px;
+  text-align: center;
+}
+.navigation ul li a .icon ion-icon {
+  font-size: 1.75rem;
+}
+
+.navigation ul li a .title {
+  position: relative;
+  display: block;
+  padding: 0 10px;
+  height: 60px;
+  line-height: 60px;
+  text-align: start;
+  white-space: nowrap;
+}
+
+
+/* --------- curve outside ---------- */
+.navigation ul li:hover a::before,
+.navigation ul li.hovered a::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -50px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 35px 35px 0 10px var(--white);
+  pointer-events: none;
+}
+.navigation ul li:hover a::after,
+.navigation ul li.hovered a::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -50px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 35px -35px 0 10px var(--white);
+  pointer-events: none;
+}
+
+.main {
+  padding-top: 80px; /* Hauteur de .topbar */
+  padding-bottom: 60px; /* Hauteur du pied de page */
+  margin-left: 300px; /* Largeur du menu latéral */
+  transition: margin-left 0.3s;
+  width: calc(100% - 300px); /* Calcul pour la largeur restante après déduction de la largeur du menu */
+
+  @media (max-width: 991px) {
+    .main {
+      margin-left: 80px; /* Ajuster pour les écrans plus petits */
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main {
+      margin-left: 0; /* Ajuster pour les écrans très petits */
+    }
+  }
+}
+.main.active {
+  width: calc(100% - 80px);
+  left: 80px;
+}
+
+.topbar {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.toggle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+/* Style général pour le bouton de déconnexion */
+
+
+
+  </style>
+  {% endblock %}
+  {% block extra_css %}
+  {% if not block.super %}
+      <!-- Styles facultatifs uniquement si le block extra_css n'est pas défini dans le template enfant -->
+      <link rel="stylesheet" href="assets/Administration/css/style.css">
+  {% endif %}
+  {% endblock %}
+  
+</head>
+<body>
+  
+  <!-- =============== Navigation ================ -->
+</form>
+  <div class="container">
+    <div class="navigation"> 
+      
+      <ul>
+        <li>
+          <a href="#" class="active"> <!-- Ajoutez la classe 'active' pour le lien actif -->
+            <span class="icon">
+              <i class="fas fa-desktop"></i>
+            </span>
+            <span class="title">BIENVENUE</span>
+            
+          </a>
+        </li>
+        
+        <li>
+          <a href="{% url 'admin_dashboard' %}">
+            <span class="icon">
+              <ion-icon name="home-outline"></ion-icon>
+            </span>
+            <span class="title">Accueil</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'creer_filiere' %}"> 
+            <span class="icon">
+              <ion-icon name="school-outline"></ion-icon> 
+            </span>
+            <span class="title">a jouter une Filière</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="{% url 'inscription_etudiant' %}">
+            <span class="icon">
+              <ion-icon name="people-outline"></ion-icon>
+            </span>
+            <span class="title">Ajouter Etudiants</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'creer_professeur' %}">
+            <span class="icon">
+              <ion-icon name="people-outline"></ion-icon>
+            </span>
+            <span class="title">ajouter un enseignant</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <span class="icon">
+              <ion-icon name="cash-outline"></ion-icon>
+            </span>
+            <span class="title">Scolarité</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'tri_pour_classe' %}">
+            <span class="icon">
+              <ion-icon name="book-outline"></ion-icon>
+            </span>
+            <span class="title">Ouvrir une classe</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'upload_file'%}">
+            <span class="icon">
+              <ion-icon name="settings-outline"></ion-icon>
+            </span>
+            <span class="title">Settings</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <span class="icon">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+            </span>
+            <span class="title">Password</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'creer_cours' %}">
+            <span class="icon">
+              <ion-icon name="log-out-outline"></ion-icon>
+            </span>
+            <span class="title">Ajouter Cours</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'upload_file'%}">
+              <span class="icon">
+                  <ion-icon name="calendar-outline"></ion-icon>
+              </span>
+              <span class="title">emploi du temps</span>
+          </a>
+      </li>
+      <li class="menu-item logout">
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="menu-link">
+            <span class="icon">
+              <ion-icon name="log-out-outline"></ion-icon>
+            </span>
+            <span class="title">Déconnexion</span>
+          </button>
+        </form>
+      </li>
+      
+      </ul>
+    </div>
+    
+    <div class="main">
+      <!-- =============== Entête ===================== -->
+      <div class="topbar">
+        <div class="logo">
+          <!-- Logo de l'application (ajout par défaut) -->
+        <!-- Ajoutez ce code à la topbar -->
+        <div class="toggle">
+          <i class="fas fa-bars"></i> <!-- Icône de menu -->
+        </div>
+
+          <img src="{% static 'Administration/images/default_logo.png' %}" alt="Logo">
+          <span>Nom de l'ecode </span>
+        </div>
+        <div class="search">
+          <label>
+            <input type="text" placeholder="Rechercher ici">
+            <ion-icon name="search-outline"></ion-icon>
+          </label>
+        </div>
+        <div class="user">
+          <!-- Image de l'utilisateur connectée -->
+          <img src="{% static 'Administration/images/success_.gif' %}" alt="Utilisateur">
+        </div>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+ 
+
+  <!-- =========== Pied de page ========== 
+  <div class="footer">
+    <div class="year">Année Scolaire 2024-2025</div>
+    <div class="designers">Concepteur: Workgroup</div>
+  </div>-->
+
+  <!-- =========== Scripts ========== -->
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+  <!-- Script personnalisé -->
+  <script>
+    // add hovered class to selected list item
+let list = document.querySelectorAll(".navigation li");
+
+function activeLink() {
+  list.forEach((item) => {
+    item.classList.remove("hovered");
+  });
+  this.classList.add("hovered");
+}
+
+list.forEach((item) => item.addEventListener("mouseover", activeLink));
+
+// Menu Toggle
+let toggle = document.querySelector(".toggle");
+let navigation = document.querySelector(".navigation");
+let main = document.querySelector(".main");
+
+toggle.onclick = function () {
+  navigation.classList.toggle("active");
+  main.classList.toggle("active");
+};
+
+// ******************* Scripts pour les infos utilisateur (admin ) connecté ********************
+
+document.addEventListener("DOMContentLoaded", function() {
+  var userIcon = document.getElementById("userIcon");
+  var userInfo = document.getElementById("userInfo");
+
+  userIcon.addEventListener("click", function() {
+    userInfo.style.display = "block"; // Afficher la fenêtre
+    userInfo.style.zIndex = "1000"; // Assurez-vous que le z-index est élevé
+  });
+
+  // Cacher la fenêtre lorsque l'utilisateur clique en dehors
+  document.addEventListener("click", function(event) {
+    if (!userInfo.contains(event.target) && !userIcon.contains(event.target)) {
+      userInfo.style.display = "none";
+    }
+  });
+});
+</script>
+
+
+</html>
