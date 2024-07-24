@@ -55,6 +55,6 @@ def calculate_total(self):
             # Seulement frais d'inscription par exemple
             montant = 45000.00  # Exemple de frais d'inscription
         else:
-            montant *= (self.etudiant.bourse.reduction )
+            montant *= (self.etudiant.bourse.reduction)
 
-    return montant
+    return montant 
