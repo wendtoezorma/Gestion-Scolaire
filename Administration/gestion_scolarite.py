@@ -58,3 +58,6 @@ def calculate_total(self):
             montant *= (self.etudiant.bourse.reduction)
 
     return montant 
+
+def totaux(self):
+    pass

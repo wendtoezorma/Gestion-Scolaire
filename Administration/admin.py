@@ -30,7 +30,7 @@ class AdminEnseignement(admin.ModelAdmin) :
     list_display=("professeur",'module_enseigner')
     
 class AdminScolarite(admin.ModelAdmin):
-    list_display=("etudiant","tranche_1","tranche_2","tranche_3","total","Montant_restant")
+    list_display=("etudiant","tranche_1","tranche_2","tranche_3","total","montant_total_verse","Montant_restant")
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin

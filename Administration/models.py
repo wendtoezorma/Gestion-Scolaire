@@ -126,21 +126,31 @@ class Etudiant(models.Model):
         ('MASTER2', "MASTER2"),
         ('DOCTORAT', "DOCTORAT"),
     ], default='Selectionner')
-    annee_academique_etudiant = models.CharField(max_length=100)
+    annee_academique_etudiant = models.CharField(max_length=100, choices=[
+        ('2022/2023', "2022/2023"),
+        ('2023/2024', "2023/2024"),
+        ('2024/2025', "2024/2025"),
+        ('2025/2026', "2025/2026"),
+        ('2026/2027', "2026/2027"),
+        ('2027/2028', "2027/2028"),
+        ('2028/2029', "2028/2029"),
+    ], default='Selectionner') 
     mdp_etudiant = models.CharField(max_length=200, blank=True)
     date_ajout = models.DateField(auto_now=True)
     filiere = models.ForeignKey(Filiere, related_name='etudiants', on_delete=models.CASCADE, null=True)
     password_updated = models.BooleanField(default=False)  # Ajoutez ce champ pour vérifier si le mot de passe a été mis à jour
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
     Connecter=models.BooleanField(default=False,null=True)
-    
+    montant_total_verse = models.DecimalField(max_digits=10, decimal_places=2)
+    montant_restant = models.DecimalField(max_digits=10, decimal_places=2)
+
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
     
     def __str__(self):
-        return self.nom_etudiant
+        return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
     
 
 class Notes(models.Model):
@@ -335,6 +345,8 @@ class Scolarite(models.Model):
     tranche_3 = models.FloatField(default=0)
     total = models.FloatField(default=0, editable=False)
     Montant_restant = models.FloatField(editable=False, default=0.0)
+    montant_total_verse = models.FloatField(editable=False, default=0.0)
+    
     date_payement = models.DateField(auto_now=True)
 
     class Meta:
@@ -347,13 +359,17 @@ class Scolarite(models.Model):
     from .gestion_scolarite import calculate_total    
     def save(self, *args, **kwargs):
         self.total = self.calculate_total()
-        self.Montant_restant = self.total - (self.tranche_1 + self.tranche_2 + self.tranche_3)
+        self.montant_total_verse=(self.tranche_1 + self.tranche_2 + self.tranche_3)
+        self.Montant_restant = self.total - self.montant_total_verse
         super(Scolarite, self).save(*args, **kwargs)
 
 
     def __str__(self):
         return f"Payement de {self.etudiant.nom_etudiant} {self.etudiant.prenom_etudiant} {self.etudiant.filiere} {self.etudiant.niveau_etudiant}"
     
+    @property
+    def montant_total_verse(self):
+        return self.tranche_1 + self.tranche_2 + self.tranche_3
     @classmethod
     def get_totaux(cls):
         return cls.objects.aggregate(total_sum=models.Sum('total'))['total_sum'] or 0
