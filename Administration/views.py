@@ -159,6 +159,7 @@ def inscription_etudiant(request):
         form = EtudiantCreationForm()
     return render(request, "Administration/insrciption_etudiant.html", {'form': form})
 
+
 def etudiant_login(request):
     if request.method == 'POST':
         form = EtudiantLoginForm(request.POST)
@@ -167,8 +168,10 @@ def etudiant_login(request):
             mot_de_passe = form.cleaned_data['mot_de_passe']
             try:
                 etudiant = Etudiant.objects.get(email_etudiant=email)
-                if check_password(mot_de_passe, etudiant.mdp_etudiant):
+                if etudiant.check_password(mot_de_passe):
                     if not etudiant.password_updated:
+
+                        # Rediriger vers la mise à jour du mot de passe si ce n'est pas encore fait
                         return redirect('update_password', etudiant_id=etudiant.matricule)
                     # Authentifier l'étudiant et créer une session
                     request.session['etudiant_id'] = etudiant.matricule
@@ -180,6 +183,28 @@ def etudiant_login(request):
     else:
         form = EtudiantLoginForm()
     return render(request, 'Administration/etudiant_login.html', {'form': form})
+
+def update_password(request, etudiant_id):
+    try:
+        etudiant = Etudiant.objects.get(matricule=etudiant_id)
+    except Etudiant.DoesNotExist:
+        return redirect('etudiant_login')
+
+    if request.method == 'POST':
+        form = UpdatePasswordForm(request.POST)
+        if form.is_valid():
+            nouveau_mot_de_passe = form.cleaned_data['nouveau_mot_de_passe']
+            etudiant.set_password(nouveau_mot_de_passe)  # Hash le nouveau mot de passe
+            # Stocker l'identifiant de l'étudiant dans la session
+            request.session['etudiant_id'] = etudiant.matricule
+            return redirect('student_dashboard')
+        else:
+            form.add_error(None, "Erreur lors de la mise à jour du mot de passe. Veuillez réessayer.")
+    else:
+        form = UpdatePasswordForm()
+    
+    return render(request, 'Administration/changer_mot_de_passe_etudiant.html', {'form': form})
+
 
 
 def student_dashboard(request):
@@ -570,12 +595,42 @@ def test_email_view(request):
     return render(request, 'Administration/test_email.html')
 
 
+#voir ses moyenne en tant qu'etudiant 
+    #vue pour que les etudiants voi leur notes et moyenne
+    from django.shortcuts import render, get_object_or_404
 
 
+#pour qu'un etudiant puissent voir ses note
+from .models import Etudiant, Notes, Cours_Module
 
+def etudiant_notes(request):
+    # Assurez-vous que l'étudiant est connecté et qu'il a une session active
+    etudiant_id = request.session.get('etudiant_id')
+    if not etudiant_id:
+        return redirect('etudiant_login')  # Rediriger vers la page de connexion si non authentifié
 
+    etudiant = get_object_or_404(Etudiant, matricule=etudiant_id)
+    # Récupérer toutes les notes de l'étudiant
+    notes = Notes.objects.filter(etudiant=etudiant)
+    
+    return render(request, 'Administration/etudiant_notes.html', {'etudiant': etudiant, 'notes': notes})
 
+#afficher tous les modules de la classe deja enregistrer 
+def modules_classe(request):
+    # Assurez-vous que l'étudiant est connecté et qu'il a une session active
+    etudiant_id = request.session.get('etudiant_id')
+    if not etudiant_id:
+        return redirect('etudiant_login')  # Rediriger vers la page de connexion si non authentifié
 
-
-
-
+    etudiant = get_object_or_404(Etudiant, matricule=etudiant_id)
+    # Récupérer tous les modules de la filière de l'étudiant
+    modules = Cours_Module.objects.filter(filiere=etudiant.filiere)
+    
+    return render(request, 'Administration/modules_classe.html', {'etudiant': etudiant, 'modules': modules})
+#permet de voir tous les informatons de l'etudiant
+def student_profile(request):
+    # Récupère l'étudiant connecté à partir de la session
+    etudiant = get_object_or_404(Etudiant, matricule=request.session.get('etudiant_id'))
+    
+    # Passe les informations de l'étudiant au template
+    return render(request, 'etudiant_profile.html', {'etudiant': etudiant})

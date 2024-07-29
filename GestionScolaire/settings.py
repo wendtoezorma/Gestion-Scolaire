@@ -15,13 +15,6 @@ import os
 
 ################################### Mot de passe oublié, configurations #####################
 
-EMAIL_BACKEND= 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST ="smtp.gmail.com"#meme supprimé sur le telephone , reste sur le server
-EMAIL_PORT = 587 #si c'etai le ssl le port serait ...
-EMAIL_HOST_USER ="gedenouedraogo15@gmail.com"
-EMAIL_HOST_PASSWORD ="kbktqtzqekcpkgku"
-EMAIL_USE_TLS = True##Pour la securité, le cryptage
-EMAIL_USE_SSL = False
 
 
 ################################### Mot de passe oublié, configurations #####################
@@ -52,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "Administration",
-    
+    'api',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -155,7 +149,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Remplace par le serveur SMTP que tu utilises
 EMAIL_PORT = 587  # Port pour TLS, ou 465 pour SSL, ou 25 pour non sécurisé
 EMAIL_USE_TLS = True  # True si tu utilises TLS, False sinon
-EMAIL_USE_SSL = False  # True si tu utilises SSL, False sinon
+  # True si tu utilises SSL, False sinon
 EMAIL_HOST_USER = 'bonfilswendtoe@gmail.com'  # Ton adresse email
 EMAIL_HOST_PASSWORD = 'cmta uzvr ooqs snvo'  # Le mot de passe de ton adresse email
 DEFAULT_FROM_EMAIL = 'bonfilswendtoe@gmail.com'  # L'adresse email par défaut utilisée pour envoyer les emails
@@ -197,22 +191,5 @@ LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = ('admin_dashboard')
 LOGOUT_REDIRECT_URL = ('login')
 
-
-#LOGIN_URL = '/login/'  # URL de la page de connexion
-#LOGIN_REDIRECT_URL = '/admin_dashboard'  # URL de redirection après connexion réussie
-#LOGOUT_REDIRECT_URL = 'login/'  # URL de redirection après déconnexion
-# Utilisez la session de base de Django
-#SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
-# Autres paramètres de session
-#SESSION_COOKIE_NAME = 'your_sessionid'
-#SESSION_COOKIE_AGE = 60 * 60 * 24 * 365 * 10  # 10 ans en secondes
-#SESSION_SAVE_EVERY_REQUEST = True
-#
-#
-#PASSWORD_HASHERS = [
- #   'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-  #  'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-  #  'django.contrib.auth.hashers.Argon2PasswordHasher',
-   # 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
-#]
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_NAME = 'sessionid'

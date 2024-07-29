@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from Administration.views import *
 from django.views.generic.base import RedirectView
 ###Pour le mdp oublié
@@ -32,7 +32,7 @@ urlpatterns = [
     path('inscription_etudiant/',inscription_etudiant,name='inscription_etudiant'),
     #path('etudiant_login', etudiant_login, name= 'etudiant_login')
     path('loginEtuadiant/', etudiant_login, name='etudiant_login'),
-     #path('update-password/<int:etudiant_id>/', update_password, name='update_password'),
+    path('update-password/<int:etudiant_id>/', update_password, name='update_password'),
     path('creer_professeur/',creer_professeur,name ='creer_professeur'),
     path('creer_note/',creer_note, name = 'creer_note'),
     path('classe/<int:filiere_id>/<str:niveau>/', liste_etudiants_par_classe, name='liste_etudiants_par_classe'),
@@ -51,6 +51,8 @@ urlpatterns = [
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
+    path('api/', include('api.urls'))
     
 ]
 

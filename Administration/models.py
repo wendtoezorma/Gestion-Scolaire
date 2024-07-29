@@ -130,6 +130,32 @@ class Etudiant(models.Model):
     def __str__(self):
         return self.nom_etudiant
     
+    def save(self, *args, **kwargs):
+        # Hacher le mot de passe avant d'enregistrer l'objet
+        if self.mdp_etudiant and not self.password_updated:
+            self.mdp_etudiant = make_password(self.mdp_etudiant)
+            self.password_updated = True
+        super().save(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
+        if self.pk is None and self.mdp_etudiant:
+            self.mdp_etudiant = make_password(self.mdp_etudiant)
+        super().save(*args, **kwargs)
+    
+    def set_password(self, raw_password):
+        self.mdp_etudiant = make_password(raw_password)
+        self.password_updated = True
+        self.save()
+    
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.mdp_etudiant)
+    
+    def get_filiere_display(self):
+        if self.filiere:
+            return self.filiere.nom_filiere
+        return "Non spécifié"
+ 
 
 class Notes(models.Model):
     Id_note = models.AutoField(primary_key=True)
@@ -205,14 +231,6 @@ class Administration(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "Administrations"
 
 
-    """def set_password(self, raw_password):
-        self.mot_de_passe = make_password(raw_password)  # Hash le mot de passe
-        self.save()
-
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.mot_de_passe)"""
-    
-
     def __str__(self):
         return self.nom
     
@@ -227,73 +245,6 @@ class Administration(AbstractBaseUser, PermissionsMixin):
         user.save(using=user._db)
         return user
 
-
-"""
-# models.py
-class AdministrationManager(BaseUserManager):
-    def create_user(self, email, nom, mot_de_passe, **kwargs):
-        if not email:
-            raise ValueError(_('L\'adresse email est obligatoire'))
-        email = self.normalize_email(email)
-        user = self.model(email=email, nom=nom, **kwargs)
-        user.set_password(mot_de_passe)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, nom, mot_de_passe=None, **kwargs):
-    
-        kwargs.setdefault('is_staff', True)
-        kwargs.setdefault('is_superuser', True)
-
-        if kwargs.get('is_staff') is not True:
-            raise ValueError(_('Le superutilisateur doit avoir is_staff=True.'))
-        if kwargs.get('is_superuser') is not True:
-            raise ValueError(_('Le superutilisateur doit avoir is_superuser=True.'))
-
-        # Appelle create_user avec le mot de passe fourni par la commande createsuperuser
-        return self.create_user(email, nom, mot_de_passe, **kwargs)
-
-
-class Administration(AbstractBaseUser, PermissionsMixin):
-    Identifiant = models.AutoField(primary_key=True)
-    nom = models.CharField(max_length=150)
-    prenom = models.CharField(max_length=250)
-    email = models.EmailField(max_length=300, unique=True)
-    Numero = models.CharField(max_length=15)
-    date_naissance = models.DateField(default=datetime.date(2000, 1, 1))
-    num_CNIB = models.CharField(max_length=20)
-    choix_sexe = [
-        ('SELECTIONNER', "SELECTIONNER"),
-        ('MASCULIN', "MASCULIN"),
-        ('FEMININ', "FEMININ")
-    ]
-    sexe = models.CharField(max_length=12, choices=choix_sexe, default='SELECTIONNER')
-    date_ajout = models.DateField(auto_now=True)
-
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nom']
-
-    objects = AdministrationManager()
-
-    class Meta:
-        ordering = ['-date_ajout']
-        verbose_name = "Administration"
-        verbose_name_plural = "Administrations"
-    
-    def __str__(self):
-        return self.nom
-
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser or self.is_active
-
-    def has_module_perms(self, app_label):
-        return self.is_superuser or self.is_active
-
-"""
 
 
 
@@ -366,4 +317,3 @@ class Emploi(models.Model):
 
 
 
-    

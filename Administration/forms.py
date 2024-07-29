@@ -116,15 +116,21 @@ class EtudiantCreationForm(forms.ModelForm):
             'filiere', 'mot_de_passe'
         ]
     
-
 class EtudiantLoginForm(forms.Form):
     email = forms.EmailField(label='Email')
-    mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Mot de passe')
-
+    mot_de_passe = forms.CharField(widget=forms.PasswordInput(), label='Mot de passe')
 
 class UpdatePasswordForm(forms.Form):
-    nouveau_mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Nouveau mot de passe')
-    confirmation_mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Confirmer le nouveau mot de passe')
+    nouveau_mot_de_passe = forms.CharField(
+        widget=forms.PasswordInput,
+        label='Nouveau mot de passe',
+        min_length=8,  # Optionnel : vous pouvez ajouter une validation de longueur minimale
+    )
+    confirmation_mot_de_passe = forms.CharField(
+        widget=forms.PasswordInput,
+        label='Confirmer le nouveau mot de passe',
+        min_length=8,  # Optionnel : pour correspondre à la longueur minimale du mot de passe
+    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -166,41 +172,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 
 #formulire de creation d'un compte adminstration 
-"""
-class AdministrationCreationForm(UserCreationForm):
-    class Meta:
-        model = Administration
-        fields = ('email', 'nom', 'prenom', 'Numero', 'date_naissance', 'num_CNIB', 'sexe')
-        widgets = {
-            'date_naissance': forms.DateInput(attrs={'type': 'date'}),
-
-        }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        email = cleaned_data.get('email')
-        username = cleaned_data.get('username')
-        password = cleaned_data.get('password')
-
-        if email and username and password:
-            self.user_cache = authenticate(self.request, email=email, password=password, username=username)
-            if self.user_cache is None:
-                raise forms.ValidationError("Les informations d'identification sont incorrectes.")
-            elif not self.user_cache.is_active:
-                raise forms.ValidationError("Ce compte est inactif.")
-        return self.cleaned_data
-    
-    def get_user(self):
-        return self.user_cache
-
-    
-# Formulaire de modification d'utilisateur personnalisé
-class CustomUserChangeForm(UserChangeForm):
-    class Meta:
-        model = Administration # Spécifie le modèle à utiliser pour ce formulaire
-        fields = ('email', 'nom', 'prenom', 'Numero', 'date_naissance', 'num_CNIB', 'sexe')
-
-"""
 # pour le connexion 
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
@@ -211,28 +182,6 @@ from django import forms
 from .models import Administration
 
 # pour lauthentification
-'''
-User = get_user_model()
-class AdministrationLoginForm(AuthenticationForm):
-    email = forms.EmailField(max_length=254, required=True, widget=forms.EmailInput(attrs={'autofocus': True}))  # Champ pour l'email
-    password = forms.CharField(label="Mot de passe", strip=False, widget=forms.PasswordInput)  # Champ pour le mot de passe
-
-    def clean(self):
-        email = self.cleaned_data.get('email')
-        password = self.cleaned_data.get('password')
-
-        if email and password:
-            self.user_cache = authenticate(self.request, email=email, password=password)
-            if self.user_cache is None:
-                raise forms.ValidationError("Veuillez entrer une adresse email et un mot de passe valides.")  # Message d'erreur pour une connexion invalide
-            elif not self.user_cache.is_active:
-                raise forms.ValidationError("Ce compte est inactif.")  # Message d'erreur si le compte est inactif
-        return self.cleaned_data
-
-    def get_user(self):
-        return self.user_cache  # Retourne l'utilisateur authentifié
-
-'''
 
 
 
