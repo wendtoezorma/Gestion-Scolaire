@@ -9,7 +9,10 @@ from django.contrib.auth.admin import UserAdmin
     form = AdministrationAdminForm"""
     
 class AdminEtudiant(admin.ModelAdmin):
-    list_display=("matricule",'nom_etudiant','prenom_etudiant',"email_etudiant","boursier","mdp_etudiant",'date_ajout')
+    list_display=("matricule",'nom_etudiant','prenom_etudiant',"niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout')
+
+class AdminBoursier(admin.ModelAdmin):
+    list_display=('type_bourse',"reduction")
 
 class AdminFiliere(admin.ModelAdmin):
     list_display=('nom_filiere',)
@@ -27,7 +30,7 @@ class AdminEnseignement(admin.ModelAdmin) :
     list_display=("professeur",'module_enseigner')
     
 class AdminScolarite(admin.ModelAdmin):
-    list_display=("etudiant","tranche_1","tranche_2","tranche_3","total","Montant_restant")
+    list_display=("etudiant","tranche_1","tranche_2","tranche_3","total","montant_total_verse","Montant_restant")
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -102,5 +105,5 @@ admin.site.register(Cours_Module,Adminmodule)
 admin.site.register(professeurs,AdminProfesseur)
 admin.site.register(Enseignement,AdminEnseignement)
 admin.site.register(Scolarite,AdminScolarite)
-
+admin.site.register(Boursier,AdminBoursier)
 

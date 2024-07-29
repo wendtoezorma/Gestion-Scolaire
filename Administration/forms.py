@@ -316,3 +316,33 @@ class AdministrationAdminForm(forms.ModelForm):
             user.save()
         return user
 
+
+from django import forms
+from .models import Scolarite
+
+class ScolariteForm(forms.ModelForm):
+    class Meta:
+        model = Scolarite
+        fields = ['etudiant', 'tranche_1', 'tranche_2', 'tranche_3']
+        widgets = {
+            'etudiant': forms.Select(attrs={'class': 'form-control'}),
+            'tranche_1': forms.NumberInput(attrs={'class': 'form-control'}),
+            'tranche_2': forms.NumberInput(attrs={'class': 'form-control'}),
+            'tranche_3': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+######################### La liste des etudiants pour la scolarité ###################
+
+from django import forms
+from .models import Filiere, Etudiant
+
+class FiltreForm(forms.Form):
+    filiere = forms.ModelChoiceField(queryset=Filiere.objects.all(), required=False, label="Filière")
+    niveau = forms.ChoiceField(choices=Etudiant._meta.get_field('niveau_etudiant').choices, required=False, label="Niveau")
+    annee_academique = forms.CharField(max_length=100, required=False, label="Année Académique")
+
+class Scolarite_Form(forms.ModelForm):
+    class Meta:
+        model = Etudiant
+        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'filiere', 'niveau_etudiant', 'annee_academique_etudiant',"montant_total_verse"]

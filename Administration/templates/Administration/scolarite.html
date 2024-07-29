@@ -1,0 +1,355 @@
+{% extends 'Administration/base.html' %}
+{% block styles %}
+{{ block.super }}
+
+
+<style>
+  /* Styles spécifiques au template enfant */
+  body {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
+    background: none !important; /* Supprime l'arrière-plan par défaut */
+    padding-top: 80px; /* Hauteur de l'entête */
+    margin-left: 0px; /* Largeur du menu latéral */
+    
+  }
+  
+    .card {
+        width: 100%;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card .numbers {
+        font-size: 2em;
+        font-weight: 500;
+    }
+
+    .card .cardName {
+        color: #777;
+    }
+
+    .card .iconBx {
+        font-size: 3em;
+        color: #ffc400;
+    }
+#money{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    text-align: center;
+    margin-left:auto;
+
+}
+#total_solder{
+    color: green;
+}
+#total_caisse{
+    color: green;
+}
+#total_etudiant{
+    color: green;
+}
+  .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background-color: #ffffff; /* Fond blanc */
+    overflow: hidden;
+  }
+
+  @keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+  }
+
+  @keyframes bubbleAnimation {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-100%, 100%); }
+    100% { transform: translate(0, 0); }
+  }
+
+  .background .bubble:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-duration: 10s;
+    animation-delay: 0s;
+  }
+
+  .background .bubble:nth-child(2) {
+    top: 30%;
+    left: 30%;
+    animation-duration: 12s;
+    animation-delay: 2s;
+  }
+
+  .background .bubble:nth-child(3) {
+    top: 50%;
+    left: 60%;
+    animation-duration: 14s;
+    animation-delay: 4s;
+  }
+
+  .background .bubble:nth-child(4) {
+    top: 70%;
+    left: 20%;
+    animation-duration: 16s;
+    animation-delay: 6s;
+  }
+
+  .background .bubble:nth-child(5) {
+    top: 80%;
+    left: 50%;
+    animation-duration: 18s;
+    animation-delay: 8s;
+  }
+
+  form {
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 2;
+    margin: 40px 0; /* Marge en haut et en bas */
+    margin-left: 200px; /* Largeur du menu latéral */
+    margin-top:10em;
+    
+  }
+
+  form h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  form input[type="float"],
+  form input[type="float"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+  }
+
+  form input[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  form input[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+
+  .background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+  }
+  h1 {
+    text-align: center;
+
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+</div>
+<div class="cardBox" id="money">
+    <div class="card">
+        <div>
+            <div class="numbers" id="total_etudiant">{{ total_etudiants_inscrit }}</div>
+            <div class="cardName">Étudiants Inscrits</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers" id="total_solder">{{ total_etudiants_solde }}</div>
+            <div class="cardName">Étudiants Soldés</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers" id="total_caisse">{{ total_caisse }}</div>
+            <div class="cardName">CAISSE</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="cash-outline"></ion-icon>
+        </div>
+    </div>
+
+</div>
+
+<div class="container mt-5">
+    
+    <!-- Formulaire de Scolarité -->
+    <div class="mb-4">
+        <form method="post">
+            <h1>Gestion de la Scolarité</h1>
+            {% csrf_token %}
+            {{ scolarite_form.as_p }}
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </form>
+    
+    
+<!-- Afficher les étudiants filtrés -->
+<div class="student-list-container">
+    <h2>Liste des étudiants</h2>
+    <table class="student-table">
+        <thead>
+            <tr>
+                <th>MATRICULE</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>
+                    Filière
+                    <select id="filter-filiere">
+                        <option value="">Toutes</option>
+                        {% for filiere in filieres %}
+                        <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    Niveau
+                    <select id="filter-niveau">
+                        <option value="">Tous</option>
+                        <option value="LICENCE1">LICENCE1</option>
+                        <option value="LICENCE2">LICENCE2</option>
+                        <option value="LICENCE3">LICENCE3</option>
+                        <option value="MASTER1">MASTER1</option>
+                        <option value="MASTER2">MASTER2</option>
+                        <option value="DOCTORAT">DOCTORAT</option>
+                    </select>
+                </th>
+                <th>
+                    Année Académique
+                    <select id="filter-anne_academique">
+                        <option value="">Tous</option>
+                        <option value="2022/2023">2022/2023</option>
+                        <option value="2023/2024">2023/2024</option>
+                        <option value="2024/2025">2024/2025</option>
+                        <option value="2026/2027">2026/2027</option>
+                        <option value="2028/2029">2028/2029</option>
+                        <option value="2030/2031">2030/2031</option>
+                    </select>
+                </th>
+                <th>Montant Total Versé</th>
+                <th>Montant Restant</th>
+                <th>Soldé</th>
+            </tr>
+        </thead>
+        <tbody id="student-table-body">
+            {% for etudiant in etudiants %}
+                
+            <tr data-filiere="{{ etudiant.filiere.Id_filiere }}" data-niveau="{{ etudiant.niveau_etudiant }}" data-anne_academique="{{ etudiant.annee_academique_etudiant }}">
+                <td>{{ etudiant.matricule }}</td>
+                <td>{{ etudiant.nom_etudiant }}</td>
+                <td>{{ etudiant.prenom_etudiant }}</td>
+                <td>{{ etudiant.filiere.nom_filiere }}</td>
+                <td>{{ etudiant.niveau_etudiant }}</td>
+                <td>{{ etudiant.annee_academique_etudiant }}</td>
+                <td>{{ etudiant.montant_total_verse }} FCFA</td>
+                <td>{{ etudiant.Montant_restant }} FCFA</td>
+                <td>
+                    {% if etudiant.Montant_restant == 0 %}
+                        <i class="fas fa-check-circle" style="color: green;"></i> <!-- V vert -->
+                    {% else %}
+                        <i class="fas fa-times-circle" style="color: red;"></i> <!-- Croix rouge -->
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+</div>
+
+<!-- Ajouter jQuery pour la gestion des événements -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#filter-filiere, #filter-niveau, #filter-anne_academique', ).on('change', function() {
+        var filiere = $('#filter-filiere').val();
+        var niveau = $('#filter-niveau').val();
+        var anne_academique = $('#filter-anne_academique').val();
+
+        $('#student-table-body tr').each(function() {
+            var show = true;
+
+            if (filiere && $(this).data('filiere') != filiere) {
+                show = false;
+            }
+            if (niveau && $(this).data('niveau') != niveau) {
+                show = false;
+            }
+            if (anne_academique && $(this).data('anne_academique') != anne_academique) {
+                show = false;
+            }
+
+            if (show) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+});
+</script>
+{% endblock content %}

@@ -3,63 +3,61 @@ from .models import *
 
 
 
+# gestion_scolarite.py
+
 def calculate_total(self):
-    #user = str(Etudiant.boursier)
-        #####################################   SCOLARITE TECHNOLOGIE     #######################################################################
-    #if user=="0":
-        if self.etudiant.niveau_etudiant == 'LICENCE1' and self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)',"BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
-            return 600000.00
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE2' and self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)',"BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
-            return 750000.00
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE3' and self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)',"BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
-            return 850000.00
-        
-        elif self.etudiant.niveau_etudiant == 'MASTER1' and self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)',"BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
-            return 1050000.00
-        
-        elif self.etudiant.niveau_etudiant == 'MASTER2' and self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)',"BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
-            return 1350000.00
-        
-        
-        #####################################   SCOLARITE GENIE LOGICIEL      #######################################################################
-        
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE1' and self.etudiant.filiere.nom_filiere in ['GENIE LOGICIEL (GL)']:
-            return 700000.00
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE2' and self.etudiant.filiere.nom_filiere in ['GENIE LOGICIEL (GL)']:
-            return 850000.00
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE3' and self.etudiant.filiere.nom_filiere in ['GENIE LOGICIEL (GL)']:
-            return 1050000.00
-        
-        elif self.etudiant.niveau_etudiant == 'MASTER1' and self.etudiant.filiere.nom_filiere in ['GENIE LOGICIEL (GL)']:
-            return 1450000.00
-        
-        elif self.etudiant.niveau_etudiant == 'MASTER2' and self.etudiant.filiere.nom_filiere in ['GENIE LOGICIEL (GL)']:
-            return 2350000.00
-        
-        #####################################   SCOLARITE Management     #######################################################################
-        
-        
-        if self.etudiant.niveau_etudiant == 'LICENCE1' and self.etudiant.filiere.nom_filiere in ['COMPTABILITE','ECONOMIE ET STATISTIQUE (ESA)']:
-            return 450000.00
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE2' and self.etudiant.filiere.nom_filiere in ['COMPTABILITE','ECONOMIE ET STATISTIQUE (ESA)']:
-            return 600000.00
-        
-        elif self.etudiant.niveau_etudiant == 'LICENCE3' and self.etudiant.filiere.nom_filiere in ['COMPTABILITE','ECONOMIE ET STATISTIQUE (ESA)']:
-            return 750000.00
-        
-        elif self.etudiant.niveau_etudiant == 'MASTER1' and self.etudiant.filiere.nom_filiere in ['COMPTABILITE','ECONOMIE ET STATISTIQUE (ESA)']:
-            return 950000.00
-        
-        elif self.etudiant.niveau_etudiant == 'MASTER2' and self.etudiant.filiere.nom_filiere in ['COMPTABILITE','ECONOMIE ET STATISTIQUE (ESA)']:
-            return 1250000.00
-        
-        
+    montant = 0.0
+
+    # Définir les frais de scolarité de base en fonction du niveau et de la filière
+    if self.etudiant.niveau_etudiant == 'LICENCE1':
+        if self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)', "BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
+            montant = 600000.00
+        elif self.etudiant.filiere.nom_filiere == 'GENIE LOGICIEL (GL)':
+            montant = 700000.00
+        elif self.etudiant.filiere.nom_filiere in ['COMPTABILITE', 'ECONOMIE ET STATISTIQUE (ESA)']:
+            montant = 450000.00
     
-    # Ajoutez ici d'autres conditions pour d'autres combinaisons de filières et niveaux
-        return 0.0
+    elif self.etudiant.niveau_etudiant == 'LICENCE2':
+        if self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)', "BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
+            montant = 750000.00
+        elif self.etudiant.filiere.nom_filiere == 'GENIE LOGICIEL (GL)':
+            montant = 850000.00
+        elif self.etudiant.filiere.nom_filiere in ['COMPTABILITE', 'ECONOMIE ET STATISTIQUE (ESA)']:
+            montant = 600000.00
+    
+    elif self.etudiant.niveau_etudiant == 'LICENCE3':
+        if self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)', "BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
+            montant = 850000.00
+        elif self.etudiant.filiere.nom_filiere == 'GENIE LOGICIEL (GL)':
+            montant = 1050000.00
+        elif self.etudiant.filiere.nom_filiere in ['COMPTABILITE', 'ECONOMIE ET STATISTIQUE (ESA)']:
+            montant = 750000.00
+    
+    elif self.etudiant.niveau_etudiant == 'MASTER1':
+        if self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)', "BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
+            montant = 1050000.00
+        elif self.etudiant.filiere.nom_filiere == 'GENIE LOGICIEL (GL)':
+            montant = 1450000.00
+        elif self.etudiant.filiere.nom_filiere in ['COMPTABILITE', 'ECONOMIE ET STATISTIQUE (ESA)']:
+            montant = 950000.00
+    
+    elif self.etudiant.niveau_etudiant == 'MASTER2':
+        if self.etudiant.filiere.nom_filiere in ['ELECTRONIQUE ET INFORMATIQUE INDUSTRIEL (EII)', "BATIMENT ET TRAVAUX PUBLIC (BTP)", 'RESEAUX ET TELECOMMUNICATIONS (RT)', 'ELECTROTECH (ET)']:
+            montant = 1350000.00
+        elif self.etudiant.filiere.nom_filiere == 'GENIE LOGICIEL (GL)':
+            montant = 2350000.00
+        elif self.etudiant.filiere.nom_filiere in ['COMPTABILITE', 'ECONOMIE ET STATISTIQUE (ESA)']:
+            montant = 1250000.00
+    
+    # Appliquer les réductions pour les étudiants boursiers
+    if self.etudiant.bourse:
+        if self.etudiant.bourse.type_bourse == 'boursier_etat':
+            # Seulement frais d'inscription par exemple
+            montant = 45000.00  # Exemple de frais d'inscription
+        else:
+            montant *= (self.etudiant.bourse.reduction)
+
+    return montant 
+
+def totaux(self):
+    pass

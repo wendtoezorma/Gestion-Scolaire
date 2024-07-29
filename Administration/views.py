@@ -1,5 +1,3 @@
-
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import check_password, make_password
 from .models import Etudiant
@@ -599,6 +597,21 @@ def test_email_view(request):
     #vue pour que les etudiants voi leur notes et moyenne
     from django.shortcuts import render, get_object_or_404
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ScolariteForm,FiltreForm
+
+def gestion_scolarite(request):
+    if request.method == 'POST':
+        form = ScolariteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Scolarité mise à jour avec succès.')
+            return redirect('gestion_scolarite')
+    else:
+        form = ScolariteForm()
+    
+    return render(request, 'Administration/scolarite.html', {'form': form})
 
 #pour qu'un etudiant puissent voir ses note
 from .models import Etudiant, Notes, Cours_Module
@@ -634,3 +647,37 @@ def student_profile(request):
     
     # Passe les informations de l'étudiant au template
     return render(request, 'etudiant_profile.html', {'etudiant': etudiant})
+################### liste etudiants ####################
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ScolariteForm
+from .models import Etudiant, Filiere
+from.apperçu import apercu_caisse
+def gestion_scolarite(request):
+    filieres = Filiere.objects.all()
+    etudiants = Etudiant.objects.all()
+    scolarites = Scolarite.objects.all()
+    
+    total_caisse=apercu_caisse()
+    total_etudiants_inscrit=Etudiant.objects.count()
+    total_etudiants_solde=Scolarite.objects.filter(Montant_restant=0.0).count()
+    if request.method == 'POST':
+        scolarite_form = ScolariteForm(request.POST)
+        if scolarite_form.is_valid():
+            scolarite_form.save()
+            messages.success(request, 'Scolarité mise à jour avec succès.')
+            return redirect('gestion_scolarite')
+    else:
+        scolarite_form = ScolariteForm()
+
+    return render(request, 'Administration/scolarite.html', {
+        'scolarite_form': scolarite_form,
+        'etudiants': etudiants,
+        'filieres': filieres,
+        'total_caisse': total_caisse,
+        'total_etudiants_inscrit': total_etudiants_inscrit,
+        'total_etudiants_solde': total_etudiants_solde,
+        'scolarites': scolarites,
+    })
+

@@ -11,7 +11,7 @@ urlpatterns = [
     path('login/', administration_login_view , name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
 
-
+    path('gestion_scolarite/', gestion_scolarite, name='gestion_scolarite'),
 
 
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
