@@ -16,7 +16,10 @@ urlpatterns = [
 
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('upload_file', upload_file, name='upload_file'),
-    path('display', display_table, name='display'),
+    path('display_table/<int:file_id>/', display_table, name='display'),
+
+    path('files/', list_uploaded_files, name='list_uploaded_files'),
+    path('delete/<int:file_id>/', delete_file, name='delete_file'),
     ############################################################################################################
     #path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     #path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),

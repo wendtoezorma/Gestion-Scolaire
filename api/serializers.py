@@ -47,3 +47,22 @@ class EtudiantSerializer(serializers.ModelSerializer):
         fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere']
 
 
+#emploi du temps 
+
+class UploadedFileSerializer(serializers.ModelSerializer):
+    view_url = serializers.SerializerMethodField()
+    download_url = serializers.SerializerMethodField()
+    class Meta:
+        model = UploadedFile
+        fields = ['id', 'file', 'uploaded_at', 'view_url','download_url']
+    def get_download_url(self, obj):
+        request = self.context.get('request')
+        download_url = request.build_absolute_uri(f'/emploi_du_temps/{obj.id}/download/')
+        return download_url
+    
+    def get_view_url(self, obj):
+        request = self.context.get('request')
+        view_url = request.build_absolute_uri(f'/emploi_du_temps/{obj.id}/view/')
+        return view_url
+    
+    

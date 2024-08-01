@@ -232,6 +232,10 @@ class GenerateTimetableForm(forms.Form):
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
+    class Meta:
+        model = UploadedFile
+        fields = '__all__'
+
 
 
 from django.contrib.auth.models import User 

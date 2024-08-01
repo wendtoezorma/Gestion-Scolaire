@@ -73,11 +73,7 @@ from django.urls import reverse_lazy
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.tokens import default_token_generator
-
-
-
-
-
+from django.views import View
 
 def index(request):
     return render(request,"Administration/index.html")
@@ -489,11 +485,16 @@ def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            # Sauvegarder le fichier dans le modèle UploadedFile
+            uploaded_file = form.cleaned_data['file']
+            uploaded_file_instance = UploadedFile(file=uploaded_file)
+            uploaded_file_instance.save()
+
             # Handle file upload
             file = request.FILES['file']
             df = pd.read_excel(file)
 
-            # Remplacer les NaN par des chaînes vides
+            # Remplacer les NaN par des chaînes vides    
             df.fillna('', inplace=True)
 
             # Créer un buffer pour sauvegarder le PDF
@@ -532,18 +533,34 @@ def upload_file(request):
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
+# afficher les fichier deja uploader
 
-def display_table(request):
-    file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_excel.xlsx')
+@login_required(login_url='login')
+def list_uploaded_files(request):
+    files = UploadedFile.objects.all()
+    return render(request, 'Administration/list_files.html', {'files': files})
+
+#supprimer un fichier de la bd
+
+@login_required(login_url='login')
+def delete_file(request, file_id):
+    file = get_object_or_404(UploadedFile, id=file_id)
+    file.delete()
+    messages.success(request, 'Fichier supprimé avec succès.')
+    return redirect('list_uploaded_files')
+
+def display_table(request,file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    #file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_excel.xlsx')
+    file_path = uploaded_file.file.path
     df = pd.read_excel(file_path)
 
     # Convert DataFrame to HTML table
     table_html = df.to_html(index=False)
 
-    return render(request, 'display_table.html', {'table_html': table_html})
+    return render(request, 'Administration/display_table.html', {'table_html': table_html})
  ### tous ece qui concerne le mdp oublier 
 
- # pour l'amin 
 
 def password_reset_request(request):
     if request.method == "POST":
@@ -680,4 +697,5 @@ def gestion_scolarite(request):
         'total_etudiants_solde': total_etudiants_solde,
         'scolarites': scolarites,
     })
+
 

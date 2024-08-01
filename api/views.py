@@ -161,3 +161,89 @@ class StudentProfileView(APIView):
         serializer = EtudiantSerializer(etudiant)
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+#emploi du temps 
+
+class UploadedFileListView(generics.ListAPIView):
+    queryset = UploadedFile.objects.all()
+    serializer_class = UploadedFileSerializer
+import pandas as pd
+
+class UploadedFileDetailView(generics.RetrieveAPIView):
+    queryset = UploadedFile.objects.all()
+    serializer_class = UploadedFileSerializer
+
+    def get(self, request, *args, **kwargs):
+        file = self.get_object()
+        file_path = file.file.path
+        df = pd.read_excel(file_path)
+
+        # Convert DataFrame to JSON
+        data = df.to_dict(orient='records')
+
+        return Response(data, status=status.HTTP_200_OK)
+    
+
+def display_table(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    file_path = uploaded_file.file.path
+    df = pd.read_excel(file_path)
+
+    # Convertir DataFrame en HTML
+    table_html = df.to_html(index=False)
+
+    return Response({'table_html': table_html}, status=status.HTTP_200_OK)
+
+
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+import pandas as pd
+from Administration.models import UploadedFile
+
+def download_pdf(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    file_path = uploaded_file.file.path
+    df = pd.read_excel(file_path)
+
+    # Remplacer les NaN par des chaînes vides
+    df.fillna('', inplace=True)
+
+    # Créer un buffer pour sauvegarder le PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+    # Préparer les données pour le tableau
+    data = [df.columns.to_list()] + df.values.tolist()
+
+    # Créer le tableau
+    table = Table(data)
+
+    # Appliquer un style au tableau
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+    table.setStyle(style)
+
+    # Construire le PDF
+    elements = []
+    elements.append(table)
+    doc.build(elements)
+
+    # Créer une réponse HTTP avec le contenu du PDF
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="emploi_du_temps.pdf"'
+
+    return response

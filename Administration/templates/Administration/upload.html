@@ -147,6 +147,7 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <h2><a href="{% url 'list_uploaded_files' %}">voir les emplois du temps envoyés</a></h2>
         <button type="submit">Générer</button>
     </form>
 
