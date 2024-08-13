@@ -113,7 +113,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere', 'mot_de_passe'
+            'filiere', 'mot_de_passe','montant_total_verse','montant_restant'
         ]
     
 class EtudiantLoginForm(forms.Form):
