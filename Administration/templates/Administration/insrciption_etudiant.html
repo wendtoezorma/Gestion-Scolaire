@@ -86,6 +86,7 @@
     animation-duration: 18s;
     animation-delay: 8s;
   }
+<<<<<<< HEAD
   .form-control {
     width: 100%;
     padding: 10px;
@@ -95,6 +96,9 @@
     transition: background-color 0.3s ease;
     background-color: #ffffff;
 }
+=======
+
+>>>>>>> origin/master
   form {
     padding: 40px;
     border-radius: 15px;
@@ -133,12 +137,19 @@
   }
 
   form input[type="submit"] {
+<<<<<<< HEAD
     width: 30%;
     padding: 10px;
     background-color: #40d67a;
     color: #fff;
     border: none;
     padding: 12px 12px;
+=======
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+>>>>>>> origin/master
     font-size: 16px;
     border-radius: 25px;
     cursor: pointer;
@@ -169,6 +180,7 @@
 </div>
 
 
+<<<<<<< HEAD
 
 <form method="post">
     <h1>Créer un nouvel étudiant</h1>
@@ -180,6 +192,19 @@
     <input type="submit" value="Créer étudiant">
   </form>
 
+=======
+  <h1>Créer un nouvel étudiant</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Créer étudiant">
+  </form>
+
+  <!-- Ajouter un bouton pour cloner le formulaire -->
+  <button id="add_student_button" class="additional-button">Ajouter un nouvel étudiant</button>
+
+>>>>>>> origin/master
   <script>
     // JavaScript pour cloner le premier formulaire et l'ajouter à la fin du corps du document
     document.getElementById("add_student_button").addEventListener("click", function() {

@@ -183,11 +183,14 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Pour les superutilisateurs
 ]
 
+<<<<<<< HEAD
 ################ pour le telechargement des fichiers ###########
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
+=======
+>>>>>>> origin/master
 
 from django.urls import reverse_lazy
 AUTH_USER_MODEL = 'Administration.Administration'
