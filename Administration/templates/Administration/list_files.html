@@ -1,0 +1,31 @@
+{% extends 'Administration/base.html' %}
+
+{% block content %}
+  <h2>Liste des fichiers uploadés</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nom du fichier</th>
+        <th>Date d'upload</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for file in files %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><a href="{% url 'display' file.id %}">{{ file.file.name }}</a></td>
+          <td>{{ file.uploaded_at }}</td>
+          <td>
+            <a href="{% url 'delete_file' file.id %}">Supprimer</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4">Aucun fichier trouvé.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

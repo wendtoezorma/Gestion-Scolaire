@@ -1,0 +1,52 @@
+{% extends 'Administration/base.html' %}
+{% block title %}Reçu de Paiement{% endblock title %}
+{% block styles %}
+{{ block.super }}
+<style>
+   
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .receipt {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+        }
+        .receipt h1 {
+            text-align: center;
+        }
+        .receipt .details {
+            margin: 20px 0;
+        }
+        .receipt .details div {
+            margin-bottom: 10px;
+        }
+    </style>
+    {% endblock %}
+    {% block content %}
+    <div class="receipt">
+        <h1>Reçu de Paiement</h1>
+        <div class="details">
+            <div><strong>Matricule :</strong> {{ q }}</div>
+            <div><strong>Nom :</strong> {{ scolarites.etudiant.nom_etudiant }}</div>
+            <div><strong>Prénom :</strong> {{ scolarites.etudiant.prenom_etudiant }}</div>
+            <div><strong>Filière :</strong> {{ scolarites.etudiant.filiere }}</div>
+            <div><strong>Niveau :</strong> {{ scolarites.etudiant.niveau_etudiant }}</div>
+            <div>
+                <strong>Tranche Payées :
+                    <div><strong>Tranche 1 :</strong> {{ scolarites.tranche_1 }}</div>
+                    <div><strong>Tranche 2 :</strong> {{ scolarites.tranche_2 }}</div>
+                    <div><strong>Tranche 3 :</strong> {{ scolarites.tranche_3 }}</div>
+            </div>
+            <div><strong>Date de Paiement :</strong> {{ date_paiement }}</div>
+            <div><strong>Heure de Paiement :</strong> {{ heure_paiement }}</div>
+            <div><strong>Montant Versé :</strong> {{ scolarites.montant_total_verse }}</div>
+            <div><strong>Montant Restant :</strong> {{ scolarites.Montant_restant }}</div>
+            
+                
+        </div>
+    </div>
+    {% endblock content %}

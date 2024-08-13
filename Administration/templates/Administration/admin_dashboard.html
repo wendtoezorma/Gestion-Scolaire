@@ -1,0 +1,144 @@
+{% extends "Administration/base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block styles %}
+<style>
+    :root {
+        --blue: #5490aa;/*5490aa*anncienne couleur*/
+        --white: #fff;
+        --gray: #f5f5f5;
+        --black1: #222;
+        --black2: #999;
+    }
+    .navigation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        height: 100vh;
+        background: var(--blue);
+        color: var(--white);
+        z-index: 900;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .cardBox {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 20px;
+    }
+
+    .card {
+        width: 30%;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card .numbers {
+        font-size: 2em;
+        font-weight: 500;
+    }
+
+    .card .cardName {
+        color: #777;
+    }
+
+    .card .iconBx {
+        font-size: 3em;
+        color: #ffc400;
+    }
+
+    /* Ajuster la position du body pour éviter le chevauchement */
+    .main {
+        margin-left: 300px; /* Ajustez cette valeur pour qu'elle corresponde à la largeur du menu de navigation */
+        transition: margin-left 0.3s;
+    }
+
+    @media (max-width: 991px) {
+        .main {
+            margin-left: 80px; /* Ajuster pour les écrans plus petits */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main {
+            margin-left: 0; /* Ajuster pour les écrans très petits */
+        }
+    }
+    #connected_color{
+        color:green;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="cardBox">
+    <div class="card">
+        <div>
+            <div class="numbers">{{ total_etudiants }}</div>
+            <div class="cardName">Total Étudiants</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers">{{ total_professeurs }}</div>
+            <div class="cardName">Total Professeurs</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="school-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers">{{ total_filieres }}</div>
+            <div class="cardName">Total Filières</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="library-outline"></ion-icon>
+        </div>
+    </div>
+</div>
+
+<div class="cardBox">
+    <div class="card">
+        <div>
+            <div class="numbers">{{ total_etudiants_masculin }}</div>
+            <div class="cardName">Étudiants Masculins</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="man-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers">{{ total_etudiants_feminin }}</div>
+            <div class="cardName">Étudiants Féminins</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="woman-outline"></ion-icon>
+        </div>
+    </div>
+    <div class="card">
+        <div>
+            <div class="numbers" id="connected_color">{{ etudiant_connecter }}</div>
+            <div class="cardName">Etudiants connectés actuellement</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="eye-outline"></ion-icon>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,418 @@
+{% extends 'Administration/base.html' %}
+{% block styles %}
+{{ block.super }}
+
+
+<style>
+  /* Styles spécifiques au template enfant */
+  body {
+    overflow-y: auto !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
+    background: none !important; /* Supprime l'arrière-plan par défaut */
+    padding-top: 80px; /* Hauteur de l'entête */
+    margin-left: 0px; /* Largeur du menu latéral */
+    
+  }
+  .navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    background: var(--blue);
+    color: var(--white);
+    z-index: 900;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+  
+    .card {
+        width: 100%;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .card .numbers {
+        font-size: 2em;
+        font-weight: 500;
+    }
+
+    .card .cardName {
+        color: #777;
+    }
+
+    .card .iconBx {
+        font-size: 3em;
+        color: #ffc400;
+    }
+#money{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    text-align: center;
+    margin-left:auto;
+
+}
+#total_solder{
+    color: green;
+}
+#total_caisse{
+    color: green;
+}
+#total_etudiant{
+    color: green;
+}
+  .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background-color: #ffffff; /* Fond blanc */
+    overflow: hidden;
+  }
+
+  @keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+  }
+
+  @keyframes bubbleAnimation {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-100%, 100%); }
+    100% { transform: translate(0, 0); }
+  }
+
+  .background .bubble:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-duration: 10s;
+    animation-delay: 0s;
+  }
+
+  .background .bubble:nth-child(2) {
+    top: 30%;
+    left: 30%;
+    animation-duration: 12s;
+    animation-delay: 2s;
+  }
+
+  .background .bubble:nth-child(3) {
+    top: 50%;
+    left: 60%;
+    animation-duration: 14s;
+    animation-delay: 4s;
+  }
+
+  .background .bubble:nth-child(4) {
+    top: 70%;
+    left: 20%;
+    animation-duration: 16s;
+    animation-delay: 6s;
+  }
+
+  .background .bubble:nth-child(5) {
+    top: 80%;
+    left: 50%;
+    animation-duration: 18s;
+    animation-delay: 8s;
+  }
+
+  form {
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 2;
+    margin: 40px 0; /* Marge en haut et en bas */
+    margin-left: 450px; /* Largeur du menu latéral */
+    margin-top:10em;
+    
+  }
+
+  form h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .btn-success {
+    width: 30%;
+    padding: 10px;
+    background-color: #40d67a;
+    color: #fff;
+    border: none;
+    padding: 12px 12px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    background-color: #ffffff;
+}
+form input[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+
+  .background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+  }
+  h1 {
+    text-align: center;
+
+  }
+  #search-nom , #search-prenom{
+    width: 150px;
+    border-radius: 30px;
+    color: var(--blue);
+    font-size: 15px;
+    padding: 0px;
+    
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+</div>
+<div class="cardBox" id="money">
+    <div class="card">
+        <div>
+            <div class="numbers" id="total_etudiant">{{ total_etudiants_inscrit }}</div>
+            <div class="cardName">Étudiants Inscrits</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers" id="total_solder">{{ total_etudiants_solde }}</div>
+            <div class="cardName">Étudiants Soldés</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+        </div>
+    </div>
+
+    <div class="card">
+        <div>
+            <div class="numbers" id="total_caisse">{{ total_caisse }}</div>
+            <div class="cardName">CAISSE</div>
+        </div>
+        <div class="iconBx">
+            <ion-icon name="cash-outline"></ion-icon>
+        </div>
+    </div>
+
+</div>
+
+<div class="container mt-5">
+    
+    <!-- Formulaire de Scolarité -->
+    <div class="mb-4">
+        <form method="post" class="mt-10">
+            <h1>Gestion de la Scolarité</h1>
+            <br>
+            <br>
+            {% csrf_token %}
+            {{ scolarite_form.as_p }}
+            <br>
+            <button type="submit" class="btn btn-success">Enregistrer</button>
+        </form>
+    
+    
+<!-- Afficher les étudiants filtrés -->
+<!-- Afficher les étudiants filtrés -->
+<div class="student-list-container">
+    <h2>Liste des étudiants</h2>
+    <table class="student-table">
+        <thead>
+            <tr>
+                <th>MATRICULE</th>
+                <th>Nom <input type="text" id="search-nom" placeholder="Rechercher Nom"></th>
+                <th>Prénom <input type="text" id="search-prenom" placeholder="Rechercher Prénom"></th>
+                <th>
+                    Filière
+                    <select id="filter-filiere">
+                        <option value="">Toutes</option>
+                        {% for filiere in filieres %}
+                        <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>
+                    Niveau
+                    <select id="filter-niveau">
+                        <option value="">Tous</option>
+                        <option value="LICENCE1">LICENCE1</option>
+                        <option value="LICENCE2">LICENCE2</option>
+                        <option value="LICENCE3">LICENCE3</option>
+                        <option value="MASTER1">MASTER1</option>
+                        <option value="MASTER2">MASTER2</option>
+                        <option value="DOCTORAT">DOCTORAT</option>
+                    </select>
+                </th>
+                <th>
+                    Année Académique
+                    <select id="filter-anne_academique">
+                        <option value="">Tous</option>
+                        <option value="2022/2023">2022/2023</option>
+                        <option value="2023/2024">2023/2024</option>
+                        <option value="2024/2025">2024/2025</option>
+                        <option value="2026/2027">2026/2027</option>
+                        <option value="2028/2029">2028/2029</option>
+                        <option value="2030/2031">2030/2031</option>
+                    </select>
+                </th>
+                <th>1re Tranche</th>
+                <th>2e Tranche</th>
+                <th>3e Tranche</th>
+                <th>Montant Total Versé</th>
+                <th>Scolarite</th>
+                <th>Montant Restant</th>
+                <th>
+                    Bourse
+                    <select id="filter-bourse">
+                        <option value="">Toutes</option>
+                        <option value="non_boursier">non_boursier</option>
+                        <option value="boursier_etat">boursier_etat</option>
+                        <option value="	boursier_particulier_50">boursier_particulier_50</option>
+                        <option value="boursier_particulier_75">boursier_particulier_75</option>
+                    </select>
+                <th>Soldé</th>
+            </tr>
+        </thead>
+        <tbody id="student-table-body">
+            {% for scolarite in scolarites %}
+            <tr data-filiere="{{ scolarite.etudiant.filiere.Id_filiere }}" 
+                data-niveau="{{ scolarite.etudiant.niveau_etudiant }}" 
+                data-bourse="{{ scolarite.etudiant.bourse }}" 
+                data-anne_academique="{{ scolarite.etudiant.annee_academique_etudiant }}">
+                <td>{{ scolarite.etudiant.matricule }}</td>
+                <td>{{ scolarite.etudiant.nom_etudiant }}</td>
+                <td>{{ scolarite.etudiant.prenom_etudiant }}</td>
+                <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
+                <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
+                <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
+                <td>{{ scolarite.tranche_1 }}</td>
+                <td>{{ scolarite.tranche_2 }}</td>
+                <td>{{ scolarite.tranche_3 }}</td>
+                <td>{{ scolarite.montant_total_verse }}</td>
+                <td>{{ scolarite.total }}</td>
+                <td>{{ scolarite.Montant_restant }}</td>
+                <td>{{ scolarite.etudiant.bourse }}</td>
+                <td>
+                    {% if scolarite.Montant_restant == 0 %}
+                        <i class="fas fa-check-circle" style="color: green;"></i> <!-- V vert -->
+                        {% else %}
+                        <i class="fas fa-times-circle" style="color: red;"></i> <!-- Croix rouge -->
+                        {% endif %}
+                </td>
+            
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Ajouter jQuery pour la gestion des événements -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function filterTable() {
+        var filiere = $('#filter-filiere').val();
+        var niveau = $('#filter-niveau').val();
+        var bourse = $('#filter-bourse').val();
+        var anne_academique = $('#filter-anne_academique').val();
+        var searchNom = $('#search-nom').val().toLowerCase();
+        var searchPrenom = $('#search-prenom').val().toLowerCase();
+
+        $('#student-table-body tr').each(function() {
+            var show = true;
+
+            if (filiere && $(this).data('filiere') != filiere) {
+                show = false;
+            }
+            if (niveau && $(this).data('niveau') != niveau) {
+                show = false;
+            }
+            if (bourse && $(this).data('bourse') != bourse) {
+                show = false;
+            }
+            if (anne_academique && $(this).data('anne_academique') != anne_academique) {
+                show = false;
+            }
+
+            var nom = $(this).children('td').eq(1).text().toLowerCase();
+            var prenom = $(this).children('td').eq(2).text().toLowerCase();
+            
+            if (searchNom && !nom.includes(searchNom)) {
+                show = false;
+            }
+            if (searchPrenom && !prenom.includes(searchPrenom)) {
+                show = false;
+            }
+
+            if (show) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+
+    // Attach change event to filters and input events to search fields
+    $('#filter-filiere, #filter-niveau, #filter-anne_academique, #filter-bourse').on('change', filterTable);
+    $('#search-nom, #search-prenom').on('input', filterTable);
+});
+</script>
+
+{% endblock content %}

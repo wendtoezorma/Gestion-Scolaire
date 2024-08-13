@@ -1,0 +1,71 @@
+
+{% extends "Administration/base.html" %}
+{% block title %}Liste des étudiants{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+
+<style>
+    .btn-primary {
+        width: 30%;
+        padding: 10px;
+        background-color: #40d67a;
+        color: #fff;
+        border: none;
+        padding: 12px 12px;
+        font-size: 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    
+    form label {
+        display: block;
+        margin-bottom: 10px;
+        font-size:20px;
+    }
+    
+    .form-control {
+        margin:30px;
+        width: 60%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 20px;
+        transition: background-color 0.3s ease;
+        background-color: #ffffff;
+        font-style: bold;
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Liste des étudiants</h1><br>
+        <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
+        <table border="1"><br>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Sexe</th>
+                    <th>Matricule</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        <td>{{ etudiant.sexe_etudiant }}</td>
+                        <td>{{ etudiant.matricule }}</td>
+                    </tr>
+                {% endfor %}
+                <h2><a href="{% url 'select_module' filiere_id niveau %}">ajouter des notes</a></h2><br>
+                <a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
+
+            </tbody>
+        </table>
+
+{% endblock %}
