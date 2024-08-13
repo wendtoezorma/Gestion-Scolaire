@@ -108,15 +108,17 @@ class CustomLogoutView(LogoutView):
     success_url = reverse_lazy('home')
 
 # la page ou il y aura tous les elements concernant l'admin
-
 @login_required(login_url='login')
 def admin_dashboard (request):
+    
+    from.apperu import nombre_etudiants_connecter
     total_etudiants = Etudiant.objects.count()
+    etudiant_connecter = nombre_etudiants_connecter()
     total_etudiants_masculin = Etudiant.objects.filter(sexe_etudiant='Masculin').count()
     total_etudiants_feminin = Etudiant.objects.filter(sexe_etudiant='Feminin').count()
     total_professeurs = professeurs.objects.count()
     total_filieres = Filiere.objects.count()
-    total_etudiants_connecter = Etudiant.objects.filter(Connecter=True).count()
+    #total_etudiants_connecter = Etudiant.objects.filter(Connecter=True).count()
 
 
     context = {
@@ -125,7 +127,7 @@ def admin_dashboard (request):
         'total_etudiants_feminin': total_etudiants_feminin,
         'total_professeurs': total_professeurs,
         'total_filieres': total_filieres,
-        'total_etudiants_connecter':total_etudiants_connecter
+        'etudiant_connecter':etudiant_connecter,
     }
     return render(request,"Administration/admin_dashboard.html",context)
 
@@ -219,10 +221,6 @@ def creer_filiere(request):
 @login_required(login_url='login')
 def creer_cours(request): 
 
-
-    #if not request.user.is_admin:
-        #return HttpResponseForbidden("Vous n'êtes pas autorisé à accéder à cette page.")
-    
     if request.method == 'POST':
         form = CoursModuleForm(request.POST)
         if form.is_valid():
@@ -247,7 +245,7 @@ def creer_professeur(request):
         form = ProfesseurForm()
     return render(request, 'Administration/creer_professeur.html', {'form': form})
 
-@login_required(login_url='login')
+"""@login_required(login_url='login')
 def creer_note(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
@@ -279,7 +277,7 @@ def creer_note(request):
             note.save()
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée
-
+"""
 @login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
     etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
@@ -324,6 +322,7 @@ def creer_note(request):
             'filiere_id': filiere_id,
             'niveau': niveau
         }
+        
         return render(request, 'Administration/add_note.html', context)
     elif request.method == 'POST':
         module_id = request.POST.get('module_id')
@@ -490,7 +489,7 @@ def upload_file(request):
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-            # Handle file upload
+            """# Handle file upload
             file = request.FILES['file']
             df = pd.read_excel(file)
 
@@ -509,12 +508,12 @@ def upload_file(request):
 
             # Appliquer un style au tableau
             style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ])
             table.setStyle(style)
@@ -529,7 +528,7 @@ def upload_file(request):
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="fichier_modifié.pdf"'
 
-            return response
+            return response"""
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
@@ -618,7 +617,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ScolariteForm,FiltreForm
 
-def gestion_scolarite(request):
+"""def gestion_scolarite(request):
     if request.method == 'POST':
         form = ScolariteForm(request.POST)
         if form.is_valid():
@@ -629,7 +628,7 @@ def gestion_scolarite(request):
         form = ScolariteForm()
     
     return render(request, 'Administration/scolarite.html', {'form': form})
-
+"""
 #pour qu'un etudiant puissent voir ses note
 from .models import Etudiant, Notes, Cours_Module
 
@@ -664,21 +663,77 @@ def student_profile(request):
     
     # Passe les informations de l'étudiant au template
     return render(request, 'etudiant_profile.html', {'etudiant': etudiant})
-################### liste etudiants ####################
 
-from django.shortcuts import render, redirect
+################### liste etudiants ####################
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import ScolariteForm
-from .models import Etudiant, Filiere
-from.apperçu import apercu_caisse
+from .models import Etudiant, Filiere, Scolarite
+from .apperu import apercu_caisse, nombre_etudiants_connecter
+from datetime import datetime
+
 def gestion_scolarite(request):
     filieres = Filiere.objects.all()
+    scolarites = Scolarite.objects.select_related('etudiant').all()
     etudiants = Etudiant.objects.all()
-    scolarites = Scolarite.objects.all()
     
-    total_caisse=apercu_caisse()
-    total_etudiants_inscrit=Etudiant.objects.count()
-    total_etudiants_solde=Scolarite.objects.filter(Montant_restant=0.0).count()
+    total_caisse = apercu_caisse()
+    total_etudiants_inscrit = Etudiant.objects.count()
+    total_etudiants_solde = Scolarite.objects.filter(Montant_restant=0.0).count()
+    date_paiement = datetime.now().strftime('%Y-%m-%d')
+    heure_paiement = datetime.now().strftime('%H:%M')
+    
+
+    if request.method == 'POST':
+        etudiant_id = request.POST.get('etudiant')
+        scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+        #form = ScolariteForm(request.POST)
+        if scolarite:
+            scolarite_form = ScolariteForm(request.POST, instance=scolarite)
+        else:
+            scolarite_form = ScolariteForm(request.POST)
+
+        if scolarite_form.is_valid():
+            scolarite_form.save()
+        context = {
+                'scolarites': scolarites,
+                'etudiants': etudiants,
+                'scolarite_form': scolarite_form,
+                'filieres': filieres,
+                'total_caisse': total_caisse,
+                'total_etudiants_inscrit': total_etudiants_inscrit,
+                'total_etudiants_solde': total_etudiants_solde,
+                'date_paiement': date_paiement,
+                'heure_paiement': heure_paiement,
+            }
+        
+            # Générer le reçu
+        return render(request, 'Administration/recu_paiement.html',context)
+            #return redirect('gestion_scolarite')
+        
+    else:
+        scolarite_form = ScolariteForm()
+
+    context = {
+        'scolarites': scolarites,
+        'etudiants': etudiants,
+        'scolarite_form': scolarite_form,
+        'filieres': filieres,
+        'total_caisse': total_caisse,
+        'total_etudiants_inscrit': total_etudiants_inscrit,
+        'total_etudiants_solde': total_etudiants_solde,
+        'date_paiement': date_paiement,
+        'heure_paiement': heure_paiement,
+    }
+    return render(request, 'Administration/scolarite.html', context)
+
+
+################ Lister les fichiers disponibles pour les etudiants ##########
+from django.shortcuts import render
+from .models import CoursFichier
+
+def cours_list(request):
+    cours_fichiers = CoursFichier.objects.all()
     if request.method == 'POST':
         scolarite_form = ScolariteForm(request.POST)
         if scolarite_form.is_valid():
@@ -688,14 +743,21 @@ def gestion_scolarite(request):
     else:
         scolarite_form = ScolariteForm()
 
-    return render(request, 'Administration/scolarite.html', {
-        'scolarite_form': scolarite_form,
-        'etudiants': etudiants,
-        'filieres': filieres,
-        'total_caisse': total_caisse,
-        'total_etudiants_inscrit': total_etudiants_inscrit,
-        'total_etudiants_solde': total_etudiants_solde,
-        'scolarites': scolarites,
-    })
+    return render(request, 'Administration/cours_list.html', {'cours_fichiers': cours_fichiers,})
 
 
+############# fichiers ###########
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import CoursFichierForm
+
+@login_required
+def upload_cours(request):
+    if request.method == 'POST':
+        form = CoursFichierForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('cours_list')  # Redirige vers une page liste des cours après le téléchargement
+    else:
+        form = CoursFichierForm()
+    return render(request, 'Administration/upload_cours.html', {'form': form})

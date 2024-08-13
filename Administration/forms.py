@@ -3,16 +3,6 @@ from .models import *
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-#pour la connexion  du compte admin 
-"""
-class LoginForm(forms.Form):
-    nom = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    email = forms.EmailField(max_length=300, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    mot_de_passe = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    class Meta:
-        model = Administration
-        exclude = ['last_login']
-"""
 
 #pour la connexion  du compte admin nouveau
 from django import forms
@@ -25,84 +15,6 @@ from django.utils.translation import gettext as _  # Assurez-vous que cette lign
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-"""
-class AdministrationAuthenticationForm(UserCreationForm):
-    class Meta:
-        model = Administration
-        fields = ('email', 'nom', 'prenom', 'Numero', 'date_naissance', 'num_CNIB', 'sexe', 'password1', 'password2')
-
-class CustomUserChangeForm(UserChangeForm):
-    class Meta:
-        model = Administration
-        fields = ('email', 'nom', 'prenom', 'Numero', 'date_naissance', 'num_CNIB', 'sexe')
-
-
-class AdministrationLoginForm(AuthenticationForm):
-    username = forms.EmailField(widget=forms.EmailInput(attrs={'autofocus': True}), label="Email")
-    password = forms.CharField(label="Mot de passe", strip=False, widget=forms.PasswordInput)
-"""
-"""
-class AdministrationAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(
-        max_length=150,
-        widget=forms.TextInput(attrs={'placeholder': 'Nom', 'autofocus': True, 'class': 'form-control'})
-    )
-    email = forms.EmailField(
-        max_length=300,
-        widget=forms.EmailInput(attrs={'placeholder': 'E-mail', 'class': 'form-control'})
-    )
-    password = forms.CharField(
-        label="Mot de passe",
-        strip=False,
-        widget=forms.PasswordInput(attrs={'placeholder': 'Mot de passe', 'autocomplete': 'current-password', 'class': 'form-control'})
-    )
-
-    error_messages = {
-        "invalid_login": _(
-            "Veuillez entrer un nom, un email et un mot de passe corrects."
-        ),
-        "inactive": _("Ce compte est inactif."),
-    }
-
-    def __init__(self, request=None, *args, **kwargs):
-        self.request = request
-        self.user_cache = None
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        username = self.cleaned_data.get("username")
-        email = self.cleaned_data.get("email")
-        password = self.cleaned_data.get("password")
-
-        if username and email and password:
-            try:
-                user = Administration.objects.get(nom=username, email=email)
-            except Administration.DoesNotExist:
-                user = None
-
-            if user and user.check_password(password):
-                self.user_cache = user
-            else:
-                raise self.get_invalid_login_error()
-
-        return self.cleaned_data
-
-    def get_user(self):
-        return self.user_cache
-
-    def get_invalid_login_error(self):
-        return ValidationError(
-            self.error_messages["invalid_login"],
-            code="invalid_login",
-        )
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.urls import reverse
-from .forms import AdministrationAuthenticationForm
-"""
-
-#from django import forms
-#from .models import Etudiant
 
 class EtudiantCreationForm(forms.ModelForm):
     mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Mot de passe temporaire')
@@ -115,6 +27,17 @@ class EtudiantCreationForm(forms.ModelForm):
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
             'filiere', 'mot_de_passe','montant_total_verse','montant_restant'
         ]
+        widgets = {
+            #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
+            'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
+            'niveau_etudiant': forms.Select(attrs={'class': 'form-control'}),
+            'filiere': forms.Select(attrs={'class': 'form-control'}),
+            'annee_academique_etudiant': forms.Select(attrs={'class': 'form-control'}),
+            'mot_de_passe': forms.PasswordInput(attrs={"placeholder": "Mot de passe"}),
+            #'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
     
 class EtudiantLoginForm(forms.Form):
     email = forms.EmailField(label='Email')
@@ -147,20 +70,19 @@ class UpdatePasswordForm(forms.Form):
 class FiliereForm(forms.ModelForm):
     class Meta:
         model = Filiere
-        fields = ['nom_filiere']
-
-"""#creer son cours
-class CoursModuleForm(forms.ModelForm):
-    class Meta:
-        model = Cours_Module
-        fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere']"""
-
+        fields = ['nom_filiere',]
+        widgets ={
+            'nom_filiere': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 class ProfesseurForm(forms.ModelForm):
     class Meta:
         model = professeurs
-        fields = '__all__'  
-
+        fields = '__all__' 
+        
+        widgets = {
+            'niveau_prof': forms.Select(attrs={'class': 'form-control'}),
+        }
 
 
 #debut
@@ -191,13 +113,18 @@ class CoursModuleForm(forms.ModelForm):
     class Meta:
         model = Cours_Module
         fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere', 'professeur']
+        widgets ={
+            'nom_module': forms.TextInput(attrs={'class': 'form-control'}),
+            'credit_module': forms.TextInput(attrs={'class': 'form-control'}),
+            'volume_horaire': forms.TextInput(attrs={'class': 'form-control'}),
+            'filiere': forms.Select(attrs={'class': 'form-control'}),
+            'professeur': forms.Select(attrs={'class': 'form-control'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(CoursModuleForm, self).__init__(*args, **kwargs)
         self.fields['professeur'].queryset = professeurs.objects.all()
-    '''class Meta:
-        model = Cours_Module
-        fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere']'''
+    
 
 
 #pour enregistrer des notes
@@ -335,10 +262,15 @@ class ScolariteForm(forms.ModelForm):
             'tranche_3': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ScolariteForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['tranche_1'].widget.attrs['readonly'] = True
+            self.fields['tranche_2'].widget.attrs['readonly'] = True
+            self.fields['tranche_3'].widget.attrs['readonly'] = True
 
 ######################### La liste des etudiants pour la scolarité ###################
 
-from django import forms
 from .models import Filiere, Etudiant
 
 class FiltreForm(forms.Form):
@@ -346,7 +278,31 @@ class FiltreForm(forms.Form):
     niveau = forms.ChoiceField(choices=Etudiant._meta.get_field('niveau_etudiant').choices, required=False, label="Niveau")
     annee_academique = forms.CharField(max_length=100, required=False, label="Année Académique")
 
-class Scolarite_Form(forms.ModelForm):
+###################### POUR LES FICHIERS ########
+from django import forms
+from .models import CoursFichier
+
+class CoursFichierForm(forms.ModelForm):
     class Meta:
-        model = Etudiant
-        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'filiere', 'niveau_etudiant', 'annee_academique_etudiant',"montant_total_verse"]
+        model = CoursFichier
+        fields = ['nom_fichier','fichier', 'type_fichier', 'professeur', 'module', 'filiere', 'niveau', 'annee_academique_cour']
+        
+        widgets = {
+            'professeur': forms.Select(attrs={'class': 'form-fichier'}),
+            'type_fichier': forms.Select(attrs={'class': 'form-fichier'}),
+            'module': forms.Select(attrs={'class': 'form-fichier'}),
+            'filiere': forms.Select(attrs={'class': 'form-fichier'}),
+            'niveau': forms.Select(attrs={'class': 'form-fichier'}),
+            'annee_academique_cour': forms.Select(attrs={'class': 'form-fichier'}),
+        }
+
+
+####### pour filtrer les cours ###########
+from .models import CoursFichier,Etudiant
+
+class FiltreCoursForm(forms.Form):
+    filiere = forms.ModelChoiceField(queryset=Filiere.objects.all(), required=False, label="Filière")
+    niveau = forms.ChoiceField(choices=Etudiant._meta.get_field('niveau_etudiant').choices, required=False, label="Niveau")
+    annee_academique = forms.CharField(max_length=100, required=False, label="Année Académique")
+    type_fichier = forms.CharField(max_length=100, required=False, label="Type Fichier")
+

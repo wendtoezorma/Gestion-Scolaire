@@ -38,7 +38,7 @@ class professeurs(models.Model):
         ("Selectionner","Selectionner"),
         ("Docteur","Docteur"),
         ("Professeur","Professeur"),
-        ("C","Ingénieur"),
+        ("Ing","Ingénieur"),
         ("Lamda","Lamda"),
         ("Vacataire","Vacataire"),
     ]
@@ -141,43 +141,16 @@ class Etudiant(models.Model):
     password_updated = models.BooleanField(default=False)  # Ajoutez ce champ pour vérifier si le mot de passe a été mis à jour
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
     Connecter=models.BooleanField(default=False,null=True)
-    montant_total_verse = models.DecimalField(max_digits=10, decimal_places=2)
-    montant_restant = models.DecimalField(max_digits=10, decimal_places=2)
-
+    
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
+    from .gestion_scolarite import calculate_total    
     
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
     
-    def save(self, *args, **kwargs):
-        # Hacher le mot de passe avant d'enregistrer l'objet
-        if self.mdp_etudiant and not self.password_updated:
-            self.mdp_etudiant = make_password(self.mdp_etudiant)
-            self.password_updated = True
-        super().save(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
-        if self.pk is None and self.mdp_etudiant:
-            self.mdp_etudiant = make_password(self.mdp_etudiant)
-        super().save(*args, **kwargs)
-    
-    def set_password(self, raw_password):
-        self.mdp_etudiant = make_password(raw_password)
-        self.password_updated = True
-        self.save()
-    
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.mdp_etudiant)
-    
-    def get_filiere_display(self):
-        if self.filiere:
-            return self.filiere.nom_filiere
-        return "Non spécifié"
- 
 
 class Notes(models.Model):
     Id_note = models.AutoField(primary_key=True)
@@ -252,7 +225,6 @@ class Administration(AbstractBaseUser, PermissionsMixin):
         verbose_name = "Administration"
         verbose_name_plural = "Administrations"
 
-
     def __str__(self):
         return self.nom
     
@@ -318,9 +290,6 @@ class Scolarite(models.Model):
     def __str__(self):
         return f"Payement de {self.etudiant.nom_etudiant} {self.etudiant.prenom_etudiant} {self.etudiant.filiere} {self.etudiant.niveau_etudiant}"
     
-    @property
-    def montant_total_verse(self):
-        return self.tranche_1 + self.tranche_2 + self.tranche_3
     @classmethod
     def get_totaux(cls):
         return cls.objects.aggregate(total_sum=models.Sum('total'))['total_sum'] or 0
@@ -343,13 +312,53 @@ class Emploi(models.Model):
     def __str__(self):
         return f"{self.module.nom_module} ({self.enseignant.nom_prof}) - {self.jour} {self.heure_debut} - {self.heure_fin}"
 
-
-
 from django.db import models
 
 class UploadedFile(models.Model):
-    file = models.FileField(upload_to='uploaded_files/')
+    file = models. FileField(upload_to='uploaded_files/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return self.file.name
+        
+############################## Les TD COURS ET ANCIENS SUJETS #################
+
+class CoursFichier(models.Model):
+    Id_fichier = models.AutoField(primary_key=True)
+    nom_fichier = models.CharField(max_length=250)
+    fichier = models.FileField(upload_to='cours/')
+    date_ajout = models.DateField(auto_now=True)
+    professeur = models.ForeignKey(professeurs, on_delete=models.CASCADE, related_name='cours_fichiers')
+    module = models.ForeignKey(Cours_Module, on_delete=models.CASCADE, related_name='fichiers')
+    filiere = models.ForeignKey(Filiere,on_delete=models.CASCADE, related_name='fichier',null=True)
+    niveau = models.CharField(max_length=200, choices=[
+        ('LICENCE1', "LICENCE1"),
+        ('LICENCE2', "LICENCE2"),
+        ('LICENCE3', "LICENCE3"),
+        ('MASTER1', "MASTER1"),
+        ('MASTER2', "MASTER2"),
+        ('DOCTORAT', "DOCTORAT"),
+    ], default='Selectionner')
+    annee_academique_cour = models.CharField(max_length=100, choices=[
+        ('2022/2023', "2022/2023"),
+        ('2023/2024', "2023/2024"),
+        ('2024/2025', "2024/2025"),
+        ('2025/2026', "2025/2026"),
+        ('2026/2027', "2026/2027"),
+        ('2027/2028', "2027/2028"),
+        ('2028/2029', "2028/2029"),
+    ], default='Selectionner')
+    type_fichier = models.CharField(max_length=200, choices=[
+        ('Cours', "Cours"),
+        ('TD', "TD"),
+        ('Devoir 1', "Devoir 1"),
+        ('Devoir 2', "Devoir 2"),
+        ('Devoir Session ', "Devoir Session"),
+    ], default='Selectionner')
+    
+    class Meta: 
+        ordering = ['date_ajout']
+        verbose_name = "Cours Fichier"
+        verbose_name_plural = "Cours Fichiers"
+
+    def __str__(self):
+        return self.nom_fichier

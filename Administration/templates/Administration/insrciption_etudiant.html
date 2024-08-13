@@ -86,7 +86,15 @@
     animation-duration: 18s;
     animation-delay: 8s;
   }
-
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    background-color: #ffffff;
+}
   form {
     padding: 40px;
     border-radius: 15px;
@@ -125,10 +133,12 @@
   }
 
   form input[type="submit"] {
-    background-color: #007bff;
+    width: 30%;
+    padding: 10px;
+    background-color: #40d67a;
     color: #fff;
     border: none;
-    padding: 12px 20px;
+    padding: 12px 12px;
     font-size: 16px;
     border-radius: 25px;
     cursor: pointer;
@@ -159,16 +169,16 @@
 </div>
 
 
-  <h1>Créer un nouvel étudiant</h1>
 
-  <form method="post">
+<form method="post">
+    <h1>Créer un nouvel étudiant</h1>
+    <br>
+    <br>
     {% csrf_token %}
     {{ form.as_p }}
+    <br>
     <input type="submit" value="Créer étudiant">
   </form>
-
-  <!-- Ajouter un bouton pour cloner le formulaire -->
-  <button id="add_student_button" class="additional-button">Ajouter un nouvel étudiant</button>
 
   <script>
     // JavaScript pour cloner le premier formulaire et l'ajouter à la fin du corps du document

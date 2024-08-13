@@ -3,7 +3,7 @@
 {% block styles %}
 <style>
     :root {
-        --blue: #110f76;/*5490aa*anncienne couleur*/
+        --blue: #5490aa;/*5490aa*anncienne couleur*/
         --white: #fff;
         --gray: #f5f5f5;
         --black1: #222;
@@ -72,6 +72,9 @@
             margin-left: 0; /* Ajuster pour les écrans très petits */
         }
     }
+    #connected_color{
+        color:green;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -129,7 +132,7 @@
     </div>
     <div class="card">
         <div>
-            <div class="numbers">{{ total_etudiants_connecte }}</div>
+            <div class="numbers" id="connected_color">{{ etudiant_connecter }}</div>
             <div class="cardName">Etudiants connectés actuellement</div>
         </div>
         <div class="iconBx">

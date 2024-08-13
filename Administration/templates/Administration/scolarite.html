@@ -6,7 +6,7 @@
 <style>
   /* Styles spécifiques au template enfant */
   body {
-    overflow-y: auto !important;
+    overflow-y: auto !important; 
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -17,6 +17,19 @@
     margin-left: 0px; /* Largeur du menu latéral */
     
   }
+  .navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    background: var(--blue);
+    color: var(--white);
+    z-index: 900;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
   
     .card {
         width: 100%;
@@ -29,7 +42,7 @@
         align-items: center;
         margin-bottom: 20px;
     }
-
+    
     .card .numbers {
         font-size: 2em;
         font-weight: 500;
@@ -140,7 +153,7 @@
     position: relative;
     z-index: 2;
     margin: 40px 0; /* Marge en haut et en bas */
-    margin-left: 200px; /* Largeur du menu latéral */
+    margin-left: 450px; /* Largeur du menu latéral */
     margin-top:10em;
     
   }
@@ -149,28 +162,29 @@
     margin-bottom: 20px;
     color: #333;
   }
-
-  form label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
+  .btn-success {
+    width: 30%;
+    padding: 10px;
+    background-color: #40d67a;
+    color: #fff;
+    border: none;
+    padding: 12px 12px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
 
-  form input[type="float"],
-  form input[type="float"] {
+  .form-control {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    font-size: 16px;
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
-  }
-
-  form input[type="submit"] {
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    background-color: #ffffff;
+}
+form input[type="submit"] {
     background-color: #007bff;
     color: #fff;
     border: none;
@@ -181,9 +195,6 @@
     transition: background-color 0.3s ease;
   }
 
-  form input[type="submit"]:hover {
-    background-color: #0056b3;
-  }
 
   .background .bubble {
     position: absolute;
@@ -194,6 +205,14 @@
   h1 {
     text-align: center;
 
+  }
+  #search-nom , #search-prenom{
+    width: 150px;
+    border-radius: 30px;
+    color: var(--blue);
+    font-size: 15px;
+    padding: 0px;
+    
   }
 </style>
 {% endblock %}
@@ -239,14 +258,18 @@
     
     <!-- Formulaire de Scolarité -->
     <div class="mb-4">
-        <form method="post">
+        <form method="post" class="mt-10">
             <h1>Gestion de la Scolarité</h1>
+            <br>
+            <br>
             {% csrf_token %}
             {{ scolarite_form.as_p }}
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <br>
+            <button type="submit" class="btn btn-success">Enregistrer</button>
         </form>
     
     
+<!-- Afficher les étudiants filtrés -->
 <!-- Afficher les étudiants filtrés -->
 <div class="student-list-container">
     <h2>Liste des étudiants</h2>
@@ -254,8 +277,8 @@
         <thead>
             <tr>
                 <th>MATRICULE</th>
-                <th>Nom</th>
-                <th>Prénom</th>
+                <th>Nom <input type="text" id="search-nom" placeholder="Rechercher Nom"></th>
+                <th>Prénom <input type="text" id="search-prenom" placeholder="Rechercher Prénom"></th>
                 <th>
                     Filière
                     <select id="filter-filiere">
@@ -289,46 +312,68 @@
                         <option value="2030/2031">2030/2031</option>
                     </select>
                 </th>
+                <th>1re Tranche</th>
+                <th>2e Tranche</th>
+                <th>3e Tranche</th>
                 <th>Montant Total Versé</th>
+                <th>Scolarite</th>
                 <th>Montant Restant</th>
+                <th>
+                    Bourse
+                    <select id="filter-bourse">
+                        <option value="">Toutes</option>
+                        <option value="non_boursier">non_boursier</option>
+                        <option value="boursier_etat">boursier_etat</option>
+                        <option value="	boursier_particulier_50">boursier_particulier_50</option>
+                        <option value="boursier_particulier_75">boursier_particulier_75</option>
+                    </select>
                 <th>Soldé</th>
             </tr>
         </thead>
         <tbody id="student-table-body">
-            {% for etudiant in etudiants %}
-                
-            <tr data-filiere="{{ etudiant.filiere.Id_filiere }}" data-niveau="{{ etudiant.niveau_etudiant }}" data-anne_academique="{{ etudiant.annee_academique_etudiant }}">
-                <td>{{ etudiant.matricule }}</td>
-                <td>{{ etudiant.nom_etudiant }}</td>
-                <td>{{ etudiant.prenom_etudiant }}</td>
-                <td>{{ etudiant.filiere.nom_filiere }}</td>
-                <td>{{ etudiant.niveau_etudiant }}</td>
-                <td>{{ etudiant.annee_academique_etudiant }}</td>
-                <td>{{ etudiant.montant_total_verse }} FCFA</td>
-                <td>{{ etudiant.Montant_restant }} FCFA</td>
+            {% for scolarite in scolarites %}
+            <tr data-filiere="{{ scolarite.etudiant.filiere.Id_filiere }}" 
+                data-niveau="{{ scolarite.etudiant.niveau_etudiant }}" 
+                data-bourse="{{ scolarite.etudiant.bourse }}" 
+                data-anne_academique="{{ scolarite.etudiant.annee_academique_etudiant }}">
+                <td>{{ scolarite.etudiant.matricule }}</td>
+                <td>{{ scolarite.etudiant.nom_etudiant }}</td>
+                <td>{{ scolarite.etudiant.prenom_etudiant }}</td>
+                <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
+                <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
+                <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
+                <td>{{ scolarite.tranche_1 }}</td>
+                <td>{{ scolarite.tranche_2 }}</td>
+                <td>{{ scolarite.tranche_3 }}</td>
+                <td>{{ scolarite.montant_total_verse }}</td>
+                <td>{{ scolarite.total }}</td>
+                <td>{{ scolarite.Montant_restant }}</td>
+                <td>{{ scolarite.etudiant.bourse }}</td>
                 <td>
-                    {% if etudiant.Montant_restant == 0 %}
+                    {% if scolarite.Montant_restant == 0 %}
                         <i class="fas fa-check-circle" style="color: green;"></i> <!-- V vert -->
-                    {% else %}
+                        {% else %}
                         <i class="fas fa-times-circle" style="color: red;"></i> <!-- Croix rouge -->
-                    {% endif %}
+                        {% endif %}
                 </td>
+            
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</div>
-</div>
 </div>
 
 <!-- Ajouter jQuery pour la gestion des événements -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#filter-filiere, #filter-niveau, #filter-anne_academique', ).on('change', function() {
+    function filterTable() {
         var filiere = $('#filter-filiere').val();
         var niveau = $('#filter-niveau').val();
+        var bourse = $('#filter-bourse').val();
         var anne_academique = $('#filter-anne_academique').val();
+        var searchNom = $('#search-nom').val().toLowerCase();
+        var searchPrenom = $('#search-prenom').val().toLowerCase();
 
         $('#student-table-body tr').each(function() {
             var show = true;
@@ -339,7 +384,20 @@ $(document).ready(function() {
             if (niveau && $(this).data('niveau') != niveau) {
                 show = false;
             }
+            if (bourse && $(this).data('bourse') != bourse) {
+                show = false;
+            }
             if (anne_academique && $(this).data('anne_academique') != anne_academique) {
+                show = false;
+            }
+
+            var nom = $(this).children('td').eq(1).text().toLowerCase();
+            var prenom = $(this).children('td').eq(2).text().toLowerCase();
+            
+            if (searchNom && !nom.includes(searchNom)) {
+                show = false;
+            }
+            if (searchPrenom && !prenom.includes(searchPrenom)) {
                 show = false;
             }
 
@@ -349,7 +407,12 @@ $(document).ready(function() {
                 $(this).hide();
             }
         });
-    });
+    }
+
+    // Attach change event to filters and input events to search fields
+    $('#filter-filiere, #filter-niveau, #filter-anne_academique, #filter-bourse').on('change', filterTable);
+    $('#search-nom, #search-prenom').on('input', filterTable);
 });
 </script>
+
 {% endblock content %}

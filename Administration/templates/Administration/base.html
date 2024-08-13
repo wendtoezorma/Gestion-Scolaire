@@ -26,7 +26,7 @@
         }
 
         :root {
-            --blue: #110f76;
+            --blue: #5490aa;
             --white: #fff;
             --gray: #f5f5f5;
             --black1: #222;
@@ -404,21 +404,24 @@
                         </span>
                         <span class="title">Ouvrir une classe</span>
                     </a>
-                </li>
-                <!--<li>
-                    <a href="#">
-                        <span class="icon">
-                            <ion-icon name="settings-outline"></ion-icon>
-                        </span>
-                        <span class="title">ouvrir une casse</span>
-                    </a>
-                </li>-->
+                </li>         
                 <li>
-                    <a href="#">
+                    <a href="{% url 'cours_list' %}">
+
+                        <span class="icon">
+                            <ion-icon name="list-outline"></ion-icon>
+                        </span>
+
+                        <span class="title">Liste Cours</span>
+
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'upload_cours' %} ">
                         <span class="icon">
                             <ion-icon name="lock-closed-outline"></ion-icon>
                         </span>
-                        <span class="title">Password</span>
+                        <span class="title">Upload COURS</span>
                     </a>
                 </li>
                 <li>
@@ -463,9 +466,7 @@
                       <ion-icon name="search-outline"></ion-icon>
                   </label>
                 </div>
-                <div class="user">
-                  <img src="{% static 'Administration/images/success_.gif' %}" alt="User Icon" id="userIcon">
-                </div>
+                
             </div>
 
             {% block content %}{% endblock %}

@@ -128,7 +128,7 @@
   form input[type="submit"] {
     background-color: #007bff;
     color: #fff;
-    border: none;
+    border: none; 
     padding: 12px 20px;
     font-size: 16px;
     border-radius: 25px;
@@ -139,13 +139,33 @@
   form input[type="submit"]:hover {
     background-color: #0056b3;
   }
-
+  .btn-success {
+    width: 30%;
+    padding: 10px;
+    background-color: #40d67a;
+    color: #fff;
+    border: none;
+    padding: 12px 12px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
   .background .bubble {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     animation: bubbleAnimation 15s infinite;
   }
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    background-color: #ffffff;
+}
 </style>
 {% endblock %}
 
@@ -159,11 +179,14 @@
   <div class="bubble"></div>
 </div>
 
-<h1>Créer un Professeur</h1>
 
 <form method="post">
+  <h1>Créer un Professeur</h1>
+  <br>
+  <br>
   {% csrf_token %}
   {{ form.as_p }}
-  <button type="submit">Enregistrer</button>
+  <br>
+  <button type="submit" class="btn btn-success">Enregistrer</button>
 </form>
 {% endblock %}

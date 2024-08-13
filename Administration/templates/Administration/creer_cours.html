@@ -16,7 +16,7 @@
     min-height: 100vh !important;
     background: none !important; /* Supprime l'arrière-plan par défaut */
     padding-top: 80px; /* Hauteur de l'entête */
-    margin-left: 300px; /* Largeur du menu latéral */
+    margin-left: 420px; /* Largeur du menu latéral */
   }
 
   .background {
@@ -154,6 +154,28 @@ form input[type="submit"]:hover {
     border-radius: 50%;
     animation: bubbleAnimation 1s infinite;
   }
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+    background-color: #ffffff;
+  }
+  .btn-success {
+    width: 50%;
+    padding: 10px;
+    background-color: #40d67a;
+    color: #fff;
+    border: none;
+    padding: 12px 12px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
 </style>
 {% endblock %}
 
@@ -166,10 +188,12 @@ form input[type="submit"]:hover {
     <div class="bubble"></div>
   </div>
 
-  <h2>Créer un nouveau cours</h2>
   <form method="post">
+    <h2>Créer un nouveau cours</h2>
+    <br>
+    <br>
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Créer le cours</button>
+    <button type="submit" class="btn btn-success">Créer le cours</button>
   </form>
 {% endblock %}

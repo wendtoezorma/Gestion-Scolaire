@@ -12,7 +12,7 @@
       min-height: 100vh !important;
       background: none !important; /* Supprime l'arrière-plan par défaut */
       padding-top: 80px; /* Hauteur de l'entête */
-      margin-left: 300px; /* Largeur du menu latéral */
+      margin-left: 400px; /* Largeur du menu latéral */
     }
   
     .background {
@@ -106,9 +106,7 @@
       font-weight: bold;
       color: #333;
     }
-  
-    form input[type="text"],
-    form input[type="email"] {
+    .form-fichier, form input[type="text"], form input[type="select"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -118,37 +116,38 @@
       box-sizing: border-box;
       background-color: rgba(255, 255, 255, 0.9);
       color: #333;
-    }
+  }
   
-    form input[type="submit"] {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-  
-    form input[type="submit"]:hover {
-      background-color: #0056b3;
-    }
-  
+    
     .background .bubble {
       position: absolute;
       background-color: rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       animation: bubbleAnimation 15s infinite;
     }
+    .btn-success {
+      width: 30%;
+      padding: 10px;
+      background-color: #40d67a;
+      color: #fff;
+      border: none;
+      padding: 12px 12px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  }
   </style>
 
-    <h1>Importer Emploi du Temps</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <h2><a href="{% url 'list_uploaded_files' %}">voir les emplois du temps envoyés</a></h2>
-        <button type="submit">Générer</button>
+  <form method="post" enctype="multipart/form-data">
+      <h1>Importer Emploi du Temps</h1>
+      <br>
+      <br>
+      {% csrf_token %}
+      {{ form.as_p }}
+        <br>
+        <br>
+        <button type="submit" class="btn btn-success">Générer</button>
     </form>
 
 {% endblock%}

@@ -1,6 +1,49 @@
 
 {% extends "Administration/base.html" %}
 {% block title %}Liste des étudiants{% endblock %}
+<<<<<<< HEAD
+
+{% block styles %}
+{{ block.super }}
+
+<style>
+    .btn-primary {
+        width: 30%;
+        padding: 10px;
+        background-color: #40d67a;
+        color: #fff;
+        border: none;
+        padding: 12px 12px;
+        font-size: 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    
+    form label {
+        display: block;
+        margin-bottom: 10px;
+        font-size:20px;
+    }
+    
+    .form-control {
+        margin:30px;
+        width: 60%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 20px;
+        transition: background-color 0.3s ease;
+        background-color: #ffffff;
+        font-style: bold;
+    }
+    
+</style>
+{% endblock %}
+
+=======
+>>>>>>> origin/master
 {% block content %}
 <h1>Liste des étudiants</h1><br>
         <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
@@ -29,6 +72,8 @@
         </table>
 
 {% endblock %}
+<<<<<<< HEAD
+=======
 <!--<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,3 +111,4 @@
         </table>
     </body>
 </body>-->
+>>>>>>> origin/master
