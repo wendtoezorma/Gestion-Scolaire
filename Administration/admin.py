@@ -80,27 +80,6 @@ admin.site.register(Administration, AdministrationAdmin)
 
 
 
-<<<<<<< HEAD
-=======
-
-#class AdministrationAdmin(admin.ModelAdmin):
-#   form = CustomUserChangeForm
-#    add_form = AdministrationAuthenticationForm
-#   list_display = ('email', 'nom', 'prenom', 'is_staff', 'is_superuser')
-#    search_fields = ('email', 'nom')
-
-#admin.site.register(Administration, AdministrationAdmin)
-
-
-
-#admin.site.register(Administration, UserAdmin)
-
-
-
-#admin.site.register(Administration,AdminAdministration)
-#admin.site.register(Administration, CustomUserAdmin)
-#admin.site.register(Administration,AdminAdministration)
->>>>>>> origin/master
 admin.site.register(Etudiant,AdminEtudiant)
 admin.site.register(Filiere,AdminFiliere)
 admin.site.register(Notes,AdminNote)

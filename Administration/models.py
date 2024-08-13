@@ -38,11 +38,7 @@ class professeurs(models.Model):
         ("Selectionner","Selectionner"),
         ("Docteur","Docteur"),
         ("Professeur","Professeur"),
-<<<<<<< HEAD
         ("Ing","Ingénieur"),
-=======
-        ("C","Ingénieur"),
->>>>>>> origin/master
         ("Lamda","Lamda"),
         ("Vacataire","Vacataire"),
     ]
@@ -145,54 +141,16 @@ class Etudiant(models.Model):
     password_updated = models.BooleanField(default=False)  # Ajoutez ce champ pour vérifier si le mot de passe a été mis à jour
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
     Connecter=models.BooleanField(default=False,null=True)
-<<<<<<< HEAD
     
-=======
-    montant_total_verse = models.DecimalField(max_digits=10, decimal_places=2)
-    montant_restant = models.DecimalField(max_digits=10, decimal_places=2)
-
->>>>>>> origin/master
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
-<<<<<<< HEAD
     from .gestion_scolarite import calculate_total    
-=======
->>>>>>> origin/master
     
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
     
-<<<<<<< HEAD
-=======
-    def save(self, *args, **kwargs):
-        # Hacher le mot de passe avant d'enregistrer l'objet
-        if self.mdp_etudiant and not self.password_updated:
-            self.mdp_etudiant = make_password(self.mdp_etudiant)
-            self.password_updated = True
-        super().save(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
-        if self.pk is None and self.mdp_etudiant:
-            self.mdp_etudiant = make_password(self.mdp_etudiant)
-        super().save(*args, **kwargs)
-    
-    def set_password(self, raw_password):
-        self.mdp_etudiant = make_password(raw_password)
-        self.password_updated = True
-        self.save()
-    
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.mdp_etudiant)
-    
-    def get_filiere_display(self):
-        if self.filiere:
-            return self.filiere.nom_filiere
-        return "Non spécifié"
- 
->>>>>>> origin/master
 
 class Notes(models.Model):
     Id_note = models.AutoField(primary_key=True)
@@ -267,10 +225,6 @@ class Administration(AbstractBaseUser, PermissionsMixin):
         verbose_name = "Administration"
         verbose_name_plural = "Administrations"
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
     def __str__(self):
         return self.nom
     
@@ -336,12 +290,6 @@ class Scolarite(models.Model):
     def __str__(self):
         return f"Payement de {self.etudiant.nom_etudiant} {self.etudiant.prenom_etudiant} {self.etudiant.filiere} {self.etudiant.niveau_etudiant}"
     
-<<<<<<< HEAD
-=======
-    @property
-    def montant_total_verse(self):
-        return self.tranche_1 + self.tranche_2 + self.tranche_3
->>>>>>> origin/master
     @classmethod
     def get_totaux(cls):
         return cls.objects.aggregate(total_sum=models.Sum('total'))['total_sum'] or 0
@@ -364,7 +312,6 @@ class Emploi(models.Model):
     def __str__(self):
         return f"{self.module.nom_module} ({self.enseignant.nom_prof}) - {self.jour} {self.heure_debut} - {self.heure_fin}"
 
-<<<<<<< HEAD
 from django.db import models
 
 class UploadedFile(models.Model):
@@ -415,15 +362,3 @@ class CoursFichier(models.Model):
 
     def __str__(self):
         return self.nom_fichier
-=======
-
-
-from django.db import models
-
-class UploadedFile(models.Model):
-    file = models.FileField(upload_to='uploaded_files/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.file.name
->>>>>>> origin/master
