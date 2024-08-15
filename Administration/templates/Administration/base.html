@@ -461,12 +461,14 @@
                     <ion-icon name="menu-outline"></ion-icon>
                 </div>
                 <div class="search">
-                  <label>
-                      <input type="text" placeholder="Rechercher ici">
-                      <ion-icon name="search-outline"></ion-icon>
-                  </label>
+                    <form action="{% url 'rechercher_etudiants' %}" method="get">
+
+                        <label>
+                            <input type="text" name="q" placeholder="Rechercher ici" />
+                            <ion-icon name="search-outline"></ion-icon>
+                        </label>
+                    </form>
                 </div>
-                
             </div>
 
             {% block content %}{% endblock %}

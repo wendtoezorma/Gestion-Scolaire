@@ -141,6 +141,9 @@ class Etudiant(models.Model):
     password_updated = models.BooleanField(default=False)  # Ajoutez ce champ pour vérifier si le mot de passe a été mis à jour
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
     Connecter=models.BooleanField(default=False,null=True)
+    montant_restant = models.FloatField(editable=True, default=0.0) 
+    montant_total_verse = models.FloatField(editable=True, default=0.0)
+    
     
     class Meta:
         ordering = ['nom_etudiant']
