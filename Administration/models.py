@@ -149,7 +149,38 @@ class Etudiant(models.Model):
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
-    from .gestion_scolarite import calculate_total    
+    from .gestion_scolarite import calculate_total   
+    
+    def __str__(self):
+        return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
+    
+    def save(self, *args, **kwargs):
+        # Hacher le mot de passe avant d'enregistrer l'objet
+        if self.mdp_etudiant and not self.password_updated:
+            self.mdp_etudiant = make_password(self.mdp_etudiant)
+            self.password_updated = True
+        super().save(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
+        if self.pk is None and self.mdp_etudiant:
+            self.mdp_etudiant = make_password(self.mdp_etudiant)
+        super().save(*args, **kwargs)
+    
+    def set_password(self, raw_password):
+        self.mdp_etudiant = make_password(raw_password)
+        self.password_updated = True
+        self.save()
+    
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.mdp_etudiant)
+    
+    def get_filiere_display(self):
+        if self.filiere:
+            return self.filiere.nom_filiere
+        return "Non spécifié"
+ 
+    
     
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"

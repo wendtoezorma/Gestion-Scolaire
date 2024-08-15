@@ -765,7 +765,7 @@ def upload_cours(request):
 
 from django.db.models import Q
 
-
+@login_required
 def rechercher_etudiants(request):
     query = request.GET.get('query', '')
     if query:

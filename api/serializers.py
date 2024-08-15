@@ -11,7 +11,10 @@ class EtudiantSerializer(serializers.ModelSerializer):
         model = Etudiant
         fields = '__all__'
 
-
+class CoursModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cours_Module
+        fields = ['nom_module']
 
 class EtudiantLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -21,6 +24,7 @@ class UpdatePasswordSerializer(serializers.Serializer):
     nouveau_mot_de_passe = serializers.CharField(write_only=True)
 
 class NotesSerializer(serializers.ModelSerializer):
+    matiere_module = CoursModuleSerializer()
     class Meta:
         model = Notes
         fields = ['matiere_module', 'Note1', 'Note2', 'moyenne']

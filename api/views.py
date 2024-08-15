@@ -184,7 +184,7 @@ class UploadedFileDetailView(generics.RetrieveAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
     
-
+'''
 def display_table(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
     file_path = uploaded_file.file.path
@@ -195,6 +195,20 @@ def display_table(request, file_id):
 
     return Response({'table_html': table_html}, status=status.HTTP_200_OK)
 
+'''
+from rest_framework.decorators import api_view
+
+
+@api_view(['GET'])
+def display_table(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    file_path = uploaded_file.file.path
+    df = pd.read_excel(file_path)
+
+    # Convertir DataFrame en HTML
+    table_html = df.to_html(index=False)
+
+    return Response({'table_html': table_html}, status=status.HTTP_200_OK)
 
 
 from django.http import HttpResponse
