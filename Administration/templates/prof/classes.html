@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classe</title>
+    <style>
+        .btn-primary {
+            width: 30%;
+            padding: 10px;
+            background-color: #40d67a;
+            color: #fff;
+            border: none;
+            padding: 12px 12px;
+            font-size: 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .form-control {
+            margin: 30px;
+            width: 60%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+            background-color: #ffffff;
+            font-style: bold;
+        }
+    </style>
+</head>
+<body>
+    {% if error_message %}
+        <p>{{ error_message }}</p>
+    {% else %}
+        <h1>Liste des étudiants</h1><br>
+        <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
+        <table border="1"><br>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Sexe</th>
+                    <th>Matricule</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        <td>{{ etudiant.sexe_etudiant }}</td>
+                        <td>{{ etudiant.matricule }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'select_module_pour_prof' filiere_id=filiere_id niveau=niveau %}">Voir les modules</a>
+<br>
+        <a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
+    {% endif %}
+     <!--<form>
+        <select id="select_filiere" class="form-control">
+             Options pour les filières 
+        </select>
+        <select id="select_niveau" class="form-control">
+             Options pour les niveaux 
+        </select>
+        <input type="hidden" id="professeur_id" value="{{ professeur.Id_prof }}">
+        <button type="button" id="envoyer" class="btn-primary">Envoyer</button>
+    </form> -->
+
+    <script>
+        document.getElementById("envoyer").addEventListener("click", function() {
+            var filiere_id = document.getElementById("select_filiere").value;
+            var niveau = document.getElementById("select_niveau").value;
+            var professeur_id = document.getElementById("professeur_id").value; // Assurez-vous d'avoir un champ pour le professeur_id
+            window.location.href = `/classe_pour_prof/${filiere_id}/${niveau}/${professeur_id}/`;
+
+        });
+    </script>
+</body>
+</html>

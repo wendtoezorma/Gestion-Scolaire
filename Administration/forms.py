@@ -25,7 +25,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere', 'mot_de_passe'
+            'filiere', 'mot_de_passe','montant_total_verse','montant_restant'
         ]
         widgets = {
             #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
@@ -112,13 +112,14 @@ from .models import Administration
 class CoursModuleForm(forms.ModelForm):
     class Meta:
         model = Cours_Module
-        fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere', 'professeur']
+        fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere', 'professeur','niveau',]
         widgets ={
             'nom_module': forms.TextInput(attrs={'class': 'form-control'}),
             'credit_module': forms.TextInput(attrs={'class': 'form-control'}),
             'volume_horaire': forms.TextInput(attrs={'class': 'form-control'}),
             'filiere': forms.Select(attrs={'class': 'form-control'}),
             'professeur': forms.Select(attrs={'class': 'form-control'}),
+            'niveau': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -298,11 +299,3 @@ class CoursFichierForm(forms.ModelForm):
 
 
 ####### pour filtrer les cours ###########
-from .models import CoursFichier,Etudiant
-
-class FiltreCoursForm(forms.Form):
-    filiere = forms.ModelChoiceField(queryset=Filiere.objects.all(), required=False, label="Filière")
-    niveau = forms.ChoiceField(choices=Etudiant._meta.get_field('niveau_etudiant').choices, required=False, label="Niveau")
-    annee_academique = forms.CharField(max_length=100, required=False, label="Année Académique")
-    type_fichier = forms.CharField(max_length=100, required=False, label="Type Fichier")
-

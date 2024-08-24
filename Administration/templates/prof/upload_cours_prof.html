@@ -1,0 +1,22 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>integration des cours </title>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data">
+    
+        <h1>Upload Cours</h1>
+        <br>
+        <br>
+        <br>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <br>
+        <button type="submit" class="btn btn-success">Upload</button>
+        <div class="add-file"><a href="{% url 'cours_list_prof' %} "></i>Voir cours , TD ou Exercices Enregister</a></div>
+    </form>
+</body>
+</html>

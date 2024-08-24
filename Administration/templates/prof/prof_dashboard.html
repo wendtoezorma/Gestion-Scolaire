@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prof Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: #5490aa;
+            color: white;
+            padding: 10 px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            color: #f0f0f0;
+            transform: translateX(10px);
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .sidebar .welcome {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: white;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            font-size: 18px;
+            color: #666;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sidebar a,
+        .content h1,
+        .content p {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Bubble Animation */
+        .bubble {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 123, 255, 0.5);
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        .bubble:nth-child(1) {
+            left: 10%;
+            animation-duration: 12s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(2) {
+            left: 30%;
+            width: 80px;
+            height: 80px;
+            animation-duration: 18s;
+        }
+
+        .bubble:nth-child(3) {
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            animation-duration: 15s;
+            animation-delay: 4s;
+        }
+
+        .bubble:nth-child(4) {
+            left: 70%;
+            width: 100px;
+            height: 100px;
+            animation-duration: 20s;
+            animation-delay: 6s;
+        }
+
+        .bubble:nth-child(5) {
+            left: 90%;
+            width: 40px;
+            height: 40px;
+            animation-duration: 14s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            font-size: 60px;
+            color: #5490aa;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .content.open {
+                margin-left: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hamburger" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="sidebar">
+        <a href="{% url 'voir_notes' %}"><i class="fas fa-clipboard-list"></i> Voir les notes des étudiants</a>
+        <a href="{% url 'upload_cours_prof' %}"><i class="fas fa-upload"></i> Enregistrer cours ET Travaux dirigé</a>
+        <a href="{% url 'cours_list_prof' %}"><i class="fas fa-book"></i> Voir les cours</a>
+        <a href="{% url 'list_uploaded_files_prof' %}"><i class="fas fa-calendar-alt"></i> Voir les emplois du temps de la semaine</a>
+    </div>
+
+    <div class="content">
+        <h1>Tableau de bord du professeur</h1>
+        <p>Accédez à vos ressources facilement via le menu à gauche.</p>
+        <!-- Bubble elements -->
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.sidebar').classList.toggle('open');
+            document.querySelector('.content').classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>

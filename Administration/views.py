@@ -489,7 +489,7 @@ def upload_file(request):
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-            """# Handle file upload
+            # Handle file upload
             file = request.FILES['file']
             df = pd.read_excel(file)
 
@@ -508,12 +508,12 @@ def upload_file(request):
 
             # Appliquer un style au tableau
             style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ])
             table.setStyle(style)
@@ -528,7 +528,7 @@ def upload_file(request):
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="fichier_modifié.pdf"'
 
-            return response"""
+            return response
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
@@ -559,6 +559,7 @@ def display_table(request,file_id):
 
     return render(request, 'Administration/display_table.html', {'table_html': table_html})
  ### tous ece qui concerne le mdp oublier 
+
 
 
 def password_reset_request(request):
@@ -761,3 +762,25 @@ def upload_cours(request):
     else:
         form = CoursFichierForm()
     return render(request, 'Administration/upload_cours.html', {'form': form})
+
+from django.db.models import Q
+
+@login_required
+def rechercher_etudiants(request):
+    query = request.GET.get('query', '')
+    if query:
+        # Filtrage par plusieurs champs
+        étudiants = Etudiant.objects.filter(
+            Q(nom_etudiant__icontains=query) |
+            Q(prenom_etudiant__icontains=query) |
+            Q(email_etudiant__icontains=query) |
+            Q(telephone_etudiant__icontains=query) |
+            Q(lieu_naiss_etudiant__icontains=query) |
+            Q(nationalite_etudiant__icontains=query) |
+            Q(niveau_etudiant__icontains=query) |
+            Q(annee_academique_etudiant__icontains=query)
+        ).distinct()
+    else:
+        etudiants = Etudiant.objects.all()
+    
+    return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants})

@@ -14,6 +14,6 @@ urlpatterns = [
     
     path('etudiantprofil/', StudentProfileView.as_view(), name='etudiant_detail'),
     path('emploi_du_temps/', UploadedFileListView.as_view(), name='uploaded_file_list_api'),
-    path('emploi_du_temps/<int:file_id>/view/', display_table, name='display_table'),#
+    path('emploi_du_temps/<int:file_id>/view/', display_table, name='display_table'),
     path('Douwnload_emploi_du_temps/<int:file_id>/download/', download_pdf, name='download_pdf'),
 ]

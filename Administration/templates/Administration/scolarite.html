@@ -4,8 +4,20 @@
 
 
 <style>
+    .student-list-container {
+    width: 100%;
+    overflow-x: auto; /* Ajoute la barre de défilement horizontale */
+    }
+
+    .student-table {
+    min-width: 1200px; /* Assurez-vous que le tableau dépasse la largeur du conteneur pour activer le défilement */
+    width: 100%;
+    border-collapse: collapse;
+    }
+
   /* Styles spécifiques au template enfant */
   body {
+    overflow-y: auto !important;
     overflow-y: auto !important; 
     display: flex !important;
     flex-direction: column !important;
@@ -17,19 +29,7 @@
     margin-left: 0px; /* Largeur du menu latéral */
     
   }
-  .navigation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 300px;
-    height: 100vh;
-    background: var(--blue);
-    color: var(--white);
-    z-index: 900;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-}
+  
   
     .card {
         width: 100%;
@@ -267,7 +267,8 @@ form input[type="submit"] {
             <br>
             <button type="submit" class="btn btn-success">Enregistrer</button>
         </form>
-    
+    </div>
+</div>
     
 <!-- Afficher les étudiants filtrés -->
 <!-- Afficher les étudiants filtrés -->
@@ -359,7 +360,8 @@ form input[type="submit"] {
             
             </tr>
             {% endfor %}
-        </tbody>
+
+        </tbody>        
     </table>
 </div>
 
@@ -416,3 +418,4 @@ $(document).ready(function() {
 </script>
 
 {% endblock content %}
+ 

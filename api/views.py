@@ -117,11 +117,26 @@ class EtudiantNotesList(APIView):
         notes = Notes.objects.filter(etudiant=etudiant)
         note_serializer = NotesSerializer(notes, many=True)
         etudiant_serializer = EtudiantSerializer(etudiant)
+        
+          # Organiser les notes en un dictionnaire
+        notes_dict = {}
+        for note_data in note_serializer.data:
+            module_name = note_data['matiere_module']['nom_module']
+            notes_dict[module_name] = {
+                'Note1': note_data['Note1'],
+                'Note2': note_data['Note2'],
+                'moyenne': note_data['moyenne']
+            }
 
         return Response({
             'etudiant': etudiant_serializer.data,
-            'notes': note_serializer.data
+            'notes': notes_dict
         }, status=status.HTTP_200_OK)
+        
+        '''return Response({
+            'etudiant': etudiant_serializer.data,
+            'notes': note_serializer.data
+        }, status=status.HTTP_200_OK)'''
 
 
 class ModulesClasseView(APIView):
@@ -184,7 +199,7 @@ class UploadedFileDetailView(generics.RetrieveAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
     
-
+'''
 def display_table(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
     file_path = uploaded_file.file.path
@@ -195,6 +210,20 @@ def display_table(request, file_id):
 
     return Response({'table_html': table_html}, status=status.HTTP_200_OK)
 
+'''
+from rest_framework.decorators import api_view
+
+
+@api_view(['GET'])
+def display_table(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    file_path = uploaded_file.file.path
+    df = pd.read_excel(file_path)
+
+    # Convertir DataFrame en HTML
+    table_html = df.to_html(index=False)
+
+    return Response({'table_html': table_html}, status=status.HTTP_200_OK)
 
 
 from django.http import HttpResponse
