@@ -70,24 +70,23 @@ class professeurs(models.Model):
         return f"{self.niveau_prof}.{self.nom_prof} {self.prenom_prof}"
     
     
-class Cours_Module(models.Model):
-    Id_module = models.AutoField(primary_key=True)
-    nom_module = models.CharField(max_length=250)
-    credit_module = models.IntegerField()#limiter le nombre de chifre a 2 chiffre
-    volume_horaire = models.CharField(max_length=10)
-    date_ajout = models.DateField(auto_now=True)
-    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name='cours',default=1)
-    professeur = models.ForeignKey(professeurs, on_delete=models.CASCADE, related_name='modules',default=1)
-
-    class Meta:
-        ordering = ['nom_module']
-        verbose_name = "Cours_Module"
-        verbose_name_plural = "Cours_Modules"
-
-
-    def __str__(self):
-        return self.nom_module
+    def save(self, *args, **kwargs):
+        # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
+        if self.pk is None and self.mdp_prof:
+            self.mdp_prof = make_password(self.mdp_prof)
+        super().save(*args, **kwargs)
     
+    
+    
+
+    def set_password(self, password):
+        self.mdp_prof = make_password(password)
+
+    def check_password(self, password):
+        return check_password(password, self.mdp_prof)
+    
+    
+
 class Boursier(models.Model):
     TYPE_CHOICES = [
         ('non_boursier', 'Non Boursier'),
@@ -184,6 +183,32 @@ class Etudiant(models.Model):
     
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
+
+class Cours_Module(models.Model):
+    Id_module = models.AutoField(primary_key=True)
+    nom_module = models.CharField(max_length=250)
+    credit_module = models.IntegerField()#limiter le nombre de chifre a 2 chiffre
+    volume_horaire = models.CharField(max_length=10)
+    date_ajout = models.DateField(auto_now=True)
+    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE, related_name='cours',default=1)
+    professeur = models.ForeignKey(professeurs, on_delete=models.CASCADE, related_name='modules',default=1)
+    niveau = models.CharField(max_length=200, choices=[
+        ('LICENCE1', "LICENCE1"),
+        ('LICENCE2', "LICENCE2"),
+        ('LICENCE3', "LICENCE3"),
+        ('MASTER1', "MASTER1"),
+        ('MASTER2', "MASTER2"),
+        ('DOCTORAT', "DOCTORAT"),
+    ], default='Selectionner')
+
+    class Meta:
+        ordering = ['nom_module']
+        verbose_name = "Cours_Module"
+        verbose_name_plural = "Cours_Modules"
+
+
+    def __str__(self):
+        return self.nom_module
     
 
 class Notes(models.Model):

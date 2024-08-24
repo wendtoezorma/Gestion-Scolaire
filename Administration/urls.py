@@ -58,7 +58,9 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('rechercher-etudiants/', rechercher_etudiants, name='rechercher_etudiants'),
-    path('api/', include('api.urls'))
+    path('api/', include('api.urls')),
+    path('enseignant/', include('CoteEnseignant.urls'))
+
     
 ]
 ########### pour les fichiers #########

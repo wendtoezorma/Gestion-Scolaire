@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "Administration",
     'api',
     'rest_framework',
+    'CoteEnseignant'
 ]
 
 MIDDLEWARE = [

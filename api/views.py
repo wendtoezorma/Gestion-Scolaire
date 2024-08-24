@@ -117,11 +117,26 @@ class EtudiantNotesList(APIView):
         notes = Notes.objects.filter(etudiant=etudiant)
         note_serializer = NotesSerializer(notes, many=True)
         etudiant_serializer = EtudiantSerializer(etudiant)
+        
+          # Organiser les notes en un dictionnaire
+        notes_dict = {}
+        for note_data in note_serializer.data:
+            module_name = note_data['matiere_module']['nom_module']
+            notes_dict[module_name] = {
+                'Note1': note_data['Note1'],
+                'Note2': note_data['Note2'],
+                'moyenne': note_data['moyenne']
+            }
 
         return Response({
             'etudiant': etudiant_serializer.data,
-            'notes': note_serializer.data
+            'notes': notes_dict
         }, status=status.HTTP_200_OK)
+        
+        '''return Response({
+            'etudiant': etudiant_serializer.data,
+            'notes': note_serializer.data
+        }, status=status.HTTP_200_OK)'''
 
 
 class ModulesClasseView(APIView):
