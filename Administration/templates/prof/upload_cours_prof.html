@@ -1,10 +1,79 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>integration des cours </title>
-</head>
-<body>
+{%extends 'prof/baseprof.html'%}
+{% block title %}Enregistrer Cours{% endblock %}
+{% block styles %}
+
+<style>
+    /* Assure que le body et le conteneur occupent tout l'espace disponible */
+   /* Assure que le body et le conteneur occupent tout l'espace disponible */
+   
+   form {
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 2;
+    margin: 40px 0; /* Marge en haut et en bas */
+    margin-left: 400px; /* Largeur du menu latéral */
+    margin-top:10em;
+}
+
+.form-fichier, form input[type="text"], form input[type="select"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+
+form input[type="file"]::-webkit-file-upload-button {
+    background-color: #40d67a; /* Couleur du bouton */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.btn-success {
+    width: 30%;
+    padding: 10px;
+    background-color: #40d67a;
+    color: #fff;
+    border: none;
+    padding: 12px 12px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+}
+.add-file{
+   
+    text-align: right;
+    
+}
+</style>
+   
+{% endblock styles %}
+    
+{% block profcontent %}
     <form method="post" enctype="multipart/form-data">
     
         <h1>Upload Cours</h1>
@@ -18,5 +87,6 @@
         <button type="submit" class="btn btn-success">Upload</button>
         <div class="add-file"><a href="{% url 'cours_list_prof' %} "></i>Voir cours , TD ou Exercices Enregister</a></div>
     </form>
-</body>
-</html>
+
+{% endblock profcontent %}
+    

@@ -368,53 +368,64 @@ form input[type="submit"] {
 <!-- Ajouter jQuery pour la gestion des événements -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function() {
-    function filterTable() {
-        var filiere = $('#filter-filiere').val();
-        var niveau = $('#filter-niveau').val();
-        var bourse = $('#filter-bourse').val();
-        var anne_academique = $('#filter-anne_academique').val();
-        var searchNom = $('#search-nom').val().toLowerCase();
-        var searchPrenom = $('#search-prenom').val().toLowerCase();
-
-        $('#student-table-body tr').each(function() {
-            var show = true;
-
-            if (filiere && $(this).data('filiere') != filiere) {
-                show = false;
-            }
-            if (niveau && $(this).data('niveau') != niveau) {
-                show = false;
-            }
-            if (bourse && $(this).data('bourse') != bourse) {
-                show = false;
-            }
-            if (anne_academique && $(this).data('anne_academique') != anne_academique) {
-                show = false;
-            }
-
-            var nom = $(this).children('td').eq(1).text().toLowerCase();
-            var prenom = $(this).children('td').eq(2).text().toLowerCase();
-            
-            if (searchNom && !nom.includes(searchNom)) {
-                show = false;
-            }
-            if (searchPrenom && !prenom.includes(searchPrenom)) {
-                show = false;
-            }
-
-            if (show) {
-                $(this).show();
+    $(document).ready(function() {
+        function filterTable() {
+            var filiere = $('#filter-filiere').val();
+            var niveau = $('#filter-niveau').val();
+            var bourse = $('#filter-bourse').val();
+            var anne_academique = $('#filter-anne_academique').val();
+            var searchNom = $('#search-nom').val().toLowerCase();
+            var searchPrenom = $('#search-prenom').val().toLowerCase();
+            var hasResults = false; // Track if any results are shown
+    
+            $('#student-table-body tr').each(function() {
+                var show = true;
+    
+                if (filiere && $(this).data('filiere') != filiere) {
+                    show = false;
+                }
+                if (niveau && $(this).data('niveau') != niveau) {
+                    show = false;
+                }
+                if (bourse && $(this).data('bourse') != bourse) {
+                    show = false;
+                }
+                if (anne_academique && $(this).data('anne_academique') != anne_academique) {
+                    show = false;
+                }
+    
+                var nom = $(this).children('td').eq(1).text().toLowerCase();
+                var prenom = $(this).children('td').eq(2).text().toLowerCase();
+                
+                if (searchNom && !nom.includes(searchNom)) {
+                    show = false;
+                }
+                if (searchPrenom && !prenom.includes(searchPrenom)) {
+                    show = false;
+                }
+    
+                if (show) {
+                    $(this).show();
+                    hasResults = true; // Mark that there is at least one result
+                } else {
+                    $(this).hide();
+                }
+            });
+    
+            if (!hasResults) {
+                $('#student-table-body').append('<tr id="no-results"><td colspan="13">Aucun résultat trouvé</td></tr>');
             } else {
-                $(this).hide();
+                $('#no-results').remove();
             }
+        }
+    
+        $('#filter-filiere, #filter-niveau, #filter-bourse, #filter-anne_academique, #search-nom, #search-prenom').on('input', function() {
+            filterTable();
         });
-    }
-
-    // Attach change event to filters and input events to search fields
-    $('#filter-filiere, #filter-niveau, #filter-anne_academique, #filter-bourse').on('change', filterTable);
-    $('#search-nom, #search-prenom').on('input', filterTable);
-});
+    
+        filterTable(); // Initial call to filter the table when the page loads
+    });
+    
 </script>
 
 {% endblock content %}

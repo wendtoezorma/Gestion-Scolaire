@@ -1,13 +1,8 @@
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vue de l'emploi du temps</title>
-</head>
-<body>
-    <h2>Contenu du fichier Excel</h2>
-  <div>
-    {{ table_html|safe }}
-  </div>
-</body>
-</html>
+{%extends 'prof/baseprof.html'%}
+{% block title %} Vue Emploi de temps{% endblock %}
+{% block profcontent %}
+<h2>Contenu du fichier Excel</h2>
+<div>
+  {{ table_html|safe }}
+</div>
+{% endblock profcontent %}

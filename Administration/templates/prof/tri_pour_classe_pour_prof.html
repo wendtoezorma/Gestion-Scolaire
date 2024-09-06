@@ -1,10 +1,7 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tri de classe coté enseignant</title>
-</head>
-<body>
+{%extends 'prof/baseprof.html'%}
+{% block title %}Enseignants Connexion{% endblock %}
+ 
+{% block profcontent %}
     
 <style>
     /* Styles spécifiques au template enfant */
@@ -190,6 +187,5 @@
         //window.location.href = `classe_pour_prof/${filiere_id}/${niveau}/${professeurId}/`;
     });
 </script>
-    
-</body>
-</html>
+{% endblock profcontent %}
+  

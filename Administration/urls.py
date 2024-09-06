@@ -13,6 +13,7 @@ urlpatterns = [
     path('gestion_scolarite/', gestion_scolarite, name='gestion_scolarite'),
     path('upload_cours/', upload_cours, name='upload_cours'), 
     path('cours_list/', cours_list, name='cours_list'),
+    # 
     
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('upload_file', upload_file, name='upload_file'),
@@ -31,7 +32,6 @@ urlpatterns = [
      #path("update_password",update_password,name="update_password"),
     path('creer-filiere/', creer_filiere, name='creer_filiere'),
     path('creer-cours/', creer_cours, name='creer_cours'),
-    path('Ad', index, name='home'),
     path('inscription_etudiant/',inscription_etudiant,name='inscription_etudiant'),
     
     #path('etudiant_login', etudiant_login, name= 'etudiant_login')
@@ -59,8 +59,13 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('rechercher-etudiants/', rechercher_etudiants, name='rechercher_etudiants'),
     path('api/', include('api.urls')),
-    path('enseignant/', include('CoteEnseignant.urls'))
-
+    path('enseignant/', include('CoteEnseignant.urls')),
+    
+    ##################################  Professeurs #####################################
+    path('prof_dashboard/', prof_dashboard, name='prof_dashboard'),
+    
+    ##################################  Informations #####################################
+    path('infos/', infos, name='infos'), 
     
 ]
 ########### pour les fichiers #########

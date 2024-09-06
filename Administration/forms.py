@@ -22,11 +22,10 @@ class EtudiantCreationForm(forms.ModelForm):
     class Meta:
         model = Etudiant
         fields = [
-            'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 
+            'nom_etudiant', 'prenom_etudiant', 'photo','email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere', 'mot_de_passe','montant_total_verse','montant_restant'
-        ]
+            'filiere', 'mot_de_passe','bourse']
         widgets = {
             #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
             'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
@@ -298,4 +297,13 @@ class CoursFichierForm(forms.ModelForm):
         }
 
 
-####### pour filtrer les cours ###########
+####### pour les informations ###########
+from .models import Infos
+class Infos_Form(forms.ModelForm):
+    class Meta:
+        model=Infos
+        fields=["titre","message","contenu"]
+        widgets={
+            "titre":forms.TextInput(attrs={"class":"form-control"}),
+            "message":forms.TextInput(attrs={"class":"form-control"}),
+        }

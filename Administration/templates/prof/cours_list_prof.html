@@ -1,141 +1,138 @@
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>liste des cours </title>
-</head>
-<body>
-    <style>
-        /* Styles spécifiques au template enfant */
-        body {
-            overflow-y: auto !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: flex-start !important;
-            min-height: 100vh !important;
-            background: none !important; /* Supprime l'arrière-plan par défaut */
-            padding-top: 80px; /* Hauteur de l'entête */
-            margin-left: 0px; /* Largeur du menu latéral */
+{%extends 'prof/baseprof.html'%}
+{% block title %}Liste Cours{% endblock %}
+<style>
+    /* Styles spécifiques au template enfant */
+    body {
+        overflow-y: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        min-height: 100vh !important;
+        background: none !important; /* Supprime l'arrière-plan par défaut */
+        padding-top: 80px; /* Hauteur de l'entête */
+        margin-left: 0px; /* Largeur du menu latéral */
+    }
+    h1 {
+        text-align: center;
+    }
+    .cours-list-container {
+        padding: 20px;
+        background-color: var(--white);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .cours-list-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--blue);
+    }
+    .cours-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
+        font-size: 0.95rem; /* Ajuste la taille des icônes */
+    }
+    .cours-table thead {
+        background-color: var(--blue);
+        color: var(--white);
+    }
+    .cours-table th, .cours-table td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+    .cours-table tbody tr:nth-child(even) {
+        background-color: var(--gray);
+    }
+    .cours-table tbody tr:hover {
+        background-color: var(--blue);
+        color: var(--white);
+    }
+    #T{
+        width: 100px;
+    }
+    .cours-table th {
+        background-color: var(--blue);
+        color: var(--white);
+    }
+
+    @media (max-width: 768px) {
+        .cours-table th, .cours-table td {
+            padding: 10px;
         }
-        h1 {
-            text-align: center;
+        .cours-table {
+            font-size: 0.85rem; /* Réduire la taille de police pour les petits écrans */
+        }
+    }
+    @media (max-width: 480px) {
+        .cours-table th, .cours-table td {
+            padding: 5px;
+        }
+        .cours-table {
+            font-size: 0.95rem; /* Réduire encore la taille de police pour les très petits écrans */
+            width: 100%;
+          border-collapse: collapse;
+          margin: 0 auto;
         }
         .cours-list-container {
+            width: 100%;
             padding: 20px;
             background-color: var(--white);
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .cours-list-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
+    }
+    #filter-modules ,#filter-niveau,
+        #filter-type_fichier ,#filter-enseignant,
+        #filter-annee_academique,#filter-filiere{
+            border-radius: 30px;
             color: var(--blue);
+            font-size:13px;
         }
-        .cours-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0 auto;
-            font-size: 0.95rem; /* Ajuste la taille des icônes */
+        #taill{
+            font-size: 13px;
         }
-        .cours-table thead {
-            background-color: var(--blue);
-            color: var(--white);
+
+        form {
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 2;
+            margin: 40px 0; /* Marge en haut et en bas */
+            margin-left: 430px; /* Largeur du menu latéral */
+            margin-top:10em;
+        }        
+        .add-file .btn, #add{
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            text-align: center;
         }
-        .cours-table th, .cours-table td {
+        
+        .add-file .btn i {
+            margin-right: 5px;
+        }
+        .btn-success {
+            width: 5%;
             padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
+            background-color: #40d67a;
+            color: #fff;
+            border: none;
+            padding: 12px 12px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        .cours-table tbody tr:nth-child(even) {
-            background-color: var(--gray);
-        }
-        .cours-table tbody tr:hover {
-            background-color: var(--blue);
-            color: var(--white);
-        }
-        #T{
-            width: 100px;
-        }
-        .cours-table th {
-            background-color: var(--blue);
-            color: var(--white);
-        }
-    
-        @media (max-width: 768px) {
-            .cours-table th, .cours-table td {
-                padding: 10px;
-            }
-            .cours-table {
-                font-size: 0.85rem; /* Réduire la taille de police pour les petits écrans */
-            }
-        }
-        @media (max-width: 480px) {
-            .cours-table th, .cours-table td {
-                padding: 5px;
-            }
-            .cours-table {
-                font-size: 0.95rem; /* Réduire encore la taille de police pour les très petits écrans */
-                width: 100%;
-              border-collapse: collapse;
-              margin: 0 auto;
-            }
-            .cours-list-container {
-                width: 100%;
-                padding: 20px;
-                background-color: var(--white);
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            }
-        }
-        #filter-modules ,#filter-niveau,
-            #filter-type_fichier ,#filter-enseignant,
-            #filter-annee_academique,#filter-filiere{
-                border-radius: 30px;
-                color: var(--blue);
-                font-size:13px;
-            }
-            #taill{
-                font-size: 13px;
-            }
-    
-            form {
-                padding: 40px;
-                border-radius: 15px;
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-                max-width: 700px;
-                text-align: center;
-                background-color: rgba(255, 255, 255, 0.8);
-                position: relative;
-                z-index: 2;
-                margin: 40px 0; /* Marge en haut et en bas */
-                margin-left: 430px; /* Largeur du menu latéral */
-                margin-top:10em;
-            }        
-            .add-file .btn, #add{
-                display: flex;
-                align-items: center;
-                justify-content: end;
-                text-align: center;
-            }
-            
-            .add-file .btn i {
-                margin-right: 5px;
-            }
-            .btn-success {
-                width: 5%;
-                padding: 10px;
-                background-color: #40d67a;
-                color: #fff;
-                border: none;
-                padding: 12px 12px;
-                font-size: 16px;
-                border-radius: 25px;
-                cursor: pointer;
-                transition: background-color 0.3s ease;
-            }
-           
-    </style>
+       
+</style>
+ 
+{% block profcontent %}
     <br>
     <br>
     <br>
@@ -268,5 +265,6 @@
         });
     });
     </script>
-</body>
-</html>
+
+{% endblock profcontent %}
+    

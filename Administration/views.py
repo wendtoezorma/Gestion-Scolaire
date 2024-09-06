@@ -75,11 +75,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.tokens import default_token_generator
 from django.views import View
 
-def index(request):
-    return render(request,"Administration/index.html")
-
-
-
 
 from django.contrib.auth import authenticate, login  # Importer le login et authenticate
 from django.contrib import messages  # Importer messages
@@ -508,12 +503,12 @@ def upload_file(request):
 
             # Appliquer un style au tableau
             style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.peachpuff),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ])
             table.setStyle(style)
@@ -747,6 +742,24 @@ def cours_list(request):
     return render(request, 'Administration/cours_list.html', {'cours_fichiers': cours_fichiers,})
 
 
+################ Les informations sur l'app mobile  ################
+
+from .forms import Infos_Form
+from .models import Infos
+
+def infos(request):
+    form = Infos.objects.all()
+    if request.method == 'POST':
+        form = Infos_Form(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Information partagée avec succès.')
+    else:
+        form = Infos_Form()
+
+    return render(request, 'Administration/infos.html', {'form': form,})
+
+
 ############# fichiers ###########
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -784,3 +797,6 @@ def rechercher_etudiants(request):
         etudiants = Etudiant.objects.all()
     
     return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants})
+
+def prof_dashboard(request):
+    return render(request, 'prof/prof_dashboard.html')

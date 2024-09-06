@@ -107,7 +107,7 @@ class Etudiant(models.Model):
     prenom_etudiant = models.CharField(max_length=270)
     email_etudiant = models.EmailField(unique=True)
     telephone_etudiant = models.CharField(max_length=200)
-
+    
     choix_sexe = [
         ('Selectionner', "Selectionner"),
         ('Masculin', "Masculin"),
@@ -133,22 +133,21 @@ class Etudiant(models.Model):
         ('2026/2027', "2026/2027"),
         ('2027/2028', "2027/2028"),
         ('2028/2029', "2028/2029"),
-    ], default='Selectionner') 
+    ], default='Selectionner')
     mdp_etudiant = models.CharField(max_length=200, blank=True)
     date_ajout = models.DateField(auto_now=True)
     filiere = models.ForeignKey(Filiere, related_name='etudiants', on_delete=models.CASCADE, null=True)
-    password_updated = models.BooleanField(default=False)  # Ajoutez ce champ pour vérifier si le mot de passe a été mis à jour
+    password_updated = models.BooleanField(default=False)
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
-    Connecter=models.BooleanField(default=False,null=True)
-    montant_restant = models.FloatField(editable=True, default=0.0) 
-    montant_total_verse = models.FloatField(editable=True, default=0.0)
+    Connecter = models.BooleanField(default=False, null=True)
     
+    # Nouveau champ pour la photo de l'étudiant
+    photo = models.ImageField(upload_to='photos/', null=True, blank=True)
     
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
-    from .gestion_scolarite import calculate_total   
     
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
@@ -160,12 +159,6 @@ class Etudiant(models.Model):
             self.password_updated = True
         super().save(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-        # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
-        if self.pk is None and self.mdp_etudiant:
-            self.mdp_etudiant = make_password(self.mdp_etudiant)
-        super().save(*args, **kwargs)
-    
     def set_password(self, raw_password):
         self.mdp_etudiant = make_password(raw_password)
         self.password_updated = True
@@ -178,11 +171,7 @@ class Etudiant(models.Model):
         if self.filiere:
             return self.filiere.nom_filiere
         return "Non spécifié"
- 
-    
-    
-    def __str__(self):
-        return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
+
 
 class Cours_Module(models.Model):
     Id_module = models.AutoField(primary_key=True)
@@ -421,3 +410,19 @@ class CoursFichier(models.Model):
 
     def __str__(self):
         return self.nom_fichier
+
+#################### POUR LES INFORMATIONS A AFFICHER DANS L'APP MOBILE ####
+
+class Infos(models.Model):
+    id_infos = models.AutoField(primary_key=True)
+    titre = models.CharField(max_length=200)
+    message=models.TextField(max_length=100000)
+    contenu=models.FileField(upload_to="infos/",blank=True)
+    date_creation=models.DateField(auto_now=True)
+    class Meta: 
+        ordering = ['date_creation']
+        verbose_name = "info"
+        verbose_name_plural = "infos"
+
+    def __str__(self):
+        return self.titre

@@ -1,10 +1,6 @@
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emploi du temps </title>
-</head>
-<body>
+{%extends 'prof/baseprof.html'%}
+{% block title %} Fichiers Enregistrés{% endblock %}
+{% block profcontent %}
     <h2>Liste des fichiers uploadés</h2>
   <table>
     <thead>
@@ -28,5 +24,5 @@
       {% endfor %}
     </tbody>
   </table>
-</body>
-</html>
+{% endblock profcontent %}
+  

@@ -1,14 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Connexion Professeur</title>
-</head>
-<body>
+{%extends 'prof/baseprof.html'%}
+{% block title %}Enseignants Connexion{% endblock %}
+ 
+{% block profcontent %}
     <h1>Connexion Professeur</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Se connecter</button>
     </form>
-</body>
-</html>
+{% endblock profcontent %}
+    
