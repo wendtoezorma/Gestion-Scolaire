@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager,PermissionsMixin, Group, Permission
 from django.contrib.auth.hashers import make_password, check_password
-from django.contrib.auth.hashers import make_password, check_password
+
 
 #La classe Filiere
 class Filiere(models.Model):
@@ -99,8 +99,15 @@ class Boursier(models.Model):
 
     def __str__(self):
         return self.type_bourse
-
-
+from django.core.validators import MinLengthValidator
+import re
+from .gestion_scolarite import calculate_total 
+from django.core.exceptions import ValidationError
+def validate_password_special_char(value):
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', value):
+        raise ValidationError(
+            "Le mot de passe doit contenir au moins un caractère spécial : !@#$%^&*(),.?\":{}|<>"
+        )
 class Etudiant(models.Model):
     matricule = models.BigAutoField(primary_key=True)
     nom_etudiant = models.CharField(max_length=200)
@@ -134,7 +141,7 @@ class Etudiant(models.Model):
         ('2027/2028', "2027/2028"),
         ('2028/2029', "2028/2029"),
     ], default='Selectionner')
-    mdp_etudiant = models.CharField(max_length=200, blank=True)
+    mdp_etudiant = models.CharField(max_length= 9, blank=True,validators=[validate_password_special_char, MinLengthValidator(8)])
     date_ajout = models.DateField(auto_now=True)
     filiere = models.ForeignKey(Filiere, related_name='etudiants', on_delete=models.CASCADE, null=True)
     password_updated = models.BooleanField(default=False)
@@ -144,26 +151,36 @@ class Etudiant(models.Model):
     # Nouveau champ pour la photo de l'étudiant
     photo = models.ImageField(upload_to='photos/', null=True, blank=True)
     
+     
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
+      
     
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
     
-    def save(self, *args, **kwargs):
+    #def save(self, *args, **kwargs):
         # Hacher le mot de passe avant d'enregistrer l'objet
-        if self.mdp_etudiant and not self.password_updated:
-            self.mdp_etudiant = make_password(self.mdp_etudiant)
-            self.password_updated = True
-        super().save(*args, **kwargs)
+        #if self.mdp_etudiant and not self.password_updated:
+            #self.mdp_etudiant = make_password(self.mdp_etudiant)
+            #self.password_updated = True
+        #super().save(*args, **kwargs)
 
+    
+    
     def set_password(self, raw_password):
         self.mdp_etudiant = make_password(raw_password)
         self.password_updated = True
         self.save()
     
+        
+    def set_password1(self, raw_password):
+        self.mdp_etudiant = make_password(raw_password)
+        self.save()
+
+
     def check_password(self, raw_password):
         return check_password(raw_password, self.mdp_etudiant)
     
@@ -171,8 +188,8 @@ class Etudiant(models.Model):
         if self.filiere:
             return self.filiere.nom_filiere
         return "Non spécifié"
-
-
+ 
+    
 class Cours_Module(models.Model):
     Id_module = models.AutoField(primary_key=True)
     nom_module = models.CharField(max_length=250)

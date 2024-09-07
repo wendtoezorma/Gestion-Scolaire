@@ -135,7 +135,7 @@ def inscription_etudiant(request):
         if form.is_valid():
             etudiant = form.save(commit=False)
             #mot_de_passe = form.cleaned_data['mot_de_passe']
-            etudiant.mdp_etudiant = generateur_mdp()
+            etudiant.set_password1(form.cleaned_data['mot_de_passe'])
             etudiant.save()
             # Envoyer un email à l'étudiant avec le mot de passe généré (optionnel)
             # send_mail(
@@ -186,6 +186,8 @@ def update_password(request, etudiant_id):
         if form.is_valid():
             nouveau_mot_de_passe = form.cleaned_data['nouveau_mot_de_passe']
             etudiant.set_password(nouveau_mot_de_passe)  # Hash le nouveau mot de passe
+            etudiant.password_updated = True# Mettre à jour le champ password_updated
+            etudiant.save()
             # Stocker l'identifiant de l'étudiant dans la session
             request.session['etudiant_id'] = etudiant.matricule
             return redirect('student_dashboard')
@@ -780,10 +782,10 @@ from django.db.models import Q
 
 @login_required
 def rechercher_etudiants(request):
-    query = request.GET.get('query', '')
+    query = request.GET.get('query', '').strip()
     if query:
         # Filtrage par plusieurs champs
-        étudiants = Etudiant.objects.filter(
+        etudiants = Etudiant.objects.filter(
             Q(nom_etudiant__icontains=query) |
             Q(prenom_etudiant__icontains=query) |
             Q(email_etudiant__icontains=query) |
@@ -792,11 +794,13 @@ def rechercher_etudiants(request):
             Q(nationalite_etudiant__icontains=query) |
             Q(niveau_etudiant__icontains=query) |
             Q(annee_academique_etudiant__icontains=query)
-        ).distinct()
+            ).distinct()
+        no_results = not etudiants.exists()
     else:
         etudiants = Etudiant.objects.all()
+        no_results = False  # Pas de message si la recherche est vide
     
-    return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants})
+    return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants, 'no_results': no_results , 'query': query})
 
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')

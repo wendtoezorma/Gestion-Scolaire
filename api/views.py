@@ -75,31 +75,6 @@ class UpdatePasswordView(APIView):
             return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-""""
-
-
-class EtudiantNotesList(generics.ListAPIView):
-    def get(self, request):
-        # Assurez-vous que l'étudiant est connecté et qu'il a une session active
-        etudiant_id = request.session.get('etudiant_id')
-        if not etudiant_id:
-            return Response({'error': 'Non authentifié'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        try:
-            etudiant = Etudiant.objects.get(matricule=etudiant_id)
-        except Etudiant.DoesNotExist:
-            return Response({'error': 'Étudiant non trouvé'}, status=status.HTTP_404_NOT_FOUND)
-
-    def get_queryset(self):
-        etudiant_id = self.request.session.get('etudiant_id')
-        if not etudiant_id:
-            return Notes.objects.none()  # Aucun résultat si l'étudiant n'est pas authentifié
-
-        return Notes.objects.filter(etudiant__matricule=etudiant_id)
-  
-
-"""
-
 
 class EtudiantNotesList(APIView):
     def get(self, request):
@@ -199,18 +174,7 @@ class UploadedFileDetailView(generics.RetrieveAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
     
-'''
-def display_table(request, file_id):
-    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
-    file_path = uploaded_file.file.path
-    df = pd.read_excel(file_path)
 
-    # Convertir DataFrame en HTML
-    table_html = df.to_html(index=False)
-
-    return Response({'table_html': table_html}, status=status.HTTP_200_OK)
-
-'''
 from rest_framework.decorators import api_view
 
 
@@ -276,3 +240,36 @@ def download_pdf(request, file_id):
     response['Content-Disposition'] = 'attachment; filename="emploi_du_temps.pdf"'
 
     return response
+
+class CoursFichierAPI(APIView):
+    def get(self, request):
+        cours_fichiers = CoursFichier.objects.all()
+        serializer = CoursFichierSerializer(cours_fichiers, many=True)
+
+        # Générer le contenu HTML avec des liens téléchargeables
+        html_content = """
+        <html>
+        <head><title>Liste des fichiers</title></head>
+        <body>
+        <h1>Liste des fichiers de cours</h1>
+        <ul>
+        """
+        for fichier in serializer.data:
+            #fichier_url = fichier['fichier']
+            fichier_url = request.build_absolute_uri(fichier['fichier'])  # Django gère déjà les URLs complètes pour les fichiers
+            html_content += f"""
+            <li>
+                <strong>Nom fichier :</strong> {fichier['nom_fichier']}<br>
+                <strong>Fichier :</strong> <a href="{fichier_url}" download="{fichier['nom_fichier']}">Télécharger</a><br>
+                <strong>Date ajout :</strong> {fichier['date_ajout']}<br>
+                <strong>Professeur :</strong> {fichier['professeur']}<br>
+                <strong>Module :</strong> {fichier['module']}<br>
+                <strong>Filière :</strong> {fichier['filiere']}<br>
+                <strong>Niveau :</strong> {fichier['niveau']}<br>
+                <strong>Année académique :</strong> {fichier['annee_academique_cour']}<br>
+                <strong>Type de fichier :</strong> {fichier['type_fichier']}
+            </li><br><br>
+            """
+        html_content += "</ul></body></html>"
+
+        return Response(html_content, content_type="text/html", status=status.HTTP_200_OK)

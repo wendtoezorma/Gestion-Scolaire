@@ -33,8 +33,9 @@ class EtudiantCreationForm(forms.ModelForm):
             'filiere': forms.Select(attrs={'class': 'form-control'}),
             'annee_academique_etudiant': forms.Select(attrs={'class': 'form-control'}),
             'mot_de_passe': forms.PasswordInput(attrs={"placeholder": "Mot de passe"}),
-            #'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
+            'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
         }
+       
 
 
     

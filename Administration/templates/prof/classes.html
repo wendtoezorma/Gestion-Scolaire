@@ -40,7 +40,7 @@
         <p>{{ error_message }}</p>
     {% else %}
         <h1>Liste des étudiants</h1><br>
-        <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
+        <h2>Filière: {{ filiere_id }} et {{ nom_filiere }} - Niveau: {{ niveau }}</h2><br>
         <table border="1"><br>
             <thead>
                 <tr>
@@ -61,9 +61,9 @@
                 {% endfor %}
             </tbody>
         </table>
-        <a href="{% url 'select_module_pour_prof' filiere_id=filiere_id niveau=niveau %}">Voir les modules</a>
+        <a href="{% url 'select_module_pour_prof' filiere_id=filiere_id niveau=niveau %}">ajouter des notes </a>
 <br>
-        <a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
+        <a href="{% url 'voir_notes_pro' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
     {% endif %}
      <!--<form>
         <select id="select_filiere" class="form-control">

@@ -448,15 +448,15 @@
                         <span class="title">Infos</span>
                     </a>
                 </li>
-                <li class="menu-item logout">
-                    <form action="{% url 'logout' %}" method="post">
+                <li>
+                    <button type="button" class="menu-link" onclick="document.getElementById('logout-form').submit();">
+                        <span class="icon">
+                            <ion-icon name="log-out-outline"></ion-icon>
+                        </span>
+                        <span class="title">Déconnexion</span>
+                    </button>
+                    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                         {% csrf_token %}
-                        <button type="submit" class="menu-link">
-                            <span class="icon">
-                                <ion-icon name="log-out-outline"></ion-icon>
-                            </span>
-                            <span class="title">Déconnexion</span>
-                        </button>
                     </form>
                 </li>
             </ul>
@@ -472,7 +472,7 @@
                     <form action="{% url 'rechercher_etudiants' %}" method="get">
 
                         <label>
-                            <input type="text" name="q" placeholder="Rechercher ici" />
+                            <input type="text" name="query" placeholder="Rechercher ici" />
                             <ion-icon name="search-outline"></ion-icon>
                         </label>
                     </form>

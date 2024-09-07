@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 #router = DefaultRouter()
 #router.register(r'etudiants', EtudiantViewSet)
@@ -13,7 +15,8 @@ urlpatterns = [
     path('modules/', ModulesClasseView.as_view(), name='modules_classe_api'),
     
     path('etudiantprofil/', StudentProfileView.as_view(), name='etudiant_detail'),
-    path('emploi_du_temps/', UploadedFileListView.as_view(), name='uploaded_file_list_api'),
-    path('emploi_du_temps/<int:file_id>/view/', display_table, name='display_table'),
-    path('Douwnload_emploi_du_temps/<int:file_id>/download/', download_pdf, name='download_pdf'),
-]
+    path('emploi_du_temps/', UploadedFileListView.as_view(), name='uploaded_file_list_api'),#pour lister les emploi du temps disponible
+    path('emploi_du_temps/<int:file_id>/view/', display_table, name='display_table'),#pour voir un emploi du temps
+    path('Douwnload_emploi_du_temps/<int:file_id>/download/', download_pdf, name='download_pdf'),#pour le telecharger
+    path('cours-fichiers/', CoursFichierAPI.as_view(), name='cours_fichiers_api'),#envoyer sous un format html
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
