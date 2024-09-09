@@ -754,6 +754,7 @@ def infos(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Information partagée avec succès.')
+            return redirect('infos')
     else:
         form = Infos_Form()
 
@@ -771,7 +772,7 @@ def upload_cours(request):
         form = CoursFichierForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('cours_list')  # Redirige vers une page liste des cours après le téléchargement
+            return redirect('upload_cours')  # Redirige vers une page liste des cours après le téléchargement
     else:
         form = CoursFichierForm()
     return render(request, 'Administration/upload_cours.html', {'form': form})

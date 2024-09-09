@@ -106,7 +106,7 @@
        overflow: auto; /* Ajoute un défilement si le contenu dépasse */
    }
    
-   form h1 {
+.h1 {
        grid-column: span 2;
        margin-bottom: 20px;
        color: #333;
@@ -158,7 +158,7 @@
        background-color: #ffffff;
    }
    
-   .btn-success {
+   .btn-success{
        width: 50%;
        padding: 10px;
        background-color: #40d67a;
@@ -170,26 +170,56 @@
        cursor: pointer;
        transition: background-color 0.3s ease;
    }
+   .message .container{
+    justify-content: center;
+    margin-top: 40px;
+    text-align: center;
+    
+    height: 50px;
+    width: 500px;
+    margin-left: 300px;
+    
+
+   }
+   .p{
+    padding: 40px;
+    text-align: center;
+    background-color: #a9ccb6;
+   }
    
    
-   </style>
+</style>
 {% endblock  %}
-    
+ <br>   
+ <br>
 {% block content %}
-<form method="post" enctype="multipart/form-data">
-    
+<div class="message">
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+</div>
+<br>
+<br>
+<br>
+<div class="container">
     <h1>FAIRE PART D'UNE INFORMATION </h1>
     <br>
     <br>
     <br>
-    {% csrf_token %}
-    {{ form.as_p }}
     <br>
-    <br>
-    <button type="submit" class="btn btn-success">Informer</button>
-    <div class="add-file">
-        <a href="#">Voir Informations Enregistées</a></div>
-</form>
+    <form method="POST" enctype="multipart/form-data">
+        
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <br>
+        <button type="submit" class="btn btn-success">Informer</button>
+        <div class="add-file">
+            <a href="#">Voir Informations Enregistées</a></div>
+    </form>
+</div>
     
 {% endblock content %}
     
