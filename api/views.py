@@ -10,6 +10,13 @@ from .serializers import *
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.urls import reverse
+
+from .serializers import CoursFichierSerializer
+
 
 # api/views.py
 
@@ -241,7 +248,7 @@ def download_pdf(request, file_id):
 
     return response
 
-class CoursFichierAPI(APIView):
+class CoursFichierAPIs(APIView):
     def get(self, request):
         cours_fichiers = CoursFichier.objects.all()
         serializer = CoursFichierSerializer(cours_fichiers, many=True)
@@ -273,3 +280,56 @@ class CoursFichierAPI(APIView):
         html_content += "</ul></body></html>"
 
         return Response(html_content, content_type="text/html", status=status.HTTP_200_OK)
+    
+
+
+class CoursFichierAPI(APIView):
+    def get(self, request):
+        cours_fichiers = CoursFichier.objects.all()
+        serializer = CoursFichierSerializer(cours_fichiers, many=True)
+
+        # Générer le contenu JSON avec des liens téléchargeables
+        data = []
+        for fichier in serializer.data:
+            download_url = request.build_absolute_uri(
+                reverse('download_pdf', args=[fichier['Id_fichier']])
+            )
+            fichier_info = {
+                'nom_fichier': fichier['nom_fichier'],
+                'fichier': download_url,
+                'date_ajout': fichier['date_ajout'],
+                'professeur': fichier['nom_professeur'],
+                'module': fichier['nom_module'],
+                'filiere': fichier['nom_filiere'],
+                'niveau': fichier['niveau'],
+                'annee_academique': fichier['annee_academique_cour'],
+                'type_fichier': fichier['type_fichier'],
+            }
+            data.append(fichier_info)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+from django.http import HttpResponse, Http404, FileResponse
+def download_pdf_cours(request, file_id):
+  # Récupérer le fichier correspondant à l'ID
+    cours_fichier = get_object_or_404(CoursFichier, Id_fichier=file_id)
+
+    # Obtenir le chemin du fichier PDF (dans ce cas, 'fichier' est supposé être un champ FileField)
+    file_path = cours_fichier.fichier.path  # Obtenir le chemin complet du fichier sur le serveur
+
+    try:
+        # Ouvrir le fichier PDF et préparer une réponse FileResponse pour permettre le téléchargement
+        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    except FileNotFoundError:
+        # Si le fichier est introuvable
+        raise Http404("Le fichier demandé n'existe pas ou a été supprimé.")
+
+    # Facultatif : vous pouvez ajouter une disposition de téléchargement si vous voulez que le fichier soit téléchargé automatiquement
+    response['Content-Disposition'] = f'attachment; filename="{cours_fichier.nom_fichier}.pdf"'
+
+    return response
