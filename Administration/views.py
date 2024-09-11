@@ -480,6 +480,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
 import pandas as pd
 import io
 import os
@@ -488,6 +489,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .forms import UploadFileForm
 from .models import UploadedFile
+from django.core.files.base import ContentFile
 
 def header(canvas, doc):
     canvas.saveState()
@@ -513,8 +515,8 @@ def header(canvas, doc):
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
     width, height = letter
-    default_table.wrapOn(canvas, width, height)
-    default_table.drawOn(canvas, (width - default_table.width) / 2, height - 120)
+    w, h = default_table.wrap(0, 0)
+    default_table.drawOn(canvas, (width - w) / 2, height - 120)
     canvas.restoreState()
 
 @login_required(login_url='login')
@@ -562,13 +564,18 @@ def upload_file(request):
 
             doc.build(elements)
             buffer.seek(0)
+
+            # Sauvegarder le fichier PDF dans le dossier media
+            pdf_content = buffer.getvalue()
+            pdf_file = ContentFile(pdf_content)
+            uploaded_file_instance.pdf_file.save('fichier_modifié.pdf', pdf_file)
+
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="fichier_modifié.pdf"'
             return response
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
-
 
 # afficher les fichier deja uploader
 

@@ -313,6 +313,7 @@ class Enseignement(models.Model):
     professeur=models.ForeignKey(professeurs,related_name='prof',on_delete=models.CASCADE)
     module_enseigner = models.ForeignKey(Cours_Module,related_name='coursenseigner',on_delete=models.CASCADE)
     date_ajout = models.DateField(auto_now=True)
+    
     #affiche_prenom_prof=professeur.prenom_prof
     #affiche_nom_prof =professeur.nom_prof
     #affiche_module_prof =module_enseigner.nom_module
@@ -342,7 +343,7 @@ class Scolarite(models.Model):
         verbose_name = "Scolarite"
         verbose_name_plural = "Scolarite"
     
-    #####Importons la bibliothèque qui gère la scolarité en fonction de la filiere et du niveau d'étude
+    #####   Importons la bibliothèque qui gère la scolarité en fonction de la filiere et du niveau d'étude
         
     from .gestion_scolarite import calculate_total    
     def save(self, *args, **kwargs):
@@ -359,7 +360,6 @@ class Scolarite(models.Model):
     def get_totaux(cls):
         return cls.objects.aggregate(total_sum=models.Sum('total'))['total_sum'] or 0
     
-
 
 class Emploi(models.Model):
     Id_emploi = models.AutoField(primary_key=True)
@@ -380,8 +380,9 @@ class Emploi(models.Model):
 from django.db import models
 
 class UploadedFile(models.Model):
-    file = models. FileField(upload_to='uploaded_files/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(upload_to='uploads/')
+    pdf_file = models.FileField(upload_to='pdfs/', null=True, blank=True)
+
     def __str__(self):
         return self.file.name
         
@@ -395,6 +396,7 @@ class CoursFichier(models.Model):
     professeur = models.ForeignKey(professeurs, on_delete=models.CASCADE, related_name='cours_fichiers')
     module = models.ForeignKey(Cours_Module, on_delete=models.CASCADE, related_name='fichiers')
     filiere = models.ForeignKey(Filiere,on_delete=models.CASCADE, related_name='fichier',null=True)
+    
     niveau = models.CharField(max_length=200, choices=[
         ('LICENCE1', "LICENCE1"),
         ('LICENCE2', "LICENCE2"),
@@ -403,6 +405,7 @@ class CoursFichier(models.Model):
         ('MASTER2', "MASTER2"),
         ('DOCTORAT', "DOCTORAT"),
     ], default='Selectionner')
+    
     annee_academique_cour = models.CharField(max_length=100, choices=[
         ('2022/2023', "2022/2023"),
         ('2023/2024', "2023/2024"),
@@ -412,6 +415,7 @@ class CoursFichier(models.Model):
         ('2027/2028', "2027/2028"),
         ('2028/2029', "2028/2029"),
     ], default='Selectionner')
+    
     type_fichier = models.CharField(max_length=200, choices=[
         ('Cours', "Cours"),
         ('TD', "TD"),
