@@ -1,28 +1,89 @@
-{%extends 'prof/baseprof.html'%}
+{% extends 'prof/baseprof.html' %}
 {% block title %} Fichiers Enregistrés{% endblock %}
+{% block styles %}
+{{ block.super }}
+<style>
+  .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+  }
+
+  .styled-table thead tr {
+      background-color: #198db1;
+      color: #ffffff;
+      text-align: left;
+  }
+
+  .styled-table th, .styled-table td {
+      padding: 12px 15px;
+      border: 1px solid #dddddd;
+  }
+
+  .styled-table tbody tr {
+      border-bottom: 1px solid #dddddd;
+  }
+
+  .styled-table tbody tr:nth-of-type(even) {
+      background-color: #f3f3f3;
+  }
+
+  .styled-table tbody tr:last-of-type {
+      border-bottom: 2px solid #009879;
+  }
+
+  .styled-table tbody tr:hover {
+      background-color: #f1f1f1;
+  }
+
+  a {
+      color: #2cb360;
+      text-decoration: none;
+  }
+
+  a:hover {
+      text-decoration: underline;
+  }
+  #h2{
+    text-align: center;
+    padding:50px;
+  }
+  .table-list{
+    justify-content: center;
+    text-align: center;
+    padding-left: 100px;
+  }
+</style>
+{% endblock %}
+
 {% block profcontent %}
-    <h2>Liste des fichiers uploadés</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Nom du fichier</th>
-        <th>Date d'upload</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for file in files %}
-        <tr>
-          <td>{{ forloop.counter }}</td>
-          <td><a href="{% url 'display' file.id %}">{{ file.file.name }}</a></td>
-          <td>{{ file.uploaded_at }}</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="4">Aucun fichier trouvé.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<h2 id="h2">EMPLOI DE TEMPS DISPONIBLES</h2>
+<div class="container">
+  <div class="table-list">
+  <table class="styled-table">
+
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nom du fichier</th>
+                <th>Date d'upload</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{% url 'display' file.id %}">{{ file.file.name }}</a></td>
+                    <td>{{ file.uploaded_at }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">Aucun fichier trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
 {% endblock profcontent %}
-  
+

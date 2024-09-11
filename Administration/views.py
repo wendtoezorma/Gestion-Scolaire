@@ -87,7 +87,7 @@ def administration_login_view(request):
             password = form.cleaned_data.get('password')
             user = authenticate(request=request, email=email, password=password)
 
-            if user is not None:
+            if user is not None: 
                 login(request, user)
                 return redirect('admin_dashboard')
             else:
@@ -135,7 +135,7 @@ def inscription_etudiant(request):
         if form.is_valid():
             etudiant = form.save(commit=False)
             #mot_de_passe = form.cleaned_data['mot_de_passe']
-            etudiant.mdp_etudiant = generateur_mdp()
+            etudiant.set_password1(form.cleaned_data['mot_de_passe'])
             etudiant.save()
             # Envoyer un email à l'étudiant avec le mot de passe généré (optionnel)
             # send_mail(
@@ -186,6 +186,8 @@ def update_password(request, etudiant_id):
         if form.is_valid():
             nouveau_mot_de_passe = form.cleaned_data['nouveau_mot_de_passe']
             etudiant.set_password(nouveau_mot_de_passe)  # Hash le nouveau mot de passe
+            etudiant.password_updated = True# Mettre à jour le champ password_updated
+            etudiant.save()
             # Stocker l'identifiant de l'étudiant dans la session
             request.session['etudiant_id'] = etudiant.matricule
             return redirect('student_dashboard')
@@ -473,60 +475,101 @@ def voir_notes(request, filiere_id, niveau):
         return render(request, 'Administration/voir_notes.html', context)
     else:
         return redirect('admin_dashboard')
+    
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak, Image, Frame, PageTemplate
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+import pandas as pd
+import io
+import os
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .forms import UploadFileForm
+from .models import UploadedFile
+
+def header(canvas, doc):
+    canvas.saveState()
+    logo_path = os.path.join(os.getcwd(), 'static', 'Administration', 'images', 'logos', 'logoUTM.png')
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=100, height=50)
+        logo.drawOn(canvas, (letter[0] - 100) / 2, letter[1] - 60)
+    else:
+        canvas.drawString((letter[0] - 100) / 2, letter[1] - 60, 'Logo non trouvé')
+
+    default_values = [
+        ['Nom', 'Prénom', 'Date de naissance', 'Lieu de naissance', 'Nationalité'],
+        ['Valeur par défaut 1', 'Valeur par défaut 2', 'Valeur par défaut 3', 'Valeur par défaut 4', 'Valeur par défaut 5']
+    ]
+    default_table = Table(default_values)
+    default_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    width, height = letter
+    default_table.wrapOn(canvas, width, height)
+    default_table.drawOn(canvas, (width - default_table.width) / 2, height - 120)
+    canvas.restoreState()
 
 @login_required(login_url='login')
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-            # Handle file upload
             file = request.FILES['file']
-            df = pd.read_excel(file)
+            excel_sheets = pd.read_excel(file, sheet_name=None)
 
-            # Remplacer les NaN par des chaînes vides    
-            df.fillna('', inplace=True)
-
-            # Créer un buffer pour sauvegarder le PDF
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter)
 
-            # Préparer les données pour le tableau
-            data = [df.columns.to_list()] + df.values.tolist()
+            frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 2 * inch, id='normal')
+            template = PageTemplate(id='test', frames=frame, onPage=header)
+            doc.addPageTemplates([template])
 
-            # Créer le tableau
-            table = Table(data)
-
-            # Appliquer un style au tableau
-            style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.peachpuff),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ])
-            table.setStyle(style)
-
-            # Construire le PDF
             elements = []
-            elements.append(table)
-            doc.build(elements)
 
-            # Créer une réponse HTTP avec le contenu du PDF
+            for sheet_name, df in excel_sheets.items():
+                if not df.empty and not df.columns.empty:
+                    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+                    df.fillna('', inplace=True)
+                    data = [df.columns.to_list()] + df.values.tolist()
+                    if len(data) > 1 and len(data[0]) > 0:
+                        table = Table(data)
+                        style = TableStyle([
+                            ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
+                        ])
+                        table.setStyle(style)
+                        elements.append(Paragraph(f'Sheet: {sheet_name}', getSampleStyleSheet()['Heading2']))
+                        elements.append(table)
+                        elements.append(PageBreak())
+
+            doc.build(elements)
             buffer.seek(0)
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="fichier_modifié.pdf"'
-
             return response
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
+
+
 # afficher les fichier deja uploader
 
 @login_required(login_url='login')
@@ -781,10 +824,10 @@ from django.db.models import Q
 
 @login_required
 def rechercher_etudiants(request):
-    query = request.GET.get('query', '')
+    query = request.GET.get('query', '').strip()
     if query:
         # Filtrage par plusieurs champs
-        étudiants = Etudiant.objects.filter(
+        etudiants = Etudiant.objects.filter(
             Q(nom_etudiant__icontains=query) |
             Q(prenom_etudiant__icontains=query) |
             Q(email_etudiant__icontains=query) |
@@ -793,11 +836,13 @@ def rechercher_etudiants(request):
             Q(nationalite_etudiant__icontains=query) |
             Q(niveau_etudiant__icontains=query) |
             Q(annee_academique_etudiant__icontains=query)
-        ).distinct()
+            ).distinct()
+        no_results = not etudiants.exists()
     else:
         etudiants = Etudiant.objects.all()
+        no_results = False  # Pas de message si la recherche est vide
     
-    return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants})
+    return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants, 'no_results': no_results , 'query': query})
 
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')

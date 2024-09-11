@@ -1,5 +1,19 @@
 {%extends 'prof/baseprof.html'%}
 {% block title %}Enseignants Dashboard{% endblock %}
+{% block styles %}
+{{ block.super }}
+
+<style>
+
+    .title{
+        text-align: center;
+        padding: auto;
+        padding-left: -100px;
+    }
+</style>
+
+{% endblock %}
+    
  
 {% block search %}
 <div class="search">
@@ -14,8 +28,11 @@
 {% endblock search %}
 
 {% block profcontent %}
-    <div class="container">
-        <h1 style="text-align: center;">Tableau de bord du professeur</h1>
+    <div class="dash">
+        <div class="title">
+            <h1 style="text-align: center;">Tableau de bord du professeur</h1>
+
+        </div>
         <!-- Bubble elements -->
         <div class="bubble"></div>
         <div class="bubble"></div>

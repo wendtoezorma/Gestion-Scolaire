@@ -1,45 +1,39 @@
 {% extends "Administration/base.html" %}
 
 {% block content %}
-{% if etudiants %}
     <div class="student-list-container">
-        <h2>Résultats de la recherche</h2>
-        <table class="student-table">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Téléphone</th>
-                    <th>Lieu de Naissance</th>
-                    <th>Nationalité</th>
-                    <th>Niveau</th>
-                    <th>Année Académique</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for etudiant in etudiants %}
+        {% if etudiants %}
+            <h2>Résultats de la recherche  poe "{{ query }}"</h2>
+            <table class="student-table">
+                <thead>
                     <tr>
-                        <td>{{ etudiant.nom_etudiant }}</td>
-                        <td>{{ etudiant.prenom_etudiant }}</td>
-                        <td>{{ etudiant.email_etudiant }}</td>
-                        <td>{{ etudiant.telephone_etudiant }}</td>
-                        <td>{{ etudiant.lieu_naiss_etudiant }}</td>
-                        <td>{{ etudiant.nationalite_etudiant }}</td>
-                        <td>{{ etudiant.niveau_etudiant }}</td>
-                        <td>{{ etudiant.annee_academique_etudiant }}</td>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Lieu de Naissance</th>
+                        <th>Nationalité</th>
+                        <th>Niveau</th>
+                        <th>Année Académique</th>
                     </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8">Aucun étudiant trouvé</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for etudiant in etudiants %}
+                        <tr>
+                            <td>{{ etudiant.nom_etudiant }}</td>
+                            <td>{{ etudiant.prenom_etudiant }}</td>
+                            <td>{{ etudiant.email_etudiant }}</td>
+                            <td>{{ etudiant.telephone_etudiant }}</td>
+                            <td>{{ etudiant.lieu_naiss_etudiant }}</td>
+                            <td>{{ etudiant.nationalite_etudiant }}</td>
+                            <td>{{ etudiant.niveau_etudiant }}</td>
+                            <td>{{ etudiant.annee_academique_etudiant }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif no_results %}
+            <p>Aucune information trouvée pour "{{ query }}"</p>  <!-- Utilise query ici -->
+        {% endif %}
     </div>
-{% else %}
-    <div class="student-list-container">
-        <h2>Aucun résultat</h2>
-    </div>
-{% endif %}
 {% endblock %}

@@ -34,7 +34,6 @@
         }
 
             body {
-                background-image: url("{% static 'Administration/images/prof.jpg' %}");
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
@@ -396,15 +395,15 @@
                         <span class="title">Emplois du temps Semaine</span>
                     </a>
                 </li>         
-                <li class="menu-item logout">
-                    <form action="{% url 'logout' %}" method="post">
+                <li></li>
+                    <button type="button" class="menu-link" onclick="document.getElementById('logout-form').submit();">
+                        <span class="icon">
+                            <ion-icon name="log-out-outline"></ion-icon>
+                        </span>
+                        <span class="title">Déconnexion</span>
+                    </button>
+                    <form id="logout-form" action="{% url 'logout_prof' %}" method="post" style="display: none;">
                         {% csrf_token %}
-                        <button type="submit" class="menu-link">
-                            <span class="icon">
-                                <ion-icon name="log-out-outline"></ion-icon>
-                            </span>
-                            <span class="title">Déconnexion</span>
-                        </button>
                     </form>
                 </li>
             </ul>

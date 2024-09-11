@@ -69,4 +69,8 @@ class UploadedFileSerializer(serializers.ModelSerializer):
         view_url = request.build_absolute_uri(f'/emploi_du_temps/{obj.id}/view/')
         return view_url
     
-    
+
+class CoursFichierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoursFichier
+        fields = '__all__'
