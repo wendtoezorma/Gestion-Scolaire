@@ -156,10 +156,8 @@ class StudentProfileView(APIView):
             return Response({'error': 'Étudiant non trouvé'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = EtudiantSerializer(etudiant)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-
 #emploi du temps 
 
 class UploadedFileListView(generics.ListAPIView):

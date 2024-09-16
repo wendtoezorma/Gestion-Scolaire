@@ -804,3 +804,70 @@ def rechercher_etudiants(request):
 
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')
+
+
+def recherche_etudiant(request):
+    if request.method == 'POST':
+        form = RechercheEtudiantForm(request.POST)
+        if form.is_valid():
+            matricule = form.cleaned_data['matricule']
+            return redirect('generer_bulletin', matricule=matricule)  # Rediriger vers le bulletin de l'étudiant
+    else:
+        form = RechercheEtudiantForm()
+
+    return render(request, 'Administration/recherche_etudiant.html', {'form': form})
+
+
+
+
+def  generer_bulletin(request, matricule):
+     # Récupérer l'étudiant en fonction de son matricule
+    etudiant = get_object_or_404(Etudiant, matricule=matricule)
+    
+    # Récupérer les notes de l'étudiant
+    notes = Notes.objects.filter(etudiant=etudiant).select_related('matiere_module')
+   
+    # Calculer la moyenne générale
+    total_notes_ponderees = sum(note.moyenne * note.matiere_module.credit_module for note in notes)
+    total_credits = sum(note.matiere_module.credit_module for note in notes)
+    
+    if total_credits > 0:
+        moyenne_generale = total_notes_ponderees / total_credits
+    else:
+        moyenne_generale = 0.0
+    
+    # Déterminer la mention en fonction de la moyenne générale
+    if moyenne_generale >= 16:
+        mention = "Très Bien"
+        decision_jury = "Admis"
+    elif moyenne_generale >= 14:
+        mention = "Bien"
+        decision_jury = "Admis"
+    elif moyenne_generale >= 12:
+        mention = "Assez-Bien"
+        decision_jury = "Admis"
+    else:
+        mention = "Insuffisant"
+        decision_jury = "Ajourné"
+    
+    # Contexte des variables à passer au template
+    context = {
+        
+        'etudiant': etudiant,
+        #'matiere': notes,
+        'notes': notes,  # Liste des notes avec les modules associés
+        'moyenne_generale': round(moyenne_generale, 2),
+        'mention': mention,
+        'decision_jury': decision_jury,
+        'total_credits': total_credits,
+        'directeur_name': 'Dr. Frédéric BATIONO',
+        'directeur_signature_url': '/static/Administration/images/signature_directeur.jpg',
+        'header_image_url': '/static/Administration/images/header_image.jpg',
+        'footer_image_url': '/static/Administration/images/footer_image.jpg',
+        'institution_adresse': '01 BP 6445 Ouagadougou 01',
+        'institution_tel': '+226 25375735 / 51893535 / 79802980',
+    }
+
+    return render(request, 'Administration/bulletin.html', context)
+    
+

@@ -52,8 +52,8 @@ def afficher_classe(request, filiere_id, niveau, professeur_id):
     
     # Vérifier si le professeur enseigne un cours dans la filière demandée
     modules = Cours_Module.objects.filter(filiere_id=filiere_id, professeur_id=professeur.Id_prof,niveau=niveau)
-    filiere = modules.first().filiere  # Récupérer la filière du premier module trouvé
-
+    #filiere = modules.first().filiere  # Récupérer la filière du premier module trouvé
+    filiere = getattr(modules.first(), 'filiere', None)
     if not modules.exists():
         return render(request, 'Prof/classes.html', {
             'error_message': "Vous n'avez pas le droit d'ouvrir cette classe."

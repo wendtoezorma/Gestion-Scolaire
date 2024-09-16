@@ -308,3 +308,9 @@ class Infos_Form(forms.ModelForm):
             "titre":forms.TextInput(attrs={"class":"form-control"}),
             "message":forms.TextInput(attrs={"class":"form-control"}),
         }
+
+class RechercheEtudiantForm(forms.Form):#pour le bulletin
+    matricule = forms.IntegerField(label="Matricule de l'étudiant", widget=forms.TextInput(attrs={
+        'placeholder': 'Entrer le matricule de l\'étudiant',
+        'class': 'form-control',
+    }))
