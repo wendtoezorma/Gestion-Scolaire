@@ -173,7 +173,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label='Mot de passe')
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)  # Extraire 'request' des kwargs s'il est passé!
+        self.request = kwargs.pop('request', None)  # Extraire 'request' des kwargs s'il est passé
         super().__init__(*args, **kwargs)
         self.user = None
 
@@ -302,3 +302,9 @@ class Infos_Form(forms.ModelForm):
             "titre":forms.TextInput(attrs={"class":"form-control"}),
             "message":forms.TextInput(attrs={"class":"form-control"}),
         }
+
+class RechercheEtudiantForm(forms.Form):#pour le bulletin
+    matricule = forms.IntegerField(label="Matricule de l'étudiant", widget=forms.TextInput(attrs={
+        'placeholder': 'Entrer le matricule de l\'étudiant',
+        'class': 'form-control',
+    }))

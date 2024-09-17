@@ -87,7 +87,7 @@ def administration_login_view(request):
             password = form.cleaned_data.get('password')
             user = authenticate(request=request, email=email, password=password)
 
-            if user is not None: 
+            if user is not None:
                 login(request, user)
                 return redirect('admin_dashboard')
             else:
@@ -475,108 +475,60 @@ def voir_notes(request, filiere_id, niveau):
         return render(request, 'Administration/voir_notes.html', context)
     else:
         return redirect('admin_dashboard')
-    
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak, Image, Frame, PageTemplate
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-import pandas as pd
-import io
-import os
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .forms import UploadFileForm
-from .models import UploadedFile
-from django.core.files.base import ContentFile
-
-def header(canvas, doc):
-    canvas.saveState()
-    logo_path = os.path.join(os.getcwd(), 'static', 'Administration', 'images', 'logos', 'logoUTM.png')
-    if os.path.exists(logo_path):
-        logo = Image(logo_path, width=100, height=50)
-        logo.drawOn(canvas, (letter[0] - 100) / 2, letter[1] - 60)
-    else:
-        canvas.drawString((letter[0] - 100) / 2, letter[1] - 60, 'Logo non trouvé')
-
-    default_values = [
-        ['Nom', 'Prénom', 'Date de naissance', 'Lieu de naissance', 'Nationalité'],
-        ['Valeur par défaut 1', 'Valeur par défaut 2', 'Valeur par défaut 3', 'Valeur par défaut 4', 'Valeur par défaut 5']
-    ]
-    default_table = Table(default_values)
-    default_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-    width, height = letter
-    w, h = default_table.wrap(0, 0)
-    default_table.drawOn(canvas, (width - w) / 2, height - 120)
-    canvas.restoreState()
 
 @login_required(login_url='login')
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
+            # Handle file upload
             file = request.FILES['file']
-            excel_sheets = pd.read_excel(file, sheet_name=None)
+            df = pd.read_excel(file)
 
+            # Remplacer les NaN par des chaînes vides    
+            df.fillna('', inplace=True)
+
+            # Créer un buffer pour sauvegarder le PDF
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter)
 
-            frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 2 * inch, id='normal')
-            template = PageTemplate(id='test', frames=frame, onPage=header)
-            doc.addPageTemplates([template])
+            # Préparer les données pour le tableau
+            data = [df.columns.to_list()] + df.values.tolist()
 
+            # Créer le tableau
+            table = Table(data)
+
+            # Appliquer un style au tableau
+            style = TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.peachpuff),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ])
+            table.setStyle(style)
+
+            # Construire le PDF
             elements = []
-
-            for sheet_name, df in excel_sheets.items():
-                if not df.empty and not df.columns.empty:
-                    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-                    df.fillna('', inplace=True)
-                    data = [df.columns.to_list()] + df.values.tolist()
-                    if len(data) > 1 and len(data[0]) > 0:
-                        table = Table(data)
-                        style = TableStyle([
-                            ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
-                        ])
-                        table.setStyle(style)
-                        elements.append(Paragraph(f'Sheet: {sheet_name}', getSampleStyleSheet()['Heading2']))
-                        elements.append(table)
-                        elements.append(PageBreak())
-
+            elements.append(table)
             doc.build(elements)
+
+            # Créer une réponse HTTP avec le contenu du PDF
             buffer.seek(0)
-
-            # Sauvegarder le fichier PDF dans le dossier media
-            pdf_content = buffer.getvalue()
-            pdf_file = ContentFile(pdf_content)
-            uploaded_file_instance.pdf_file.save('fichier_modifié.pdf', pdf_file)
-
             response = HttpResponse(buffer, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="fichier_modifié.pdf"'
+
             return response
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
-
 # afficher les fichier deja uploader
 
 @login_required(login_url='login')
@@ -835,7 +787,6 @@ def infos(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Information partagée avec succès.')
-            return redirect('infos')
     else:
         form = Infos_Form()
 
@@ -853,7 +804,7 @@ def upload_cours(request):
         form = CoursFichierForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('upload_cours')  # Redirige vers une page liste des cours après le téléchargement
+            return redirect('cours_list')  # Redirige vers une page liste des cours après le téléchargement
     else:
         form = CoursFichierForm()
     return render(request, 'Administration/upload_cours.html', {'form': form})
@@ -885,3 +836,70 @@ def rechercher_etudiants(request):
 
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')
+
+
+def recherche_etudiant(request):
+    if request.method == 'POST':
+        form = RechercheEtudiantForm(request.POST)
+        if form.is_valid():
+            matricule = form.cleaned_data['matricule']
+            return redirect('generer_bulletin', matricule=matricule)  # Rediriger vers le bulletin de l'étudiant
+    else:
+        form = RechercheEtudiantForm()
+
+    return render(request, 'Administration/recherche_etudiant.html', {'form': form})
+
+
+
+
+def  generer_bulletin(request, matricule):
+     # Récupérer l'étudiant en fonction de son matricule
+    etudiant = get_object_or_404(Etudiant, matricule=matricule)
+    
+    # Récupérer les notes de l'étudiant
+    notes = Notes.objects.filter(etudiant=etudiant).select_related('matiere_module')
+   
+    # Calculer la moyenne générale
+    total_notes_ponderees = sum(note.moyenne * note.matiere_module.credit_module for note in notes)
+    total_credits = sum(note.matiere_module.credit_module for note in notes)
+    
+    if total_credits > 0:
+        moyenne_generale = total_notes_ponderees / total_credits
+    else:
+        moyenne_generale = 0.0
+    
+    # Déterminer la mention en fonction de la moyenne générale
+    if moyenne_generale >= 16:
+        mention = "Très Bien"
+        decision_jury = "Admis"
+    elif moyenne_generale >= 14:
+        mention = "Bien"
+        decision_jury = "Admis"
+    elif moyenne_generale >= 12:
+        mention = "Assez-Bien"
+        decision_jury = "Admis"
+    else:
+        mention = "Insuffisant"
+        decision_jury = "Ajourné"
+    
+    # Contexte des variables à passer au template
+    context = {
+        
+        'etudiant': etudiant,
+        #'matiere': notes,
+        'notes': notes,  # Liste des notes avec les modules associés
+        'moyenne_generale': round(moyenne_generale, 2),
+        'mention': mention,
+        'decision_jury': decision_jury,
+        'total_credits': total_credits,
+        'directeur_name': 'Dr. Frédéric BATIONO',
+        'directeur_signature_url': '/static/Administration/images/signature_directeur.jpg',
+        'header_image_url': '/static/Administration/images/header_image.jpg',
+        'footer_image_url': '/static/Administration/images/footer_image.jpg',
+        'institution_adresse': '01 BP 6445 Ouagadougou 01',
+        'institution_tel': '+226 25375735 / 51893535 / 79802980',
+    }
+
+    return render(request, 'Administration/bulletin.html', context)
+    
+

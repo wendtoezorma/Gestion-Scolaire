@@ -63,6 +63,8 @@ urlpatterns = [
     
     ##################################  Professeurs #####################################
     path('prof_dashboard/', prof_dashboard, name='prof_dashboard'),
+    path('generer_bulletin/<int:matricule>/', generer_bulletin, name='generer_bulletin'),
+    path('recherche/', recherche_etudiant, name='recherche_etudiant'),
     
     ##################################  Informations #####################################
     path('infos/', infos, name='infos'), 

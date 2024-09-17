@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relevé de Notes</title>
+    <style>
+        /* Styles de base pour la mise en page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #000;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        /* Image d'en-tête */
+        .header-image {
+            width: 100%;
+            height: auto;
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #000;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #000;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .signature {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+                /* Informations de l'étudiant */
+                .information_eleve {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+        }
+         /* Informations de l'étudiant */
+         .information_eleve {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .information_eleve p {
+            margin: 10px 20px;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        /* Image de pied de page */
+        .footer-image {
+            width: 100%;
+            height: auto;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Image d'en-tête -->
+    <img src="{{ header_image_url }}" alt="Image en haut du bulletin" class="header-image">
+
+    <!-- En-tête avec informations générales -->
+    <div class="header">
+        <h1>Université de Technologies et de Management</h1>
+        <p>{{ institution_adresse }}</p>
+        <p>Tél: {{ institution_tel }}</p>
+    </div>
+    
+    <!-- Informations de l'étudiant -->
+    <h2><center>Relevé de Notes</center></h2>
+    <div class="information_eleve">
+
+    
+        
+        <p><strong>Nom:</strong> {{ etudiant.nom_etudiant }}</p>
+        <p><strong>Prénom(s):</strong> {{ etudiant.prenom_etudiant }}</p>
+        <p><strong>Né(e) le:</strong> {{ etudiant.Date_naiss_etudiant }}</p>
+        <p><strong>Domaine:</strong> <h4>science et technologie</h4> </p>
+        <p><strong>Mention:</strong> <h4>Genie Electrique </h4></p>
+        <p><strong>Spécialité:</strong> {{ etudiant.filiere }}</p>
+        <p><strong>Matricule:</strong> {{ etudiant.matricule }}</p>
+        <p><strong>Année académique:</strong> {{ etudiant.annee_academique_etudiant }}</p>
+        <p><strong>Niveau:</strong> {{ etudiant.niveau_etudiant }}</p>
+    </div>
+    <!-- Tableau des résultats -->
+    <table>
+        <thead>
+            <tr>
+                <th>Unité d'Enseignement</th>
+                <th>Modules</th>
+                <th>Moyenne /20</th>
+                <th>Crédits</th>
+                <th>Note Pondérée</th>
+                <th>Nom du professeur</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Boucle sur les matières du modèle -->
+            {% for note in notes  %}
+                <tr>
+                    <td>{{ note.matiere_module.nom_module }}</td>
+                    <td>{{ note.matiere_module.nom_module }}</td>
+                    <td>{{ note.moyenne }}</td>
+                    <td>{{ note.matiere_module.credit_module }}</td>
+                    <td>{{ note.matiere_module.professeur.nom }}</td>
+                    <td>{{ note.matiere_module.professeur.nom_prof }} {{ note.matiere_module.professeur.prenom_prof }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">Aucune note disponible</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">Total des Crédits :</td>
+                <td colspan="2">{{ total_credits }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">Moyenne Générale :</td>
+                <td colspan="2">{{ moyenne_generale }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">Décision du Jury :</td>
+                <td colspan="2">{{ decision_jury }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+        </tbody>
+    </table>
+
+
+    <!-- Moyennes -->
+    <p><strong>Moyenne du Semestre (S1):</strong> {{ moyenne_generale }}</p>
+    <p><strong>Mention:</strong> {{ mention }}</p>
+
+    <!-- Signature avec image -->
+    <div class="signature">
+        <p><strong>Le Directeur de l'IUP</strong></p>
+        <!-- Image de la signature -->
+        <img src="{{ directeur_signature_url }}" alt="Signature du directeur">
+        <p>{{ directeur_name }}</p>
+    </div>
+    
+    <!-- Image de pied de page -->
+    <img src="{{ footer_image_url }}" alt="Image en bas du bulletin" class="footer-image">
+</div>
+
+</body>
+</html>

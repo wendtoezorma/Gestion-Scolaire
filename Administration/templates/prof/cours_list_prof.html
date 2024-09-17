@@ -1,8 +1,5 @@
 {%extends 'prof/baseprof.html'%}
 {% block title %}Liste Cours{% endblock %}
-{% block styles %}
-{{ block.super }}
-
 <style>
     /* Styles spécifiques au template enfant */
     body {
@@ -132,15 +129,15 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
+       
 </style>
-{% endblock %}
+ 
 {% block profcontent %}
     <br>
     <br>
     <br>
     <h1>Liste des Cours </h1>
-        <a href="{% url 'upload_cours_prof' %} " id="add"> 
+        <a href="{% url 'upload_cours' %} " id="add"> 
             <i class="fas fa-plus-circle btn btn-success add-file" > </i>
         </a>
     <br>
