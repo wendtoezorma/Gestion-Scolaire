@@ -659,22 +659,6 @@ def test_email_view(request):
     #vue pour que les etudiants voi leur notes et moyenne
     from django.shortcuts import render, get_object_or_404
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import ScolariteForm,FiltreForm
-
-"""def gestion_scolarite(request):
-    if request.method == 'POST':
-        form = ScolariteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Scolarité mise à jour avec succès.')
-            return redirect('gestion_scolarite')
-    else:
-        form = ScolariteForm()
-    
-    return render(request, 'Administration/scolarite.html', {'form': form})
-"""
 #pour qu'un etudiant puissent voir ses note
 from .models import Etudiant, Notes, Cours_Module
 
@@ -718,6 +702,64 @@ from .models import Etudiant, Filiere, Scolarite
 from .apperu import apercu_caisse, nombre_etudiants_connecter
 from datetime import datetime
 
+# def gestion_scolarite(request):
+#     filieres = Filiere.objects.all()
+#     scolarites = Scolarite.objects.select_related('etudiant').all()
+#     etudiants = Etudiant.objects.all()
+    
+#     total_caisse = apercu_caisse()
+#     total_etudiants_inscrit = Etudiant.objects.count()
+#     total_etudiants_solde = Scolarite.objects.filter(Montant_restant=0.0).count()
+#     date_paiement = datetime.now().strftime('%Y-%m-%d')
+#     heure_paiement = datetime.now().strftime('%H:%M')
+    
+
+#     if request.method == 'POST':
+#         etudiant_id = request.POST.get('etudiant')
+#         scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+#         #form = ScolariteForm(request.POST)
+#         if scolarite:
+#             scolarite_form = ScolariteForm(request.POST, instance=scolarite)
+#         else:
+#             scolarite_form = ScolariteForm(request.POST)
+
+#         if scolarite_form.is_valid():
+#             scolarite_form.save()
+#         context = {
+#                 'scolarites': scolarites,
+#                 'etudiants': etudiants,
+#                 'scolarite_form': scolarite_form,
+#                 'filieres': filieres,
+#                 'total_caisse': total_caisse,
+#                 'total_etudiants_inscrit': total_etudiants_inscrit,
+#                 'total_etudiants_solde': total_etudiants_solde,
+#                 'date_paiement': date_paiement,
+#                 'heure_paiement': heure_paiement,
+#             }
+        
+#             # Générer le reçu
+#         return render(request, 'Administration/recu_paiement.html',context)
+#             #return redirect('gestion_scolarite')
+        
+#     else:
+#         scolarite_form = ScolariteForm()
+
+#     context = {
+#         'scolarites': scolarites,
+#         'etudiants': etudiants,
+#         'scolarite_form': scolarite_form,
+#         'filieres': filieres,
+#         'total_caisse': total_caisse,
+#         'total_etudiants_inscrit': total_etudiants_inscrit,
+#         'total_etudiants_solde': total_etudiants_solde,
+#         'date_paiement': date_paiement,
+#         'heure_paiement': heure_paiement,
+#     }
+#     return render(request, 'Administration/scolarite.html', context)
+
+from django.shortcuts import render, redirect
+from .models import Scolarite, Etudiant
+
 def gestion_scolarite(request):
     filieres = Filiere.objects.all()
     scolarites = Scolarite.objects.select_related('etudiant').all()
@@ -729,41 +771,30 @@ def gestion_scolarite(request):
     date_paiement = datetime.now().strftime('%Y-%m-%d')
     heure_paiement = datetime.now().strftime('%H:%M')
     
-
     if request.method == 'POST':
         etudiant_id = request.POST.get('etudiant')
-        scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
-        #form = ScolariteForm(request.POST)
-        if scolarite:
-            scolarite_form = ScolariteForm(request.POST, instance=scolarite)
-        else:
-            scolarite_form = ScolariteForm(request.POST)
+        tranche_1 = request.POST.get('tranche_1')
+        tranche_2 = request.POST.get('tranche_2')
+        tranche_3 = request.POST.get('tranche_3')
+        frais_inscription = request.POST.get('frais_inscription')
 
-        if scolarite_form.is_valid():
-            scolarite_form.save()
-        context = {
-                'scolarites': scolarites,
-                'etudiants': etudiants,
-                'scolarite_form': scolarite_form,
-                'filieres': filieres,
-                'total_caisse': total_caisse,
-                'total_etudiants_inscrit': total_etudiants_inscrit,
-                'total_etudiants_solde': total_etudiants_solde,
-                'date_paiement': date_paiement,
-                'heure_paiement': heure_paiement,
-            }
-        
-            # Générer le reçu
-        return render(request, 'Administration/recu_paiement.html',context)
-            #return redirect('gestion_scolarite')
-        
-    else:
-        scolarite_form = ScolariteForm()
+        etudiant = Etudiant.objects.get(id=etudiant_id)
 
+        Scolarite.objects.create(
+            etudiant=etudiant,
+            tranche_1=tranche_1,
+            tranche_2=tranche_2,
+            tranche_3=tranche_3,
+            frais_inscription=frais_inscription
+        )
+
+        return redirect('gestion_scolarite')
+    
+    # Gérer le cas où le formulaire est accédé via GET
+    etudiants = Etudiant.objects.all()
     context = {
         'scolarites': scolarites,
         'etudiants': etudiants,
-        'scolarite_form': scolarite_form,
         'filieres': filieres,
         'total_caisse': total_caisse,
         'total_etudiants_inscrit': total_etudiants_inscrit,
@@ -815,7 +846,7 @@ def infos(request):
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import CoursFichierForm
-
+ 
 @login_required
 def upload_cours(request):
     if request.method == 'POST':
@@ -850,6 +881,7 @@ def rechercher_etudiants(request):
         no_results = False  # Pas de message si la recherche est vide
     
     return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants, 'no_results': no_results , 'query': query})
+
 
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')

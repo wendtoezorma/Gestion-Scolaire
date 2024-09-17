@@ -92,6 +92,7 @@ a:hover {
     height:100%;
 }
 
+
 .main-sidebar {
     grid-area: sidebar;
     background-color: rgb(7, 7, 7);

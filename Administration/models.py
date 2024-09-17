@@ -335,6 +335,7 @@ class Scolarite(models.Model):
     total = models.FloatField(default=0, editable=False)
     Montant_restant = models.FloatField(editable=False, default=0.0)
     montant_total_verse = models.FloatField(editable=False, default=0.0)
+    frais_inscription=models.FloatField(default=1)
     
     date_payement = models.DateField(auto_now=True)
 

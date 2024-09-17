@@ -255,20 +255,14 @@ from .models import Scolarite
 class ScolariteForm(forms.ModelForm):
     class Meta:
         model = Scolarite
-        fields = ['etudiant', 'tranche_1', 'tranche_2', 'tranche_3']
+        fields = ['etudiant', 'tranche_1', 'tranche_2', 'tranche_3','frais_inscription']
         widgets = {
             'etudiant': forms.Select(attrs={'class': 'form-control'}),
             'tranche_1': forms.NumberInput(attrs={'class': 'form-control'}),
             'tranche_2': forms.NumberInput(attrs={'class': 'form-control'}),
             'tranche_3': forms.NumberInput(attrs={'class': 'form-control'}),
+            'frais_inscription': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super(ScolariteForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            self.fields['tranche_1'].widget.attrs['readonly'] = True
-            self.fields['tranche_2'].widget.attrs['readonly'] = True
-            self.fields['tranche_3'].widget.attrs['readonly'] = True
 
 ######################### La liste des etudiants pour la scolarité ###################
 

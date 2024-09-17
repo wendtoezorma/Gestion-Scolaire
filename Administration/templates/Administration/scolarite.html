@@ -153,7 +153,7 @@
     position: relative;
     z-index: 2;
     margin: 40px 0; /* Marge en haut et en bas */
-    margin-left: 450px; /* Largeur du menu latéral */
+    margin-left: 400px; /* Largeur du menu latéral */
     margin-top:10em;
     
   }
@@ -258,15 +258,21 @@ form input[type="submit"] {
     
     <!-- Formulaire de Scolarité -->
     <div class="mb-4">
-        <form method="post" class="mt-10">
-            <h1>Gestion de la Scolarité</h1>
-            <br>
-            <br>
-            {% csrf_token %}
-            {{ scolarite_form.as_p }}
-            <br>
-            <button type="submit" class="btn btn-success">Enregistrer</button>
-        </form>
+        <form class="form-floating">
+            <input type="email" class="form-control is-invalid" id="floatingInputInvalid" placeholder="name@example.com" value="test@example.com">
+            
+            <div class="input-group">
+                <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)">
+                <span class="input-group-text">$</span>
+                <span class="input-group-text">0.00</span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+              </div>
+          </form>
+        
+        
     </div>
 </div>
     
@@ -313,6 +319,8 @@ form input[type="submit"] {
                         <option value="2030/2031">2030/2031</option>
                     </select>
                 </th>
+                <th>Action</th>
+                <th>Frais Inscription</th>
                 <th>1re Tranche</th>
                 <th>2e Tranche</th>
                 <th>3e Tranche</th>
@@ -343,9 +351,14 @@ form input[type="submit"] {
                 <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
                 <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
                 <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
-                <td>{{ scolarite.tranche_1 }}</td>
-                <td>{{ scolarite.tranche_2 }}</td>
-                <td>{{ scolarite.tranche_3 }}</td>
+                <td>
+                    <!-- Lien pour récupérer les infos de l'étudiant -->
+                    <a href="?etudiant_id={{ etudiant.id }}">Voir / Modifier</a>
+                </td>
+                <td>{{ scolarite.frais_inscription|default:"0 FCFA" }}</td>
+                <td>{{ scolarite.tranche_1|default:"0 FCFA" }}</td>
+                <td>{{ scolarite.tranche_2|default:"0 FCFA" }}</td>
+                <td>{{ scolarite.tranche_3|default:"0 FCFA" }}</td>
                 <td>{{ scolarite.montant_total_verse }}</td>
                 <td>{{ scolarite.total }}</td>
                 <td>{{ scolarite.Montant_restant }}</td>
@@ -362,8 +375,7 @@ form input[type="submit"] {
             {% endfor %}
 
         </tbody>        
-    </table>
-</div>
+    </div>
 
 <!-- Ajouter jQuery pour la gestion des événements -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

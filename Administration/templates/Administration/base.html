@@ -24,6 +24,7 @@
             padding: 0;
             box-sizing: border-box;
         }
+        
 
         :root {
             --blue: #5490aa;/*5490aa*anncienne couleur*/
@@ -38,6 +39,7 @@
             overflow-x: hidden;
             background-color: var(--gray);
         }
+
         #filter-filiere, #filter-niveau,#filter-anne_academique {
             color: var(--blue);
             border-radius: 40px;
@@ -333,6 +335,55 @@
           color: var(--white);
       }
 
+       /* Style général du bouton déconnexion */
+.menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color:var(--blue) ; /* Couleur rouge pour déconnexion */
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ajout d'ombre */
+}
+
+/* Icône à l'intérieur du bouton */
+.menu-link .icon {
+    margin-right: 10px;
+}
+
+/* Effet au survol */
+.menu-link:hover {
+    background-color: #eb4d38 ; /* Couleur plus foncée au survol */
+    transform: scale(1.05); /* Légère augmentation de la taille */
+}
+
+/* Effet lors du clic */
+.menu-link:active {
+    transform: scale(0.98); /* Légère réduction pour l'effet de clic */
+}
+
+/* Style du texte dans le bouton */
+.menu-link .title {
+    font-weight: bold;
+}
+
+/* Pour assurer la responsivité */
+@media (max-width: 600px) {
+    .menu-link {
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+#admindec{
+    margin-left: 30px;
+}
+
       
     </style>
     {% endblock %}
@@ -448,17 +499,16 @@
                         <span class="title">Infos</span>
                     </a>
                 </li>
-                <li>
+                <br>
                     <button type="button" class="menu-link" onclick="document.getElementById('logout-form').submit();">
                         <span class="icon">
                             <ion-icon name="log-out-outline"></ion-icon>
                         </span>
-                        <span class="title">Déconnexion</span>
+                        <span class="title" id="admindec">Déconnexion</span>
                     </button>
                     <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                         {% csrf_token %}
                     </form>
-                </li>
             </ul>
         </div>
 

@@ -32,6 +32,7 @@
             border-radius: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             max-width: 650px;
+            height: 470px;
             margin: 100px auto;
             text-align: center;
         }
@@ -47,9 +48,11 @@
             margin-bottom: 20px;
             font-weight: 500;
         }
+
         .form-group {
             margin-bottom: 20px; /* Espacement entre chaque champ */
         }
+
         .form-control {
             border-radius: 10px; /* Coins arrondis */
             padding: 10px; /* Espace interne */
@@ -66,12 +69,40 @@
             outline: none; /* Retirer l'outline par défaut */
         }
         
-        input::placeholder {
-            color: #aaa; /* Couleur du texte de l'espace réservé */
-            font-style: italic; /* Italique pour le placeholder */
+        /* Style pour les champs de saisie */
+        form input[type="email"] {
+            border: 1px solid #000; /* Bordure noire */
+            padding: 10px; /* Espacement intérieur */
+            margin-bottom: 15px; /* Espacement en bas */
+            border-radius: 20px; /* Coins arrondis */
+            width: 60%; /* Largeur complète */
+            margin-left: 80px;
+            box-sizing: border-box; /* Inclure la bordure et le padding dans la largeur */
         }
         
+        form input[type="password"]{
+            border: 1px solid #000; /* Bordure noire */
+            padding: 10px; /* Espacement intérieur */
+            margin-bottom: 15px; /* Espacement en bas */
+            border-radius: 20px; /* Coins arrondis */
+            width: 60%; /* Largeur complète */
+            margin-left: 20px;
+            box-sizing: border-box; /* Inclure la bordure et le padding dans la largeur */
+        }
 
+        /* Style pour le bouton de soumission */
+        form button[type="submit"] {
+            background-color: #0044cc; /* Couleur de fond */
+            color: white; /* Couleur du texte */
+            padding: 10px 20px; /* Espacement intérieur */
+            border: none; /* Pas de bordure */
+            border-radius: 20px; /* Coins arrondis */
+            cursor: pointer; /* Curseur pointeur */
+            width: 50%; /* Largeur complète */
+            box-sizing: border-box; /* Inclure la bordure et le padding dans la largeur */
+        }
+
+    
         .password-wrapper {
             position: relative;
         }
@@ -120,6 +151,7 @@
         #haut {
             padding-top: 50px;
         }
+
     </style>
 </head>
 <body>
@@ -131,18 +163,19 @@
                 <form method="post">
                     {% csrf_token %}
                     {{ form.as_p }}
+                    <br>
                     <button type="submit">Se connecter</button>
                 </form>
-                {% if messages %}
-                    {% for message in messages %}
-                        <p class="text-center text-danger">{{ message }}</p>
-                    {% endfor %}
-                {% endif %}
                 <div class="forgot-password">
                     <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
                 </div>
             </div>
         </div>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="text-center text-danger">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
     </div>
     <script>
         // Script pour afficher/masquer le mot de passe
