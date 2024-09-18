@@ -96,9 +96,9 @@
     margin-right: 10px;
 }
 
-/* Effet au survol */
-.menu-link:hover {
-    background-color: #eb4d38 ; /* Couleur plus foncée au survol */
+ /* Effet au survol */
+ .menu-link:hover {
+    background-color: #1b03f1 ; /* Couleur plus foncée au survol */
     transform: scale(1.05); /* Légère augmentation de la taille */
 }
 
@@ -119,6 +119,110 @@
         padding: 15px;
     }
 }
+.dash {
+    position: relative;
+    overflow: hidden;
+}
+
+
+.bubble {
+    width: 50px;
+    height: 50px;
+    background-color: #0644f0;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -50px;
+    animation: rise 10s infinite ease-in-out;
+    opacity: 0.3;
+}
+
+
+/* Différentes tailles de bulles */
+.bubble:nth-child(2) {
+    width: 80px;
+    height: 80px;
+    animation-duration: 12s;
+    left: 10%;
+}
+
+.bubble:nth-child(3) {
+    width: 60px;
+    height: 60px;
+    animation-duration: 15s;
+    left: 50%;
+}
+
+.bubble:nth-child(4) {
+    width: 40px;
+    height: 40px;
+    animation-duration: 8s;
+    left: 70%;
+}
+
+.bubble:nth-child(5) {
+    width: 80px;
+    height: 80px;
+    animation-duration: 18s;
+    left: 90%;
+}
+.bubble:nth-child(6) {
+    width: 60px;
+    height: 60px;
+    animation-duration: 22s;
+    left: 18%;
+}
+.bubble:nth-child(7) {
+    width: 90px;
+    height: 90px;
+    animation-duration: 8s;
+    left: 50%;
+}
+.bubble:nth-child(8) {
+    width: 40px;
+    height: 40px;
+    animation-duration: 38s;
+    left: 79%;
+}
+.bubble:nth-child(9) {
+    width: 100px;
+    height: 100px;
+    animation-duration: 18s;
+    right: 30%;
+}
+.bubble:nth-child(10) {
+    width: 57px;
+    height: 57px;
+    animation-duration: 20s;
+    right: 75%;
+}
+
+/* Animation des bulles */
+@keyframes rise {
+    0% {
+        bottom: -50px;
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(20px);
+    }
+
+    100% {
+        bottom: 110%;
+        transform: translateX(-20px);
+    }
+}
+
+/* Animation du titre */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
 
 #admindec{
     margin-left: 30px;
@@ -136,7 +240,8 @@
             <ion-icon name="people-outline"></ion-icon>
         </div>
     </div>
-
+    <div class="bubble"></div>
+<div class="bubble"></div>
     <div class="card">
         <div>
             <div class="numbers">{{ total_professeurs }}</div>
@@ -168,7 +273,7 @@
             <ion-icon name="man-outline"></ion-icon>
         </div>
     </div>
-
+    <div class="bubble"></div>
     <div class="card">
         <div>
             <div class="numbers">{{ total_etudiants_feminin }}</div>
@@ -187,6 +292,17 @@
             <ion-icon name="eye-outline"></ion-icon>
         </div>
     </div>
+    <div class="bubble"></div>
+    <!-- Bubble elements -->
+
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
+<div class="bubble"></div>
 </div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
 
 {% endblock %}

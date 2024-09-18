@@ -1,5 +1,59 @@
 {% extends 'Administration/base.html' %}
+{% block title %}Liste des fichiers uploader{% endblock %}
+{% block styles %}
+{{ block.super }}
 
+<style>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 18px;
+  text-align: left;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+thead {
+  border-bottom: 2px solid #ddd;
+}
+
+td {
+  padding: 10px;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+</style>
+
+{% endblock  %}
+  
 {% block content %}
   <h2>Liste des fichiers uploadés</h2>
   <table>
@@ -16,7 +70,7 @@
         <tr>
           <td>{{ forloop.counter }}</td>
           <td><a href="{% url 'display' file.id %}">{{ file.file.name }}</a></td>
-          <td>{{ file.uploaded_at }}</td>
+          <td>{{ file.date_ajout }}</td>
           <td>
             <a href="{% url 'delete_file' file.id %}">Supprimer</a>
           </td>

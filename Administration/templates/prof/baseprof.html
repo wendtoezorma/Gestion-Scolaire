@@ -34,7 +34,6 @@
         }
 
             body {
-                background-image: url("{% static 'Administration/images/prof.jpg' %}");
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
@@ -571,7 +570,6 @@
                     <form id="logout-form" action="{% url 'logout_prof' %}" method="post" style="display: none;">
                         {% csrf_token %}
                     </form>
-                
             </ul>
         </div>
 
