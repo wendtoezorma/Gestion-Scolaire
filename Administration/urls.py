@@ -11,6 +11,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
 
     path('gestion_scolarite/', gestion_scolarite, name='gestion_scolarite'),
+    path('get_scolarite/<int:etudiant_id>/', get_scolarite, name='get_scolarite'),
+    path('recherche-etudiants/', recherche_etudiants_pour_solarite, name='recherche_etudiants_pour_solarite'),
     path('upload_cours/', upload_cours, name='upload_cours'), 
     path('cours_list/', cours_list, name='cours_list'),
     # 
@@ -63,11 +65,12 @@ urlpatterns = [
     
     ##################################  Professeurs #####################################
     path('prof_dashboard/', prof_dashboard, name='prof_dashboard'),
-    path('generer_bulletin/<int:matricule>/', generer_bulletin, name='generer_bulletin'),
+    path('generer_bulletin/<int:matricule>/<str:semestre>/', generer_bulletin, name='generer_bulletin'),
     path('recherche/', recherche_etudiant, name='recherche_etudiant'),
     
     ##################################  Informations #####################################
     path('infos/', infos, name='infos'), 
+    path('voir_info/', voir_info , name='voir_infos'), 
     
 ]
 ########### pour les fichiers #########

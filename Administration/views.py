@@ -355,7 +355,8 @@ def liste_etudiants_par_classe(request, filiere_id, niveau):
 @login_required(login_url='login')
 def tri_pour_classe(request):
     filieres = Filiere.objects.all()
-    niveaux = Etudiant.objects.values_list('niveau_etudiant', flat=True).distinct()
+    #niveaux = Etudiant.objects.values_list('niveau_etudiant', flat=True).distinct()
+    niveaux = Etudiant._meta.get_field('niveau_etudiant').choices  # Récupère les choix définis dans le modèle
     return render(request, 'Administration/tri_pour_classe.html', {'filieres': filieres, 'niveaux': niveaux})
 
  
@@ -685,22 +686,19 @@ def gestion_scolarite(request):
     if request.method == 'POST':
         etudiant_id = request.POST.get('etudiant')
         scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+         # Créer un formulaire de scolarité
+        scolarite_form = ScolariteForm(request.POST, instance=scolarite)
         #form = ScolariteForm(request.POST)
-        if scolarite:
-            scolarite_form = ScolariteForm(request.POST, instance=scolarite)
-        else:
-            scolarite_form = ScolariteForm(request.POST)
 
         if scolarite_form.is_valid():
-            scolarite_form.save()
+            new_scolarite = scolarite_form.save(commit=False)
+             # Mettre à jour les valeurs spécifiques sans écraser # Assurez-vous que ce champ existe
+            new_scolarite.save()
+            
+         # Après la sauvegarde, nous préparons les données pour le reçu
         context = {
-                'scolarites': scolarites,
-                'etudiants': etudiants,
-                'scolarite_form': scolarite_form,
-                'filieres': filieres,
-                'total_caisse': total_caisse,
-                'total_etudiants_inscrit': total_etudiants_inscrit,
-                'total_etudiants_solde': total_etudiants_solde,
+                'q': etudiant_id,  # Si vous avez besoin du matricule
+                'scolarites': scolarite,
                 'date_paiement': date_paiement,
                 'heure_paiement': heure_paiement,
             }
@@ -725,6 +723,19 @@ def gestion_scolarite(request):
     }
     return render(request, 'Administration/scolarite.html', context)
 
+from django.http import JsonResponse
+
+def get_scolarite(request, etudiant_id):
+    scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+    if scolarite:
+        return JsonResponse({
+            'tranche_1': scolarite.tranche_1,
+            'tranche_2': scolarite.tranche_2,
+            'tranche_3': scolarite.tranche_3,
+        })
+    return JsonResponse({'tranche_1': 0, 'tranche_2': 0, 'tranche_3': 0})
+
+
 
 ################ Lister les fichiers disponibles pour les etudiants ##########
 from django.shortcuts import render
@@ -746,20 +757,27 @@ def cours_list(request):
 
 ################ Les informations sur l'app mobile  ################
 
-from .forms import Infos_Form
-from .models import Infos
+
 
 def infos(request):
-    form = Infos.objects.all()
+    # Récupère toutes les informations enregistrées
+    infos_list = Infos.objects.all()
+    
     if request.method == 'POST':
-        form = Infos_Form(request.POST)
+        # Inclure request.FILES pour gérer les fichiers téléchargés
+        form = Infos_Form(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Information partagée avec succès.')
+            return redirect('voir_infos')
     else:
         form = Infos_Form()
 
-    return render(request, 'Administration/infos.html', {'form': form,})
+    return render(request, 'Administration/infos.html', {'form': form, 'infos_list': infos_list})
+
+def voir_info(request):
+    infos = Infos.objects.all()  # Récupérer toutes les instances d'Infos
+    return render(request, 'Administration/voir_informations.html', {'infos': infos})
 
 
 ############# fichiers ###########
@@ -802,6 +820,16 @@ def rechercher_etudiants(request):
     
     return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants, 'no_results': no_results , 'query': query})
 
+from django.http import JsonResponse
+from .models import Etudiant
+
+def recherche_etudiants_pour_solarite(request):
+    if 'term' in request.GET:
+        etudiants = Etudiant.objects.filter(nom__icontains=request.GET.get('term')) | Etudiant.objects.filter(prenom__icontains=request.GET.get('term'))
+        etudiant_list = list(etudiants.values('id', 'nom', 'prenom'))
+        return JsonResponse(etudiant_list, safe=False)
+
+
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')
 
@@ -811,7 +839,10 @@ def recherche_etudiant(request):
         form = RechercheEtudiantForm(request.POST)
         if form.is_valid():
             matricule = form.cleaned_data['matricule']
-            return redirect('generer_bulletin', matricule=matricule)  # Rediriger vers le bulletin de l'étudiant
+            semestre = form.cleaned_data['semestre']  # Récupérer le semestre choisi
+            return redirect('generer_bulletin', matricule=matricule, semestre=semestre)
+            #matricule = form.cleaned_data['matricule']
+            #return redirect('generer_bulletin', matricule=matricule)  # Rediriger vers le bulletin de l'étudiant
     else:
         form = RechercheEtudiantForm()
 
@@ -820,12 +851,45 @@ def recherche_etudiant(request):
 
 
 
-def  generer_bulletin(request, matricule):
+def  generer_bulletin(request, matricule, semestre):
      # Récupérer l'étudiant en fonction de son matricule
     etudiant = get_object_or_404(Etudiant, matricule=matricule)
     
-    # Récupérer les notes de l'étudiant
-    notes = Notes.objects.filter(etudiant=etudiant).select_related('matiere_module')
+
+
+  
+    # Récupérer les notes de l'étudiants
+    #notes = Notes.objects.filter(etudiant=etudiant).select_related('matiere_module')
+    notes = Notes.objects.filter(
+        etudiant=etudiant, 
+        matiere_module__semestre=semestre  # Filtrer les modules par semestre
+    ).select_related('matiere_module')
+      # Récupérer le semestre depuis les paramètres GET (par exemple, ?semestre=SEMESTRE 1)
+    #semestre = request.GET.get('semestre')  # Défaut à SEMESTRE 1 si non fourni
+    #semestre = notes.first().matiere_module.semestre  # Récupérer le semestre du premier module
+    semestre = notes.first().matiere_module.semestre if notes.exists() else "Non spécifié"
+
+
+     # Séparer les matières en fonction de l'unité d'enseignement
+    #notes_fondamentale = notes.filter(matiere_module__unite_enseignement='unite_fondamentale')
+    #notes_transversale = notes.filter(matiere_module__unite_enseignement='unite_transversale')
+    notes_fondamentale = notes.filter(matiere_module__unite_enseignement='FONDAMENTALE')    
+    notes_transversale = notes.filter(matiere_module__unite_enseignement='TRANSVERSALE')
+
+    
+    # Calcul des moyennes par unité d'enseignement
+
+    def calculer_moyenne_unite(notes_unite):
+        total_notes_unite = sum(note.moyenne * note.matiere_module.credit_module for note in notes_unite)
+        total_credits_unite = sum(note.matiere_module.credit_module for note in notes_unite)
+        
+        if total_credits_unite > 0:
+            return total_notes_unite / total_credits_unite
+        else:
+            return 0.0
+
+    moyenne_fondamentale = calculer_moyenne_unite(notes_fondamentale)
+    moyenne_transversale = calculer_moyenne_unite(notes_transversale)
    
     # Calculer la moyenne générale
     total_notes_ponderees = sum(note.moyenne * note.matiere_module.credit_module for note in notes)
@@ -857,11 +921,14 @@ def  generer_bulletin(request, matricule):
         #'matiere': notes,
         'notes': notes,  # Liste des notes avec les modules associés
         'moyenne_generale': round(moyenne_generale, 2),
+        'moyenne_fondamentale': round(moyenne_fondamentale, 2),
+        'moyenne_transversale': round(moyenne_transversale, 2),
+        'semestre': semestre,
         'mention': mention,
         'decision_jury': decision_jury,
         'total_credits': total_credits,
         'directeur_name': 'Dr. Frédéric BATIONO',
-        'directeur_signature_url': '/static/Administration/images/signature_directeur.jpg',
+        'directeur_signature_url': '/static/Administration/images/signature_directeur.png',
         'header_image_url': '/static/Administration/images/header_image.jpg',
         'footer_image_url': '/static/Administration/images/footer_image.jpg',
         'institution_adresse': '01 BP 6445 Ouagadougou 01',

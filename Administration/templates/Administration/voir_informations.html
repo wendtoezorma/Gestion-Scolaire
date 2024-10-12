@@ -1,0 +1,35 @@
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>information enregistrées</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Informations Enregistrées</h1>
+        
+        {% if infos %}
+            <ul>
+                {% for info in infos %}
+                    <li>
+                        <strong>Titre:</strong> {{ info.titre }}<br>
+                        <strong>Message:</strong> {{ info.message }}<br>
+                        {% if info.contenu %}
+                            <strong>Fichier:</strong> <a href="{{ info.contenu.url }}" target="_blank">Voir le fichier</a><br>
+                        {% endif %}
+                        <strong>date de creation:</strong> {{ info.date_creation }}<br>
+                        
+                    </li>
+                    <hr>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucune information enregistrée.</p>
+        {% endif %}
+        
+        <a href="{% url 'infos' %}">Retour au formulaire</a>  <!-- Assurez-vous que l'URL correspond à votre vue de formulaire -->
+    </div>
+
+   
+</body>
+</html>

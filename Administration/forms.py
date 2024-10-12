@@ -257,7 +257,8 @@ class ScolariteForm(forms.ModelForm):
         model = Scolarite
         fields = ['etudiant', 'tranche_1', 'tranche_2', 'tranche_3']
         widgets = {
-            'etudiant': forms.Select(attrs={'class': 'form-control'}),
+           
+            'etudiant': forms.Select(attrs={'class': 'form-control', 'id': 'search-etudiant'}),
             'tranche_1': forms.NumberInput(attrs={'class': 'form-control'}),
             'tranche_2': forms.NumberInput(attrs={'class': 'form-control'}),
             'tranche_3': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -266,9 +267,15 @@ class ScolariteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ScolariteForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.fields['tranche_1'].widget.attrs['readonly'] = True
-            self.fields['tranche_2'].widget.attrs['readonly'] = True
-            self.fields['tranche_3'].widget.attrs['readonly'] = True
+            # Si une instance existe, ne pas rendre les champs en lecture seule
+            # mais laisser leurs valeurs par défaut comme celles de la base de données
+            
+
+            self.fields['tranche_1'].initial = self.instance.tranche_1
+            self.fields['tranche_2'].initial = self.instance.tranche_2
+            self.fields['tranche_3'].initial = self.instance.tranche_3
+        
+        self.fields['etudiant_id'] = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 ######################### La liste des etudiants pour la scolarité ###################
 
@@ -307,10 +314,16 @@ class Infos_Form(forms.ModelForm):
         widgets={
             "titre":forms.TextInput(attrs={"class":"form-control"}),
             "message":forms.TextInput(attrs={"class":"form-control"}),
+            "contenu": forms.ClearableFileInput(attrs={"class": "form-control"})
         }
 
 class RechercheEtudiantForm(forms.Form):#pour le bulletin
     matricule = forms.IntegerField(label="Matricule de l'étudiant", widget=forms.TextInput(attrs={
         'placeholder': 'Entrer le matricule de l\'étudiant',
+        'class': 'form-control'}))
+    semestre = forms.ChoiceField(label="Semestre", choices=[
+        ('SEMESTRE 1', 'SEMESTRE 1'),
+        ('SEMESTRE 2', 'SEMESTRE 2'),
+    ], widget=forms.Select(attrs={
         'class': 'form-control',
     }))

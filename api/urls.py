@@ -21,5 +21,9 @@ urlpatterns = [
     #path('cours-fichiers/', CoursFichierAPI.as_view(), name='cours_fichiers_api'),#envoyer sous un format html
     path('cours-fichiers/', CoursFichierAPI.as_view(), name='cours_fichiers_api'),#envoyer sous un format json 
     path('download-pdf/<int:file_id>/', download_pdf_cours, name='download_pdf'),
+    path('scolarite/', ScolariteDetailView.as_view(), name='scolarite-detail'),
+    path('infos/', InfosView.as_view(), name='infos_api'),
+
+
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

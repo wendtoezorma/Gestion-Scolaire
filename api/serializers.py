@@ -48,7 +48,7 @@ class EtudiantSerializer(serializers.ModelSerializer):
     filiere = FiliereSerializer()
     class Meta:
         model = Etudiant
-        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere']
+        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere','photo']
 
 
 #emploi du temps 
@@ -77,3 +77,14 @@ class CoursFichierSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoursFichier
         fields = '__all__'
+
+class ScolariteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scolarite
+        fields = ['tranche_1', 'tranche_2', 'tranche_3', 'montant_total_verse', 'Montant_restant', 'date_payement']
+
+
+class InfosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Infos
+        fields = ['id_infos', 'titre', 'message', 'contenu', 'date_creation']

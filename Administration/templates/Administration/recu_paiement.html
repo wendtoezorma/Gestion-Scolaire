@@ -3,50 +3,130 @@
 {% block styles %}
 {{ block.super }}
 <style>
-   
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    .receipt {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px;
+        margin: auto;
+    }
+    .receipt h1 {
+        text-align: center;
+    }
+    .details {
+        margin: 20px 0;
+    }
+    .details table {
+        width: 100%; /* Gardez ceci pour le maximum de largeur */
+        border-collapse: collapse;
+        margin: 0 auto; /* Centre le tableau */
+    }
+    .details th, .details td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+    .details th {
+        background-color: #f2f2f2;
+    }
+    .print-button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }
+    .print-button:hover {
+        background-color: #218838;
+    }
+    @media print {
+        .print-button {
+            display: none; /* Masquer le bouton lors de l'impression */
+        }
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0; /* Supprimer les marges pour l'impression */
         }
-        .receipt {
-            border: 1px solid #ccc;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 600px;
-            margin: auto;
+    }
+    
+    @media print {
+        body {
+            margin: 0; /* Pas de marge pour le corps */
         }
-        .receipt h1 {
-            text-align: center;
+        .print-button {
+            display: none; /* Masquer le bouton d'impression */
         }
-        .receipt .details {
-            margin: 20px 0;
-        }
-        .receipt .details div {
-            margin-bottom: 10px;
-        }
-    </style>
-    {% endblock %}
-    {% block content %}
-    <div class="receipt">
-        <h1>Reçu de Paiement</h1>
-        <div class="details">
-            <div><strong>Matricule :</strong> {{ q }}</div>
-            <div><strong>Nom :</strong> {{ scolarites.etudiant.nom_etudiant }}</div>
-            <div><strong>Prénom :</strong> {{ scolarites.etudiant.prenom_etudiant }}</div>
-            <div><strong>Filière :</strong> {{ scolarites.etudiant.filiere }}</div>
-            <div><strong>Niveau :</strong> {{ scolarites.etudiant.niveau_etudiant }}</div>
-            <div>
-                <strong>Tranche Payées :
-                    <div><strong>Tranche 1 :</strong> {{ scolarites.tranche_1 }}</div>
-                    <div><strong>Tranche 2 :</strong> {{ scolarites.tranche_2 }}</div>
-                    <div><strong>Tranche 3 :</strong> {{ scolarites.tranche_3 }}</div>
-            </div>
-            <div><strong>Date de Paiement :</strong> {{ date_paiement }}</div>
-            <div><strong>Heure de Paiement :</strong> {{ heure_paiement }}</div>
-            <div><strong>Montant Versé :</strong> {{ scolarites.montant_total_verse }}</div>
-            <div><strong>Montant Restant :</strong> {{ scolarites.Montant_restant }}</div>
-            
-                
-        </div>
-    </div>
-    {% endblock content %}
+    }
+
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="receipt">
+    <h1>Reçu de Paiement</h1>
+    <div class="details" id="printableArea">
+        <div><strong>Matricule :</strong> {{ q }}</div><br>
+        <div><strong>Nom :</strong> {{ scolarites.etudiant.nom_etudiant }}</div>
+        <div><strong>Prénom :</strong> {{ scolarites.etudiant.prenom_etudiant }}</div>
+        <div><strong>Filière :</strong> {{ scolarites.etudiant.filiere }}</div>
+        <div><strong>Niveau :</strong> {{ scolarites.etudiant.niveau_etudiant }}</div><br>
+        <div style="margin: 0; padding: 0;">
+            <table>
+                <tr>
+                    <th>Niveau</th>
+                    <th>Tranche 1</th>
+                    <th>Tranche 2</th>
+                    <th>Tranche 3</th>
+                    <th>Montant Versé</th>
+                    <th>Montant Restant</th>
+                    <th>Date de Paiement</th>
+                    <th>Heure de Paiement</th>
+                </tr>
+                <tr>
+                    <td>{{ scolarites.etudiant.niveau_etudiant }}</td>
+                    <td>{{ scolarites.tranche_1 }} FCFA</td>
+                    <td>{{ scolarites.tranche_2 }} FCFA</td>
+                    <td>{{ scolarites.tranche_3 }} FCFA</td>
+                    <td>{{ scolarites.montant_total_verse }} FCFA</td>
+                    <td>{{ scolarites.Montant_restant }} FCFA</td>
+                    <td>{{ date_paiement }}</td>
+                    <td>{{ heure_paiement }}</td>
+                </tr>
+            </table>
+        </div><br>
+    </div> <!-- Div pour le contenu imprimable -->
+    <button class="print-button" onclick="printDiv('printableArea')">Imprimer</button>
+</div>
+<script>
+    function printDiv(divId) {
+        // Récupérer le contenu à imprimer
+        var content = document.getElementById(divId).innerHTML;
+
+        // Ouvrir une nouvelle fenêtre
+        var myWindow = window.open('', '', 'height=600,width=800');
+
+        // Écrire le contenu dans la nouvelle fenêtre
+        myWindow.document.write('<style>body { font-family: Arial, sans-serif; margin: 0; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } th { background-color: #f2f2f2; }</style>');
+        myWindow.document.write('</head><body>');
+        myWindow.document.write(content);
+        myWindow.document.write('</body></html>');
+        
+        // Fermer le document pour IE >= 10
+        myWindow.document.close(); 
+
+        // Lancer l'impression
+        myWindow.print();
+
+        // Fermer la fenêtre après l'impression (optionnel)
+        myWindow.close();
+    }
+</script>
+
+{% endblock content %}

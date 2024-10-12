@@ -1,5 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from .serializers import ScolariteSerializer
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -156,7 +162,7 @@ class StudentProfileView(APIView):
             return Response({'error': 'Étudiant non trouvé'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = EtudiantSerializer(etudiant)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         
 #emploi du temps 
 
@@ -331,3 +337,62 @@ def download_pdf_cours(request, file_id):
     response['Content-Disposition'] = f'attachment; filename="{cours_fichier.nom_fichier}.pdf"'
 
     return response
+
+class ScolariteDetailView(APIView):
+    def get(self, request):
+        etudiant_id = request.session.get('etudiant_id')
+        if not etudiant_id:
+            return Response({"error": "Non authentifié"}, status=401)
+
+        # Récupérer l'étudiant
+        etudiant = get_object_or_404(Etudiant, matricule=etudiant_id)
+        
+        # Récupérer la scolarité de cet étudiant
+        scolarite = Scolarite.objects.filter(etudiant=etudiant).first()
+        
+        if scolarite:
+            serializer = ScolariteSerializer(scolarite)
+            return Response(serializer.data)  # DRF renvoie automatiquement en JSON
+        
+        return Response({"message": "Aucune donnée de scolarité trouvée"}, status=404)
+    
+
+
+class InfosView(APIView):
+    def get(self, request):
+        # Vérifier si l'utilisateur est authentifié
+        if not request.session.get('etudiant_id'):
+            return Response({'error': 'Non authentifié'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Récupérer toutes les informations
+        infos_list = Infos.objects.all()
+
+        if not infos_list.exists():
+            return Response({'message': 'Aucune information trouvée'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Construire l'URL complète pour chaque fichier
+        infos_with_full_path = []
+        for info in infos_list:
+            data = {
+                'id_infos': info.id_infos,
+                'titre': info.titre,
+                'message': info.message,
+                'contenu': request.build_absolute_uri(info.contenu.url) if info.contenu else None,
+                'date_creation': info.date_creation
+            }
+            infos_with_full_path.append(data)
+
+        return Response(infos_with_full_path, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        # Vérifier si l'utilisateur est authentifié
+        if not request.session.get('etudiant_id'):
+            return Response({'error': 'Non authentifié'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Inclure request.FILES pour gérer les fichiers téléchargés
+        serializer = InfosSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -19,6 +19,15 @@ from django.contrib.auth.hashers import make_password, check_password
 class Filiere(models.Model):
     Id_filiere = models.AutoField(primary_key=True)
     nom_filiere = models.CharField(max_length=250)
+    mention = models.CharField(
+        max_length=50,
+        choices=[
+            ('GENIE ELECTRIQUE', 'GE'),
+            ('GENIE MECANIQUE', 'GM'),
+            ('GENIE LOGICIEL', 'GL'),
+            ('MANAGEMENT', 'MGMT')
+        ],
+        default='GENIE ELECTRIQUE')
 
     class Meta:
         ordering = ['nom_filiere']
@@ -206,6 +215,21 @@ class Cours_Module(models.Model):
         ('MASTER2', "MASTER2"),
         ('DOCTORAT', "DOCTORAT"),
     ], default='Selectionner')
+    semestre = models.CharField(
+        max_length=50,
+        choices=[
+            ('SEMESTRE 1', 'S1'),
+            ('SEMESTRE 2', 'S2')
+        ],
+        default='SEMESTRE 1')
+    unite_enseignement = models.CharField(
+        max_length=50,
+        choices=[
+            ('FONDAMENTALE', 'Unité d\'enseignement fondamentale'),
+            ('TRANSVERSALE', 'Unité d\'enseignement transversale')
+        ],
+        default='FONDAMENTALE'
+    )
 
     class Meta:
         ordering = ['nom_module']
@@ -215,6 +239,8 @@ class Cours_Module(models.Model):
 
     def __str__(self):
         return self.nom_module
+
+
     
 
 class Notes(models.Model):
@@ -381,7 +407,7 @@ from django.db import models
 
 class UploadedFile(models.Model):
     file = models. FileField(upload_to='uploaded_files/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Date de téléchargement')
     def __str__(self):
         return self.file.name
         

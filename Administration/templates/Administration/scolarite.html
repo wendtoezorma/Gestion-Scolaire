@@ -262,8 +262,13 @@ form input[type="submit"] {
             <h1>Gestion de la Scolarité</h1>
             <br>
             <br>
+             <!-- Ajouter un champ de recherche pour les étudiants 
+            <label for="search-etudiant">Rechercher un étudiant (Nom ou Prénom)</label>
+             <input type="text" id="search-etudiant" name="search-etudiant" class="form-control" placeholder="Rechercher...">-->
+            <br>
             {% csrf_token %}
             {{ scolarite_form.as_p }}
+            <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant_id.value }}">
             <br>
             <button type="submit" class="btn btn-success">Enregistrer</button>
         </form>
@@ -426,6 +431,55 @@ form input[type="submit"] {
         filterTable(); // Initial call to filter the table when the page loads
     });
     
+
+    
+    $(document).ready(function() {
+        // Appel AJAX pour l'autocomplétion
+        $("#search-etudiant").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'recherche_etudiants_pour_solarite' %}", // La vue Django qui renvoie la liste d'étudiants
+                    dataType: "json",
+                    data: {
+                        term: request.term  // Le terme de recherche
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.nom + " " + item.prenom,  // Afficher le nom et prénom
+                                value: item.id  // Stocker l'ID de l'étudiant
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 2,  // Commence la recherche après avoir tapé 2 caractères
+            select: function(event, ui) {
+                // Remplir le champ avec le nom sélectionné
+                $("#search-etudiant").val(ui.item.label);
+                // Vous pouvez également stocker l'ID pour l'envoyer au formulaire si besoin
+                $("input[name='etudiant-id']").val(ui.item.value);
+                return false;
+            }
+        });
+    });
+
+
+
+
+    document.getElementById('search-etudiant').addEventListener('change', function() {
+        var etudiantId = this.value;
+        fetch(`/get_scolarite/${etudiantId}/`)  // Remplacez par votre URL appropriée
+            .then(response => response.json())
+            .then(data => {
+                // Mettez à jour les champs de tranche avec les valeurs récupérées
+                document.querySelector('[name="tranche_1"]').value = data.tranche_1;
+                document.querySelector('[name="tranche_2"]').value = data.tranche_2;
+                document.querySelector('[name="tranche_3"]').value = data.tranche_3;
+            });
+    });
+
+
 </script>
 
 {% endblock content %}

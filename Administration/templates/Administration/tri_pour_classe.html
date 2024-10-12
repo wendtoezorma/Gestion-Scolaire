@@ -171,9 +171,10 @@
 
 <label for="select_niveau">Niveau :</label>
 <select id="select_niveau">
-    {% for niveau in niveaux %}
-    <option value="{{ niveau }}">{{ niveau }}</option>
-    {% endfor %}
+  <option value="">Sélectionner un niveau</option>
+  {% for value, display in niveaux %}
+      <option value="{{ value }}">{{ display }}</option>
+  {% endfor %}
 </select>
 <br><br><br>
 
