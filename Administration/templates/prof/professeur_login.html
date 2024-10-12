@@ -1,12 +1,191 @@
-{%extends 'prof/baseprof.html'%}
-{% block title %}Enseignants Connexion{% endblock %}
- 
-{% block profcontent %}
-    <h1>Connexion Professeur</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Se connecter</button>
-    </form>
-{% endblock profcontent %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enseignants Connexion</title>
+    <!-- CSS Bootstrap et Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Polices Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <!-- CSS Personnalisé -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0; 
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-image: url("{% static 'Administration/images/bg_anim.gif' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 650px;
+            height: 470px;
+            margin: 100px auto;
+            text-align: center;
+        }
+
+        .user-icon {
+            font-size: 60px;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px; /* Espacement entre chaque champ */
+        }
+
+        .form-control {
+            border-radius: 10px; /* Coins arrondis */
+            padding: 10px; /* Espace interne */
+            border: 1px solid #ccc; /* Bordure grise */
+            font-size: 16px; /* Taille de la police */
+            color: #333; /* Couleur du texte */
+            background-color: rgba(255, 255, 255, 0.9); /* Légère transparence */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Animation fluide pour les changements de style */
+        }
+        
+        .form-control:focus {
+            border-color: #007bff; /* Bordure bleue au focus */
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3); /* Ombre bleue au focus */
+            outline: none; /* Retirer l'outline par défaut */
+        }
+        
+        /* Style pour les champs de saisie */
+        form input[type="email"] {
+            border: 1px solid #000; /* Bordure noire */
+            padding: 10px; /* Espacement intérieur */
+            margin-bottom: 15px; /* Espacement en bas */
+            border-radius: 20px; /* Coins arrondis */
+            width: 60%; /* Largeur complète */
+            margin-left: 80px;
+            box-sizing: border-box; /* Inclure la bordure et le padding dans la largeur */
+        }
+        
+        form input[type="password"]{
+            border: 1px solid #000; /* Bordure noire */
+            padding: 10px; /* Espacement intérieur */
+            margin-bottom: 15px; /* Espacement en bas */
+            border-radius: 20px; /* Coins arrondis */
+            width: 60%; /* Largeur complète */
+            margin-left: 20px;
+            box-sizing: border-box; /* Inclure la bordure et le padding dans la largeur */
+        }
+
+        /* Style pour le bouton de soumission */
+        form button[type="submit"] {
+            background-color: #0044cc; /* Couleur de fond */
+            color: white; /* Couleur du texte */
+            padding: 10px 20px; /* Espacement intérieur */
+            border: none; /* Pas de bordure */
+            border-radius: 20px; /* Coins arrondis */
+            cursor: pointer; /* Curseur pointeur */
+            width: 50%; /* Largeur complète */
+            box-sizing: border-box; /* Inclure la bordure et le padding dans la largeur */
+        }
+
     
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .forgot-password {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .forgot-password a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .alert-danger {
+            margin-top: 20px;
+        }
+
+        #haut {
+            padding-top: 50px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row" id="haut">
+            <div class="col-lg-12 form-container">
+                <i class="fas fa-user user-icon"></i>
+                <h2>Connexion Professeur</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <br>
+                    <button type="submit">Se connecter</button>
+                </form>
+                <div class="forgot-password">
+                    <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+                </div>
+            </div>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="text-center text-danger">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <script>
+        // Script pour afficher/masquer le mot de passe
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordField = document.getElementById('id_password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>

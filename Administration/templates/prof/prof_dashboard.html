@@ -1,5 +1,48 @@
 {%extends 'prof/baseprof.html'%}
 {% block title %}Enseignants Dashboard{% endblock %}
+{% block styles %}
+{{ block.super }}
+
+<style>
+    .scrolling-window {
+        width: 100%;
+        height: 100px; /* Ajuste la hauteur selon tes besoins */
+        overflow: hidden;
+        position: relative;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        margin: 20px auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .scrolling-content {
+        display: flex;
+        transition: transform 1s ease-in-out;
+    }
+
+    .scrolling-item {
+        width: 300px; /* Ajuste la largeur de chaque fenêtre */
+        height: 100px; /* Ajuste la hauteur de chaque fenêtre */
+        background-color: #fff;
+        border: 1px solid #ccc;
+        margin: 0 10px;
+        text-align: center;
+        line-height: 100px;
+        flex-shrink: 0;
+        opacity: 0.5; /* Réduit l'opacité pour les aperçus */
+        transition: opacity 1s ease-in-out;
+    }
+
+    .scrolling-item.active {
+        opacity: 1; /* Pleine opacité pour l'élément actif */
+    }
+</style>
+
+
+
+{% endblock %}
  
 {% block search %}
 <div class="search">
@@ -14,15 +57,76 @@
 {% endblock search %}
 
 {% block profcontent %}
-    <div class="container">
-        <h1 style="text-align: center;">Tableau de bord du professeur</h1>
+    <div class="dash">
+        <div class="title">
+            <h1 style="text-align: center;">Tableau de bord du professeur</h1>
+        </div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="cardBox" id="prof">
+            <div class="card">
+                <div>
+                    <div class="numbers" id="total_etudiant">{{ total_etudiants_inscrit }}</div>
+                    <div class="cardName">Étudiants Inscrits</div>
+                </div>
+                <div class="iconBx">
+                    <ion-icon name="people-outline"></ion-icon>
+                </div>
+            </div>
+            <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        
+            <div class="card">
+                <div>
+                    <div class="numbers" id="total_solder">{{ total_etudiants_solde }}</div>
+                    <div class="cardName">Étudiants Soldés</div>
+                </div>
+                <div class="iconBx">
+                    <ion-icon name="people-outline"></ion-icon>
+                </div>
+            </div>
+        
+            <div class="card">
+                <div>
+                    <div class="numbers" id="#">{{ total_caisse }}</div>
+                    <div class="cardName">CAISSE</div>
+                </div>
+                <div class="iconBx">
+                    <ion-icon name="cash-outline"></ion-icon>
+                </div>
+            </div>
+        </div>
+        
+        
         <!-- Bubble elements -->
         <div class="bubble"></div>
         <div class="bubble"></div>
         <div class="bubble"></div>
         <div class="bubble"></div>
-        <div class="bubble"></div>
+        
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        
     </div>
+ 
 
 {% endblock profcontent %}
 

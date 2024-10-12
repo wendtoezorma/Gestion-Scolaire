@@ -255,13 +255,14 @@ from .models import Scolarite
 class ScolariteForm(forms.ModelForm):
     class Meta:
         model = Scolarite
-        fields = ['etudiant', 'tranche_1', 'tranche_2', 'tranche_3']
+        fields = ['etudiant', 'tranche_1', 'tranche_2', 'tranche_3','frais_inscription']
         widgets = {
            
             'etudiant': forms.Select(attrs={'class': 'form-control', 'id': 'search-etudiant'}),
             'tranche_1': forms.NumberInput(attrs={'class': 'form-control'}),
             'tranche_2': forms.NumberInput(attrs={'class': 'form-control'}),
             'tranche_3': forms.NumberInput(attrs={'class': 'form-control'}),
+            'frais_inscription': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

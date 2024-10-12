@@ -360,6 +360,7 @@ class Scolarite(models.Model):
     total = models.FloatField(default=0, editable=False)
     Montant_restant = models.FloatField(editable=False, default=0.0)
     montant_total_verse = models.FloatField(editable=False, default=0.0)
+    frais_inscription=models.FloatField(default=1)
     
     date_payement = models.DateField(auto_now=True)
 
@@ -405,12 +406,19 @@ class Emploi(models.Model):
 
 from django.db import models
 
+from django.db import models
+
 class UploadedFile(models.Model):
-    file = models. FileField(upload_to='uploaded_files/')
-    uploaded_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Date de téléchargement')
+
+    file = models.FileField(upload_to='uploaded_files/')
+    date_ajout = models.DateField(auto_now=True)
+    class Meta:
+        ordering = ['date_ajout']
+        verbose_name = "file"
+        verbose_name_plural = "files"
     def __str__(self):
         return self.file.name
-        
+
 ############################## Les TD COURS ET ANCIENS SUJETS #################
 
 class CoursFichier(models.Model):
@@ -447,9 +455,9 @@ class CoursFichier(models.Model):
     ], default='Selectionner')
     
     class Meta: 
-        ordering = ['date_ajout']
         verbose_name = "Cours Fichier"
         verbose_name_plural = "Cours Fichiers"
+        ordering = ['date_ajout']
 
     def __str__(self):
         return self.nom_fichier

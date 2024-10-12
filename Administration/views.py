@@ -477,6 +477,16 @@ def voir_notes(request, filiere_id, niveau):
     else:
         return redirect('admin_dashboard')
 
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+import pandas as pd
+import io
+from django.http import HttpResponse
+from .forms import UploadFileForm
+from .models import UploadedFile
+from django.contrib.auth.decorators import login_required
 @login_required(login_url='login')
 def upload_file(request):
     if request.method == 'POST':
@@ -489,36 +499,56 @@ def upload_file(request):
 
             # Handle file upload
             file = request.FILES['file']
-            df = pd.read_excel(file)
 
-            # Remplacer les NaN par des chaînes vides    
-            df.fillna('', inplace=True)
+            # Charger toutes les feuilles du fichier Excel
+            xls = pd.ExcelFile(file)
 
             # Créer un buffer pour sauvegarder le PDF
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter)
 
-            # Préparer les données pour le tableau
-            data = [df.columns.to_list()] + df.values.tolist()
+            elements = []
 
-            # Créer le tableau
-            table = Table(data)
+            # Parcourir chaque feuille
+            for sheet_name in xls.sheet_names:
+                # Charger la feuille Excel
+                df = pd.read_excel(xls, sheet_name=sheet_name)
 
-            # Appliquer un style au tableau
-            style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.peachpuff),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ])
-            table.setStyle(style)
+                # Supprimer les colonnes qui n'ont pas de nom ou qui contiennent "Unnamed"
+                df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+                # Remplacer les NaN par des chaînes vides
+                df.fillna('', inplace=True)
+
+                # Préparer les données pour le tableau
+                data = [df.columns.to_list()] + df.values.tolist()
+
+                # Créer le tableau pour la feuille actuelle
+                table = Table(data)
+
+
+                # Appliquer un style au tableau
+                style = TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ])
+                table.setStyle(style)
+
+                # Ajouter un titre pour chaque feuille
+                elements.append(Paragraph(f'{sheet_name}', getSampleStyleSheet()['Heading2']))
+
+                # Ajouter le tableau de la feuille
+                elements.append(table)
+
+                # Ajouter un saut de page entre les feuilles
+                elements.append(PageBreak())
 
             # Construire le PDF
-            elements = []
-            elements.append(table)
             doc.build(elements)
 
             # Créer une réponse HTTP avec le contenu du PDF
@@ -530,12 +560,15 @@ def upload_file(request):
     else:
         form = UploadFileForm()
     return render(request, 'Administration/upload.html', {'form': form})
+
+
 # afficher les fichier deja uploader
 
 @login_required(login_url='login')
 def list_uploaded_files(request):
     files = UploadedFile.objects.all()
     return render(request, 'Administration/list_files.html', {'files': files})
+
 
 #supprimer un fichier de la bd
 
@@ -612,22 +645,6 @@ def test_email_view(request):
     #vue pour que les etudiants voi leur notes et moyenne
     from django.shortcuts import render, get_object_or_404
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import ScolariteForm,FiltreForm
-
-"""def gestion_scolarite(request):
-    if request.method == 'POST':
-        form = ScolariteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Scolarité mise à jour avec succès.')
-            return redirect('gestion_scolarite')
-    else:
-        form = ScolariteForm()
-    
-    return render(request, 'Administration/scolarite.html', {'form': form})
-"""
 #pour qu'un etudiant puissent voir ses note
 from .models import Etudiant, Notes, Cours_Module
 
@@ -671,6 +688,64 @@ from .models import Etudiant, Filiere, Scolarite
 from .apperu import apercu_caisse, nombre_etudiants_connecter
 from datetime import datetime
 
+# def gestion_scolarite(request):
+#     filieres = Filiere.objects.all()
+#     scolarites = Scolarite.objects.select_related('etudiant').all()
+#     etudiants = Etudiant.objects.all()
+    
+#     total_caisse = apercu_caisse()
+#     total_etudiants_inscrit = Etudiant.objects.count()
+#     total_etudiants_solde = Scolarite.objects.filter(Montant_restant=0.0).count()
+#     date_paiement = datetime.now().strftime('%Y-%m-%d')
+#     heure_paiement = datetime.now().strftime('%H:%M')
+    
+
+#     if request.method == 'POST':
+#         etudiant_id = request.POST.get('etudiant')
+#         scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+#         #form = ScolariteForm(request.POST)
+#         if scolarite:
+#             scolarite_form = ScolariteForm(request.POST, instance=scolarite)
+#         else:
+#             scolarite_form = ScolariteForm(request.POST)
+
+#         if scolarite_form.is_valid():
+#             scolarite_form.save()
+#         context = {
+#                 'scolarites': scolarites,
+#                 'etudiants': etudiants,
+#                 'scolarite_form': scolarite_form,
+#                 'filieres': filieres,
+#                 'total_caisse': total_caisse,
+#                 'total_etudiants_inscrit': total_etudiants_inscrit,
+#                 'total_etudiants_solde': total_etudiants_solde,
+#                 'date_paiement': date_paiement,
+#                 'heure_paiement': heure_paiement,
+#             }
+        
+#             # Générer le reçu
+#         return render(request, 'Administration/recu_paiement.html',context)
+#             #return redirect('gestion_scolarite')
+        
+#     else:
+#         scolarite_form = ScolariteForm()
+
+#     context = {
+#         'scolarites': scolarites,
+#         'etudiants': etudiants,
+#         'scolarite_form': scolarite_form,
+#         'filieres': filieres,
+#         'total_caisse': total_caisse,
+#         'total_etudiants_inscrit': total_etudiants_inscrit,
+#         'total_etudiants_solde': total_etudiants_solde,
+#         'date_paiement': date_paiement,
+#         'heure_paiement': heure_paiement,
+#     }
+#     return render(request, 'Administration/scolarite.html', context)
+
+from django.shortcuts import render, redirect
+from .models import Scolarite, Etudiant
+
 def gestion_scolarite(request):
     filieres = Filiere.objects.all()
     scolarites = Scolarite.objects.select_related('etudiant').all()
@@ -682,9 +757,9 @@ def gestion_scolarite(request):
     date_paiement = datetime.now().strftime('%Y-%m-%d')
     heure_paiement = datetime.now().strftime('%H:%M')
     
-
     if request.method == 'POST':
         etudiant_id = request.POST.get('etudiant')
+
         scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
          # Créer un formulaire de scolarité
         scolarite_form = ScolariteForm(request.POST, instance=scolarite)
@@ -709,11 +784,21 @@ def gestion_scolarite(request):
         
     else:
         scolarite_form = ScolariteForm()
+        Scolarite.objects.create(
+            etudiant=etudiant,
+            tranche_1=tranche_1,
+            tranche_2=tranche_2,
+            tranche_3=tranche_3,
+            frais_inscription=frais_inscription
+        )
 
+        return redirect('gestion_scolarite')
+    
+    # Gérer le cas où le formulaire est accédé via GET
+    etudiants = Etudiant.objects.all()
     context = {
         'scolarites': scolarites,
         'etudiants': etudiants,
-        'scolarite_form': scolarite_form,
         'filieres': filieres,
         'total_caisse': total_caisse,
         'total_etudiants_inscrit': total_etudiants_inscrit,
@@ -784,7 +869,7 @@ def voir_info(request):
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import CoursFichierForm
-
+ 
 @login_required
 def upload_cours(request):
     if request.method == 'POST':
@@ -820,6 +905,7 @@ def rechercher_etudiants(request):
     
     return render(request, 'Administration/rechercher_etudiants.html', {'etudiants': etudiants, 'no_results': no_results , 'query': query})
 
+
 from django.http import JsonResponse
 from .models import Etudiant
 
@@ -828,7 +914,6 @@ def recherche_etudiants_pour_solarite(request):
         etudiants = Etudiant.objects.filter(nom__icontains=request.GET.get('term')) | Etudiant.objects.filter(prenom__icontains=request.GET.get('term'))
         etudiant_list = list(etudiants.values('id', 'nom', 'prenom'))
         return JsonResponse(etudiant_list, safe=False)
-
 
 def prof_dashboard(request):
     return render(request, 'prof/prof_dashboard.html')
