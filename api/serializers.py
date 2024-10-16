@@ -17,7 +17,8 @@ class CoursModuleSerializer(serializers.ModelSerializer):
         fields = ['nom_module']
 
 class EtudiantLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    matricule = serializers.CharField(max_length=200)
+    # email = serializers.EmailField()
     mot_de_passe = serializers.CharField(write_only=True)
 
 class UpdatePasswordSerializer(serializers.Serializer):

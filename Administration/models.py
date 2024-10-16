@@ -117,6 +117,16 @@ def validate_password_special_char(value):
         raise ValidationError(
             "Le mot de passe doit contenir au moins un caractère spécial : !@#$%^&*(),.?\":{}|<>"
         )
+    
+import string
+import random
+
+def generate_random_password(length=8):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for i in range(length))
+
+
+
 class Etudiant(models.Model):
     matricule = models.BigAutoField(primary_key=True)
     nom_etudiant = models.CharField(max_length=200)
@@ -129,7 +139,7 @@ class Etudiant(models.Model):
         ('Masculin', "Masculin"),
         ('Feminin', "Feminin")
     ]
-    sexe_etudiant = models.CharField(max_length=13, choices=choix_sexe, default='Selectionner')
+    sexe_etudiant = models.CharField(max_length=13, choices=choix_sexe, default='Masculin',blank=False)
     Date_naiss_etudiant = models.DateField()
     lieu_naiss_etudiant = models.CharField(max_length=200)
     nationalite_etudiant = models.CharField(max_length=200)
@@ -150,12 +160,25 @@ class Etudiant(models.Model):
         ('2027/2028', "2027/2028"),
         ('2028/2029', "2028/2029"),
     ], default='Selectionner')
-    mdp_etudiant = models.CharField(max_length= 9, blank=True,validators=[validate_password_special_char, MinLengthValidator(8)])
+    mdp_etudiant = models.CharField(max_length= 9, blank=True)
     date_ajout = models.DateField(auto_now=True)
     filiere = models.ForeignKey(Filiere, related_name='etudiants', on_delete=models.CASCADE, null=True)
     password_updated = models.BooleanField(default=False)
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
     Connecter = models.BooleanField(default=False, null=True)
+    type_bac = models.CharField(
+        max_length=25,
+        choices=[
+            ('BACCALAUREAT SERIE A1', 'BACCALAUREAT SERIE A1'),
+            ('BACCALAUREAT SERIE A2', 'BACCALAUREAT SERIE A2'),
+            ('BACCALAUREAT SERIE C', 'BACCALAUREAT SERIE C'),
+            ('BACCALAUREAT SERIE D', 'BACCALAUREAT SERIE D'),
+            ('BACCALAUREAT SERIE E', 'BACCALAUREAT SERIE E'),
+            ('BACCALAUREAT SERIE F4', 'BACCALAUREAT SERIE F4'),
+            ('BACCALAUREAT SERIE F2', 'BACCALAUREAT SERIE F2')
+        ],
+        default='BACCALAUREAT SERIE D'
+    )
     
     # Nouveau champ pour la photo de l'étudiant
     photo = models.ImageField(upload_to='photos/', null=True, blank=True)
@@ -170,13 +193,11 @@ class Etudiant(models.Model):
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
     
-    #def save(self, *args, **kwargs):
-        # Hacher le mot de passe avant d'enregistrer l'objet
-        #if self.mdp_etudiant and not self.password_updated:
-            #self.mdp_etudiant = make_password(self.mdp_etudiant)
-            #self.password_updated = True
-        #super().save(*args, **kwargs)
-
+    def save(self, *args, **kwargs):
+        # Générer un mot de passe aléatoire si le champ est vide
+        if not self.mdp_etudiant:
+            self.mdp_etudiant = generate_random_password(8)  # Spécifiez la longueur souhaitée ici
+        super().save(*args, **kwargs)  # Appeler la méthode save du parent
     
     
     def set_password(self, raw_password):
@@ -410,6 +431,7 @@ class UploadedFile(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Date de téléchargement')
     def __str__(self):
         return self.file.name
+
         
 ############################## Les TD COURS ET ANCIENS SUJETS #################
 

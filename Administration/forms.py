@@ -17,7 +17,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 class EtudiantCreationForm(forms.ModelForm):
-    mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Mot de passe temporaire')
+    mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Mot de passe temporaire',required=False)
 
     class Meta:
         model = Etudiant
@@ -25,7 +25,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'nom_etudiant', 'prenom_etudiant', 'photo','email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere', 'mot_de_passe','bourse']
+            'filiere','bourse','type_bac']
         widgets = {
             #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
             'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
@@ -34,13 +34,13 @@ class EtudiantCreationForm(forms.ModelForm):
             'annee_academique_etudiant': forms.Select(attrs={'class': 'form-control'}),
             'mot_de_passe': forms.PasswordInput(attrs={"placeholder": "Mot de passe"}),
             'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
+            'type_bac': forms.Select(attrs={'class': 'form-control'}),
         }
-       
-
 
     
 class EtudiantLoginForm(forms.Form):
-    email = forms.EmailField(label='Email')
+    #email = forms.EmailField(label='Email')
+    matricule = forms.CharField(label='Matricule')
     mot_de_passe = forms.CharField(widget=forms.PasswordInput(), label='Mot de passe')
 
 class UpdatePasswordForm(forms.Form):
@@ -70,9 +70,10 @@ class UpdatePasswordForm(forms.Form):
 class FiliereForm(forms.ModelForm):
     class Meta:
         model = Filiere
-        fields = ['nom_filiere',]
+        fields = ['nom_filiere','mention']
         widgets ={
             'nom_filiere': forms.TextInput(attrs={'class': 'form-control'}),
+            'mention' : forms.Select(attrs={'class': 'form-control'}),
         }
 
 class ProfesseurForm(forms.ModelForm):
@@ -112,7 +113,7 @@ from .models import Administration
 class CoursModuleForm(forms.ModelForm):
     class Meta:
         model = Cours_Module
-        fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere', 'professeur','niveau',]
+        fields = ['nom_module', 'credit_module', 'volume_horaire', 'filiere', 'professeur','niveau','semestre','unite_enseignement']
         widgets ={
             'nom_module': forms.TextInput(attrs={'class': 'form-control'}),
             'credit_module': forms.TextInput(attrs={'class': 'form-control'}),
@@ -120,6 +121,8 @@ class CoursModuleForm(forms.ModelForm):
             'filiere': forms.Select(attrs={'class': 'form-control'}),
             'professeur': forms.Select(attrs={'class': 'form-control'}),
             'niveau': forms.Select(attrs={'class': 'form-control'}),
+            'semestre':forms.Select(attrs={'class': 'form-control'}),
+            'unite_enseignement': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -163,7 +166,6 @@ class UploadFileForm(forms.Form):
     class Meta:
         model = UploadedFile
         fields = '__all__'
-
 
 
 from django.contrib.auth.models import User 

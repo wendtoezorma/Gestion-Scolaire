@@ -9,7 +9,7 @@ from django.contrib.auth.admin import UserAdmin
     form = AdministrationAdminForm"""
     
 class AdminEtudiant(admin.ModelAdmin):
-    list_display=("matricule",'nom_etudiant','prenom_etudiant',"photo","niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout','password_updated')
+    list_display=("matricule",'nom_etudiant','prenom_etudiant',"photo","niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout','password_updated','Connecter','type_bac')
 
 class AdminBoursier(admin.ModelAdmin):
     list_display=('type_bourse',"reduction")

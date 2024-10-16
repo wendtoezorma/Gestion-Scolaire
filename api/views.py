@@ -48,7 +48,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from Administration.models import Etudiant
 from .serializers import EtudiantLoginSerializer, UpdatePasswordSerializer
-
+"""
 class EtudiantLoginView(APIView):
     def post(self, request):
         serializer = EtudiantLoginSerializer(data=request.data)
@@ -68,6 +68,29 @@ class EtudiantLoginView(APIView):
                     return Response({'error': 'Mot de passe incorrect'}, status=status.HTTP_400_BAD_REQUEST)
             except Etudiant.DoesNotExist:
                 return Response({'error': 'Email non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+"""
+
+class EtudiantLoginView(APIView):
+    def post(self, request):
+        serializer = EtudiantLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            matricule = serializer.validated_data['matricule']
+            mot_de_passe = serializer.validated_data['mot_de_passe']
+            try:
+                # Rechercher l'étudiant par matricule
+                etudiant = Etudiant.objects.get(matricule=matricule)
+                if etudiant.check_password(mot_de_passe):
+                    if not etudiant.password_updated:
+                        # Rediriger vers la mise à jour du mot de passe si ce n'est pas encore fait
+                        return Response({'update_password_required': True, 'etudiant_id': etudiant.matricule}, status=status.HTTP_200_OK)
+                    # Authentifier l'étudiant et créer une session
+                    request.session['etudiant_id'] = etudiant.matricule
+                    return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'error': 'Mot de passe incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+            except Etudiant.DoesNotExist:
+                return Response({'error': 'Matricule non trouvé'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdatePasswordView(APIView):
@@ -188,18 +211,31 @@ class UploadedFileDetailView(generics.RetrieveAPIView):
 
 from rest_framework.decorators import api_view
 
-
+"""
 @api_view(['GET'])
 def display_table(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
     file_path = uploaded_file.file.path
-    df = pd.read_excel(file_path)
+    
 
     # Convertir DataFrame en HTML
     table_html = df.to_html(index=False)
 
     return Response({'table_html': table_html}, status=status.HTTP_200_OK)
+"""
+@api_view(['GET'])
+def display_table(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    file_path = uploaded_file.file.path
+    
+    # Lire le fichier Excel dans un DataFrame pandas
+    df = pd.read_excel(file_path)
 
+    # Convertir le DataFrame en dictionnaire (orient="records" permet une liste de dictionnaires)
+    data = df.to_dict(orient='records')
+
+    # Renvoyer la réponse JSON
+    return JsonResponse({'data': data}, status=status.HTTP_200_OK)
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404

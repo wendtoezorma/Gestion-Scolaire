@@ -1,0 +1,177 @@
+{% extends "Administration/base.html" %}
+        {% block title %}>Profil de l'étudiant - {{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }} {% endblock %}
+{% block content %}
+
+<style>/* Styles globaux */
+
+/* =============== Navigation ==================== */
+.navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    background: var(--blue);
+    color: var(--white);
+    z-index: 900;
+}
+
+/* Autres styles globaux ne touchant pas le menu */
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-color: var(--gray);
+}
+
+.container {
+    position: relative;
+    width: 100%;
+}
+
+.main {
+    padding-top: 80px;
+    padding-bottom: 60px;
+    margin-left: 300px; /* Garde la marge pour le menu */
+    width: calc(100% - 300px);
+    transition: margin-left 0.3s;
+}
+
+/* Exemple d'une classe spécifique pour un autre conteneur */
+.contenu {
+    background-color: blue; /* Ne modifie pas le menu */
+    color: white; /* Couleur de texte souhaitée */
+}
+
+/* Éléments à l'intérieur du conteneur */
+.contenu h1 {
+    color: var(--black1);
+}
+
+.contenu p {
+    color: var(--black2);
+}
+
+/* Styles pour les tables et autres éléments */
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+.student-table thead {
+    background-color: var(--blue); /* Ceci ne changera pas le menu */
+}
+
+/* Autres styles pour les éléments de contenu */
+.student-table tbody tr:hover {
+    background-color: var(--gray);
+    color: var(--white);
+}
+
+.profile-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2rem;
+    color: var(--blue);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: var(--black1);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 5px;
+}
+
+.profile-info {
+    list-style-type: none;
+    padding: 0;
+}
+
+.profile-info li {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: var(--gray);
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info li strong {
+    color: var(--black1);
+}
+
+.profile-info li:hover {
+    background-color: var(--blue);
+    color: var(--white);
+    transition: background-color 0.3s ease;
+}
+
+
+</style>
+<div class="profile-container">
+    <h1>Profil de {{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }}</h1>
+
+    <h2>Informations Générales</h2>
+    <ul class="profile-info">
+        <li><strong>Matricule :</strong> {{ etudiant.matricule }}</li>
+        <li><strong>Email :</strong> {{ etudiant.email_etudiant }}</li>
+        <li><strong>Téléphone :</strong> {{ etudiant.telephone_etudiant }}</li>
+        <li><strong>Sexe :</strong> {{ etudiant.sexe_etudiant }}</li>
+        <li><strong>Date de Naissance :</strong> {{ etudiant.Date_naiss_etudiant }}</li>
+        <li><strong>Lieu de Naissance :</strong> {{ etudiant.lieu_naiss_etudiant }}</li>
+        <li><strong>Nationalité :</strong> {{ etudiant.nationalite_etudiant }}</li>
+        <li><strong>Niveau :</strong> {{ etudiant.niveau_etudiant }}</li>
+        <li><strong>Année Académique :</strong> {{ etudiant.annee_academique_etudiant }}</li>
+        <li><strong>Filière :</strong> {{ etudiant.get_filiere_display }}</li>
+        <li><strong>Type de Bac :</strong> {{ etudiant.type_bac }}</li>
+        <li><strong>Bourse :</strong> {{ etudiant.bourse }}</li>
+    </ul>
+</div>
+
+    <h2>Modules suivis par l'étudiant</h2>
+    <ul>
+        {% for module in cours_modules %}
+        <li>{{ module.nom_module }} - {{ module.unite_enseignement }} - {{ module.semestre }}</li>
+        {% endfor %}
+    </ul>
+
+    
+    <h2>Notes de l'étudiant</h2>
+<div class="student-list-container">
+    <table class="student-table">
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>Note 1</th>
+                <th>Note 2</th>
+                <th>Moyenne</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for note in notes %}
+            <tr>
+                <td>{{ note.matiere_module.nom_module }}</td>
+                <td>{{ note.Note1 }}</td>
+                <td>{{ note.Note2 }}</td>
+                <td>{{ note.moyenne }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<h2>Enseignants</h2>
+<ul>
+    {% for enseignant in enseignants %}
+    <li>{{ enseignant.nom_prof }} {{ enseignant.prenom_prof }} ({{ enseignant.email_prof }})</li>
+    {% endfor %}
+</ul>
+{% endblock %}

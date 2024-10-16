@@ -1,0 +1,97 @@
+{% extends "Administration/base.html" %}
+
+{% block content %}
+<style>
+.container {
+    max-width: 800px; /* Limite la largeur du conteneur */
+    margin: auto; /* Centre le conteneur */
+    padding: 20px; /* Ajoute un espacement interne */
+    background-color: #ffffff; /* Couleur de fond blanche */
+    border-radius: 8px; /* Coins arrondis */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre douce */
+}
+
+h2 {
+    text-align: center; /* Centre le titre */
+    color: #333; /* Couleur du texte */
+    margin-bottom: 20px; /* Espace sous le titre */
+    font-family: 'Arial', sans-serif; /* Police d'écriture */
+}
+
+p {
+    font-size: 16px; /* Taille de police */
+    line-height: 1.6; /* Hauteur de ligne */
+    color: #555; /* Couleur du texte */
+    margin-bottom: 10px; /* Espace sous chaque paragraphe */
+}
+
+li {
+    list-style: none; /* Supprime les puces de la liste */
+}
+
+strong {
+    color: #007bff; /* Couleur pour le texte fort */
+}
+
+.btn {
+    display: inline-block; /* Affiche les boutons en ligne */
+    padding: 10px 20px; /* Espace interne des boutons */
+    margin: 10px 0; /* Espace entre les boutons */
+    font-size: 16px; /* Taille de police des boutons */
+    border: none; /* Supprime la bordure par défaut */
+    border-radius: 5px; /* Coins arrondis pour les boutons */
+    text-align: center; /* Centre le texte dans les boutons */
+    transition: background-color 0.3s ease; /* Transition douce pour le changement de couleur */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Couleur de fond primaire */
+    color: white; /* Couleur du texte */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Couleur de fond au survol */
+}
+
+.btn-secondary {
+    background-color: #6c757d; /* Couleur de fond secondaire */
+    color: white; /* Couleur du texte */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Couleur de fond au survol */
+}
+</style>
+<div>
+    <h2>Récapitulatif de l'inscription de l'étudiant</h2>
+    <p><strong>Nom:</strong> {{ etudiant_data.nom_etudiant }}</p>
+    <p><strong>Prénom:</strong> {{ etudiant_data.prenom_etudiant }}</p>
+    <p><strong>Email:</strong> {{ etudiant_data.email_etudiant }}</p>
+    <p><strong>Filière:</strong> {{ etudiant_data.filiere }}</p>
+    <p><strong>lieu de naissance:</strong> {{ etudiant_data.lieu_naiss_etudiant }}</p>
+    <p><strong>Nationnalité :</strong> {{ etudiant_data.lieu_naiss_etudiant }}</p>
+    <p><strong>niveau  :</strong> {{ etudiant_data.niveau_etudiant }}</p>
+    <p><strong>Année Academique :</strong> {{ etudiant_data.niveau_etudiant }}</p>
+    <p><strong>Date de Naissance :</strong> {{ etudiant_data.annee_academique_etudiant }}</p>
+
+    
+    
+    <li><strong>Bourse :</strong> {{ etudiant_data.bourse_type }}
+    <p><strong>Téléphone:</strong> {{ etudiant_data.telephone_etudiant }}</p> <br>
+    <p><strong>Mot de passe généré:</strong> <span style="font-weight: bold;">{{ etudiant_data.raw_password }}</span></p>
+
+    <form method="POST" action="{% url 'confirmer_inscription_etudiant' %}" class="mt-3">
+        {% csrf_token %}
+        <input type="hidden" name="nom_etudiant" value="{{ etudiant_data.nom_etudiant }}">
+        <input type="hidden" name="prenom_etudiant" value="{{ etudiant_data.prenom_etudiant }}">
+        <input type="hidden" name="email_etudiant" value="{{ etudiant_data.email_etudiant }}">
+        <input type="hidden" name="telephone_etudiant" value="{{ etudiant_data.telephone_etudiant }}">
+        <input type="hidden" name="bourse" value="{{ etudiant_data.bourse_type }}">
+        <input type="hidden" name="filiere" value="{{ etudiant_data.filiere }}">
+        <input type="hidden" name="raw_password" value="{{ etudiant_data.raw_password }}">
+        <button type="submit" class="btn btn-primary">Confirmer l'inscription</button>
+    </form>
+    
+    <a href="{% url 'inscription_etudiant' %}" class="btn btn-secondary mt-2">Modifier les informations</a>
+</div>
+{% endblock %}

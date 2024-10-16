@@ -381,19 +381,20 @@
                 <li>
                     <a href="{% url 'inscription_etudiant' %}">
                         <span class="icon">
-                            <ion-icon name="people-outline"></ion-icon>
+                            <ion-icon name="person-add-outline"></ion-icon>
                         </span>
-                        <span class="title">Ajouter Etudiants</span>
+                        <span class="title">Ajouter Étudiants</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'creer_professeur' %}">
                         <span class="icon">
-                            <ion-icon name="people-outline"></ion-icon>
+                            <ion-icon name="school-outline"></ion-icon>
                         </span>
                         <span class="title">Ajouter un enseignant</span>
                     </a>
                 </li>
+                
                 <li>
                     <a href="{% url 'gestion_scolarite' %}">
                         <span class="icon">
@@ -448,7 +449,7 @@
                 <li>
                     <a href="{% url 'infos' %}">
                         <span class="icon">
-                            <ion-icon name="calendar-outline"></ion-icon>
+                            <ion-icon name="information-circle-outline"></ion-icon>
                         </span>
                         <span class="title">Infos</span>
                     </a>
@@ -456,10 +457,20 @@
                 <li>
                     <a href="{% url 'recherche_etudiant' %}">
                         <span class="icon">
-                            <ion-icon name="calendar-outline"></ion-icon>
+                            <ion-icon name="document-text-outline"></ion-icon>
                         </span>
-                        <span class="title">Generer un bulletin </span>
+                        <span class="title">Générer un bulletin</span>
                     </a>
+                </li>
+                
+                 <li>
+                    <a href="{% url 'demander_matricule' %}">
+                        <span class="icon">
+                            <ion-icon name="person-outline"></ion-icon>
+                        </span>
+                        <span class="title">Voir le profil d'un étudiant</span>
+                    </a>
+                    
                 <li>
                     <button type="button" class="menu-link" onclick="document.getElementById('logout-form').submit();">
                         <span class="icon">

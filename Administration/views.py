@@ -78,7 +78,13 @@ from django.views import View
 
 from django.contrib.auth import authenticate, login  # Importer le login et authenticate
 from django.contrib import messages  # Importer messages
-
+################### liste etudiants ####################
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .forms import ScolariteForm
+from .models import Etudiant, Filiere, Scolarite
+from .apperu import apercu_caisse, nombre_etudiants_connecter
+from datetime import datetime
 def administration_login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -127,7 +133,7 @@ def admin_dashboard (request):
     return render(request,"Administration/admin_dashboard.html",context)
 
 
-
+"""
 @login_required(login_url='login')
 def inscription_etudiant(request):
     if request.method == 'POST':
@@ -149,16 +155,124 @@ def inscription_etudiant(request):
     else:
         form = EtudiantCreationForm()
     return render(request, "Administration/insrciption_etudiant.html", {'form': form})
+"""
+
+def generate_random_password(length=8):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for _ in range(length))
+ # Assurez-vous que cette fonction est bien définie
+from django.utils import timezone  # Ajoutez ceci pour la gestion des dates
+
+@login_required(login_url='login')
+def inscription_etudiant(request):
+    if request.method == 'POST':
+        form = EtudiantCreationForm(request.POST)
+        if form.is_valid():
+            etudiant = form.save(commit=False)
+            # Générer un mot de passe aléatoire
+            raw_password = generate_random_password(8)
+            etudiant.mdp_etudiant = make_password(raw_password)  # Hacher le mot de passe
+            etudiant_data = form.cleaned_data
+
+            
+            
+            # Stocker les données dans la session, en convertissant les dates
+            request.session['etudiant_data'] = {
+                'nom_etudiant': etudiant_data['nom_etudiant'],
+                'prenom_etudiant': etudiant_data['prenom_etudiant'],
+                'email_etudiant': etudiant_data['email_etudiant'],
+                'telephone_etudiant': etudiant_data['telephone_etudiant'],
+                'sexe_etudiant': etudiant_data['sexe_etudiant'],
+                 #'type_bac':etudiant_data['type_bac'],
+                'Date_naiss_etudiant': etudiant_data['Date_naiss_etudiant'].isoformat() if etudiant_data['Date_naiss_etudiant'] else None,
+                'lieu_naiss_etudiant': etudiant_data['lieu_naiss_etudiant'],
+                'nationalite_etudiant': etudiant_data['nationalite_etudiant'],
+                #'filiere': etudiant_data['filiere'],
+                'filiere_id': etudiant_data['filiere'].Id_filiere,
+                'niveau_etudiant': etudiant_data['niveau_etudiant'],
+                'annee_academique_etudiant': etudiant_data['annee_academique_etudiant'],
+                'bourse_type': etudiant_data['bourse'].type_bourse,
+                'raw_password': raw_password,  # Passer le mot de passe brut à la session
+            }
+
+            # Afficher la page de récapitulatif
+            return redirect('confirmer_inscription_etudiant')
+
+    else:
+        form = EtudiantCreationForm()
+    
+    return render(request, "Administration/insrciption_etudiant.html", {'form': form})
+
+from datetime import datetime
+
+@login_required(login_url='login')
+def confirmer_inscription_etudiant(request):
+    # Récupérer les données de l'étudiant de la session
+    etudiant_data = request.session.get('etudiant_data')
+    if etudiant_data:
+        # Récupérer la filière à partir de l'ID stocké dans la session
+        #filiere = Filiere.objects.get(id=etudiant_data['filiere_id'])
+        filiere = Filiere.objects.get(Id_filiere=etudiant_data['filiere_id'])
+
+        etudiant_data['filiere'] = filiere.nom_filiere  # Ajouter le nom de la filière aux données de la session
+
+
+    if request.method == 'POST' and etudiant_data:
+        # Convertir la date de naissance de chaîne à objet date
+        date_naissance = datetime.fromisoformat(etudiant_data['Date_naiss_etudiant']) if etudiant_data['Date_naiss_etudiant'] else None
+        photo = request.FILES.get('photo')  # Si vous utilisez un champ fichier dans le formulaire
+        bourse_type = etudiant_data.get('bourse_type')
+        # Récupérer la filière à partir de l'ID stocké dans la session
+        #filiere = Filiere.objects.get(id=etudiant_data['filiere_id'])
+
+        etudiant = Etudiant(
+            nom_etudiant=etudiant_data['nom_etudiant'],
+            prenom_etudiant=etudiant_data['prenom_etudiant'],
+            email_etudiant=etudiant_data['email_etudiant'],
+            telephone_etudiant=etudiant_data['telephone_etudiant'],
+            sexe_etudiant=etudiant_data['sexe_etudiant'],
+            #type_bac=etudiant_data['type_bac'],
+            Date_naiss_etudiant=date_naissance,
+            lieu_naiss_etudiant=etudiant_data['lieu_naiss_etudiant'],
+            nationalite_etudiant=etudiant_data['nationalite_etudiant'],
+            #filiere=etudiant_data['filiere'],
+            filiere=filiere,  # Utiliser l'objet filière récupéré
+            bourse=Boursier.objects.get(type_bourse=bourse_type),  # Récupérer l'objet Boursier basé sur le type
+            
+            photo=photo,
+            niveau_etudiant=etudiant_data['niveau_etudiant'],
+            annee_academique_etudiant=etudiant_data['annee_academique_etudiant'],
+            mdp_etudiant=make_password(etudiant_data['raw_password']) # Hacher le mot de passe
+        )
+        etudiant.save()  # Enregistrer l'étudiant dans la base de données
+        # Optionnel: Supprimer les données de la session après l'inscription
+        del request.session['etudiant_data']
+        return redirect('admin_dashboard')  # Rediriger vers le tableau de bord
+
+    # Gérer le cas où les données ne sont pas disponibles
+    if etudiant_data is None:
+        return redirect('inscription_etudiant')
+
+    # Si c'est une requête GET, afficher le récapitulatif
+    return render(request, 'Administration/recapitulatif_etudiant.html', {
+        'etudiant_data': etudiant_data,
+        
+        
+    })
+
 
 
 def etudiant_login(request):
     if request.method == 'POST':
         form = EtudiantLoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
+            #email = form.cleaned_data['email']
+            matricule = form.cleaned_data['matricule']
             mot_de_passe = form.cleaned_data['mot_de_passe']
             try:
-                etudiant = Etudiant.objects.get(email_etudiant=email)
+                #etudiant = Etudiant.objects.get(email_etudiant=email)
+                # Rechercher l'étudiant par matricule
+                etudiant = Etudiant.objects.get(matricule=matricule)
                 if etudiant.check_password(mot_de_passe):
                     if not etudiant.password_updated:
 
@@ -532,6 +646,7 @@ def upload_file(request):
     return render(request, 'Administration/upload.html', {'form': form})
 # afficher les fichier deja uploader
 
+
 @login_required(login_url='login')
 def list_uploaded_files(request):
     files = UploadedFile.objects.all()
@@ -663,13 +778,7 @@ def student_profile(request):
     # Passe les informations de l'étudiant au template
     return render(request, 'etudiant_profile.html', {'etudiant': etudiant})
 
-################### liste etudiants ####################
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .forms import ScolariteForm
-from .models import Etudiant, Filiere, Scolarite
-from .apperu import apercu_caisse, nombre_etudiants_connecter
-from datetime import datetime
+
 
 def gestion_scolarite(request):
     filieres = Filiere.objects.all()
@@ -688,6 +797,7 @@ def gestion_scolarite(request):
         scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
          # Créer un formulaire de scolarité
         scolarite_form = ScolariteForm(request.POST, instance=scolarite)
+        
         #form = ScolariteForm(request.POST)
 
         if scolarite_form.is_valid():
@@ -727,13 +837,16 @@ from django.http import JsonResponse
 
 def get_scolarite(request, etudiant_id):
     scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+    
     if scolarite:
+        raw_password = scolarite.mdp_etudiant
         return JsonResponse({
             'tranche_1': scolarite.tranche_1,
             'tranche_2': scolarite.tranche_2,
             'tranche_3': scolarite.tranche_3,
+            'mot_de_passe': raw_password,
         })
-    return JsonResponse({'tranche_1': 0, 'tranche_2': 0, 'tranche_3': 0})
+    return JsonResponse({'tranche_1': 0, 'tranche_2': 0, 'tranche_3': 0,'mot_de_passe': None})
 
 
 
@@ -938,3 +1051,35 @@ def  generer_bulletin(request, matricule, semestre):
     return render(request, 'Administration/bulletin.html', context)
     
 
+
+def demander_matricule(request):
+    if request.method == 'POST':
+        matricule = request.POST.get('matricule')
+        # Redirige vers la vue du profil de l'étudiant avec le matricule
+        return redirect('profil_etudiant_cursus', matricule=matricule)
+    return render(request, 'Administration/demander_matricule.html')
+
+
+def profil_etudiant(request, matricule):
+    # Récupérer l'étudiant via son matricule
+    etudiant = get_object_or_404(Etudiant, matricule=matricule)
+    
+    # Récupérer les notes de l'étudiant pour l'année académique donnée
+    annee_academique = etudiant.annee_academique_etudiant
+    notes = Notes.objects.filter(etudiant=etudiant, matiere_module__filiere=etudiant.filiere, matiere_module__niveau=etudiant.niveau_etudiant)
+
+    # Récupérer les modules que l'étudiant a suivis
+    cours_modules = Cours_Module.objects.filter(filiere=etudiant.filiere, niveau=etudiant.niveau_etudiant)
+
+    # Récupérer les enseignants de l'étudiant pour les cours qu'il a eus
+    enseignants = professeurs.objects.filter(modules__in=cours_modules)
+
+    context = {
+        'etudiant': etudiant,
+        'notes': notes,
+        'cours_modules': cours_modules,
+        'enseignants': enseignants,
+        'annee_academique': annee_academique
+    }
+
+    return render(request, 'Administration/profil_etudiant.html', context) 

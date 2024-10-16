@@ -35,10 +35,13 @@ urlpatterns = [
     path('creer-filiere/', creer_filiere, name='creer_filiere'),
     path('creer-cours/', creer_cours, name='creer_cours'),
     path('inscription_etudiant/',inscription_etudiant,name='inscription_etudiant'),
+    path('demander_matricule/', demander_matricule, name='demander_matricule'),
+    path('profil_etudiant_cursus/<int:matricule>/', profil_etudiant, name='profil_etudiant_cursus'),
     
     #path('etudiant_login', etudiant_login, name= 'etudiant_login')
     path('loginEtuadiant/', etudiant_login, name='etudiant_login'),
     path('update-password/<int:etudiant_id>/', update_password, name='update_password'),
+    path('confirmer_inscription_etudiant/', confirmer_inscription_etudiant, name='confirmer_inscription_etudiant'),
     path('creer_professeur/',creer_professeur,name ='creer_professeur'),
     path('creer_note/',creer_note, name = 'creer_note'),
     path('classe/<int:filiere_id>/<str:niveau>/', liste_etudiants_par_classe, name='liste_etudiants_par_classe'),
