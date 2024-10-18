@@ -332,9 +332,10 @@ class CoursFichierAPI(APIView):
         data = []
         for fichier in serializer.data:
             download_url = request.build_absolute_uri(
-                reverse('download_pdf', args=[fichier['Id_fichier']])
+                reverse('download_pdf', args=[fichier['id_fichier']])
             )
             fichier_info = {
+                'Id_fichier': fichier['id_fichier'],
                 'nom_fichier': fichier['nom_fichier'],
                 'fichier': download_url,
                 'date_ajout': fichier['date_ajout'],

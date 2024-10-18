@@ -203,6 +203,23 @@ def inscription_etudiant(request):
     
     return render(request, "Administration/insrciption_etudiant.html", {'form': form})
 
+
+@login_required(login_url='login')
+def modifier_etudiant(request, id):
+    etudiant = get_object_or_404(Etudiant, matricule=id)  # Assurez-vous d'utiliser l'attribut approprié ici
+
+    if request.method == 'POST':
+        form = EtudiantCreationForm(request.POST, instance=etudiant)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_dashboard')  # Redirige vers le profil après la modification
+    else:
+        form = EtudiantCreationForm(instance=etudiant)
+
+    return render(request, "Administration/modifier_etudiant.html", {'form': form, 'etudiant': etudiant})
+
+
+
 from datetime import datetime
 
 @login_required(login_url='login')
@@ -417,50 +434,64 @@ def select_module(request, filiere_id, niveau):
     return render(request, 'Administration/select_module.html', context)
 
 
-
 @login_required(login_url='login')
 def creer_note(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
         niveau = request.GET.get('niveau')
         module_id = request.GET.get('module_id')
+
         etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
         module = Cours_Module.objects.get(Id_module=module_id)
-        
+
+        # Récupérer les notes existantes pour les étudiants
+        notes_existantes = {note.etudiant_id: note for note in Notes.objects.filter(matiere_module_id=module_id)}
+
         context = {
             'etudiants': etudiants,
             'module': module,
             'filiere_id': filiere_id,
-            'niveau': niveau
+            'niveau': niveau,
+            'notes_existantes': notes_existantes,  # Ajout des notes existantes au contexte
         }
-        
+
         return render(request, 'Administration/add_note.html', context)
+
     elif request.method == 'POST':
         module_id = request.POST.get('module_id')
         etudiants = request.POST.getlist('etudiant_id')
         notes1 = request.POST.getlist('note1')
         notes2 = request.POST.getlist('note2')
-        
+
         for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
-            note = Notes(
+            # Traiter les valeurs vides pour les notes
+            note1 = float(note1) if note1 else None
+            note2 = float(note2) if note2 else None
+
+            note, created = Notes.objects.update_or_create(
                 etudiant_id=etudiant_id,
                 matiere_module_id=module_id,
-                Note1=float(note1),
-                Note2=float(note2)
+                defaults={'Note1': note1, 'Note2': note2}
             )
-            note.save()
+        
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée 
-    
+
+
 @login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
     etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
     modules = Cours_Module.objects.filter(filiere_id=filiere_id)
+    
+
+
     context = {
         'etudiants': etudiants,
         'filiere_id': filiere_id,
         'niveau': niveau,
         'modules': modules,
+        
+
     }
     return render(request, 'Administration/classe.html', context)
 
@@ -995,7 +1026,7 @@ def  generer_bulletin(request, matricule, semestre):
     def calculer_moyenne_unite(notes_unite):
         total_notes_unite = sum(note.moyenne * note.matiere_module.credit_module for note in notes_unite)
         total_credits_unite = sum(note.matiere_module.credit_module for note in notes_unite)
-        
+       
         if total_credits_unite > 0:
             return total_notes_unite / total_credits_unite
         else:
@@ -1026,13 +1057,15 @@ def  generer_bulletin(request, matricule, semestre):
     else:
         mention = "Insuffisant"
         decision_jury = "Ajourné"
-    
+    #notes_ponderees = [(note, note.moyenne * note.matiere_module.credit_module) for note in notes],
+    notes_ponderees = [(note, note.moyenne * note.matiere_module.credit_module) for note in notes]
     # Contexte des variables à passer au template
     context = {
         
         'etudiant': etudiant,
         #'matiere': notes,
         'notes': notes,  # Liste des notes avec les modules associés
+        'notes_ponderees': notes_ponderees,
         'moyenne_generale': round(moyenne_generale, 2),
         'moyenne_fondamentale': round(moyenne_fondamentale, 2),
         'moyenne_transversale': round(moyenne_transversale, 2),

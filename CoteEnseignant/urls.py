@@ -16,6 +16,6 @@ urlpatterns = [
     path('display_table_prof/<int:file_id>/', display_table_prof, name='display'),
     path('creer_note_prof/', creer_note_prof, name='creer_note_prof'),
     path('voir_notes_pro/<int:filiere_id>/<str:niveau>/', voir_notes_prof, name='voir_notes_pro'),
-    path('modifier_note_prof/<int:note_id>/', modifier_note_prof, name='modifier_note'),
+    path('modifier_note_prof/<int:note_id>/', modifier_note_prof, name='modifie_note'),
     path('logout_prof', logout_prof, name='logout_prof'),
 ]

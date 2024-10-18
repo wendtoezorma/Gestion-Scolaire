@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -190,6 +191,8 @@
     </div>
     
     <!-- Tableau des résultats -->
+    
+
     <table>
        
         <thead>
@@ -216,7 +219,10 @@
                     <td>{{ note.matiere_module.nom_module }}</td>
                     <td>{{ note.moyenne }}</td>
                     <td>{{ note.matiere_module.credit_module }}</td>
-                    <td>{{ note.matiere_module.professeur.nom }}</td>
+                    <td class="note-ponderee" data-moyenne="{{ note.moyenne }}" data-credit="{{ note.matiere_module.credit_module }}">
+                        <!-- Le résultat sera affiché ici -->
+                    </td>
+                    
                     <td>{{ note.matiere_module.professeur.nom_prof }} {{ note.matiere_module.professeur.prenom_prof }}</td>
                 </tr>
             {% empty %}
@@ -279,8 +285,28 @@
         // Utilisation de html2pdf pour générer le PDF
         html2pdf().from(element).set(options).save();
     });
-</script>
 
+    document.addEventListener('DOMContentLoaded', function() {
+    const noteElements = document.querySelectorAll('.note-ponderee');
+
+    noteElements.forEach(element => {
+        // Remplacer la virgule par un point pour la conversion
+        const moyenne = parseFloat(element.getAttribute('data-moyenne').replace(',', '.'));
+        const credit = parseFloat(element.getAttribute('data-credit').replace(',', '.'));
+
+        // Vérification si les valeurs sont valides avant de multiplier
+        if (!isNaN(moyenne) && !isNaN(credit)) {
+            const notePonderee = moyenne * credit;
+
+            // Affiche le résultat dans la cellule avec deux décimales
+            element.textContent = notePonderee.toFixed(2).replace('.', ','); // Remplace le point par une virgule
+        } else {
+            element.textContent = 'N/A'; // Affiche 'N/A' si les valeurs ne sont pas valides
+        }
+    });
+});
+
+</script>
 
 </body>
 </html>

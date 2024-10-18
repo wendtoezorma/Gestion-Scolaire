@@ -39,7 +39,7 @@ body {
 /* Exemple d'une classe spécifique pour un autre conteneur */
 .contenu {
     background-color: blue; /* Ne modifie pas le menu */
-    color: white; /* Couleur de texte souhaitée */
+    color: rgb(19, 3, 70); /* Couleur de texte souhaitée */
 }
 
 /* Éléments à l'intérieur du conteneur */
@@ -65,7 +65,7 @@ body {
 /* Autres styles pour les éléments de contenu */
 .student-table tbody tr:hover {
     background-color: var(--gray);
-    color: var(--white);
+    color: var(--black2);
 }
 
 .profile-container {
@@ -124,6 +124,9 @@ h2 {
     <ul class="profile-info">
         <li><strong>Matricule :</strong> {{ etudiant.matricule }}</li>
         <li><strong>Email :</strong> {{ etudiant.email_etudiant }}</li>
+        <li><strong>Nom :</strong> {{ etudiant.prenom_etudiant }}</li>
+        <li><strong>Prenom :</strong> {{ etudiant.prenom_etudiant }}</li>
+
         <li><strong>Téléphone :</strong> {{ etudiant.telephone_etudiant }}</li>
         <li><strong>Sexe :</strong> {{ etudiant.sexe_etudiant }}</li>
         <li><strong>Date de Naissance :</strong> {{ etudiant.Date_naiss_etudiant }}</li>
@@ -174,4 +177,8 @@ h2 {
     <li>{{ enseignant.nom_prof }} {{ enseignant.prenom_prof }} ({{ enseignant.email_prof }})</li>
     {% endfor %}
 </ul>
+   <!-- Lien pour modifier les informations de l'étudiant -->
+   <div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'modifier_etudiant' id=etudiant.matricule %}" class="btn btn-primary">Modifier les informations</a>
+</div>
 {% endblock %}

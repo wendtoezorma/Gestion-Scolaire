@@ -37,6 +37,7 @@ urlpatterns = [
     path('inscription_etudiant/',inscription_etudiant,name='inscription_etudiant'),
     path('demander_matricule/', demander_matricule, name='demander_matricule'),
     path('profil_etudiant_cursus/<int:matricule>/', profil_etudiant, name='profil_etudiant_cursus'),
+    path('modifier_etudiant/<int:id>/', modifier_etudiant, name='modifier_etudiant'),
     
     #path('etudiant_login', etudiant_login, name= 'etudiant_login')
     path('loginEtuadiant/', etudiant_login, name='etudiant_login'),

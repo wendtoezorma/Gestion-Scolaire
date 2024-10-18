@@ -72,6 +72,7 @@ class UploadedFileSerializer(serializers.ModelSerializer):
     
 
 class CoursFichierSerializer(serializers.ModelSerializer):
+    #Id_fichier = serializers.AutoField
     nom_professeur = serializers.CharField(source='professeur.nom_prof', read_only=True)
     nom_module = serializers.CharField(source='module.nom_module',read_only=True)
     nom_filiere = serializers.CharField(source='filiere.nom_filiere',read_only=True)

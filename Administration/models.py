@@ -436,7 +436,7 @@ class UploadedFile(models.Model):
 ############################## Les TD COURS ET ANCIENS SUJETS #################
 
 class CoursFichier(models.Model):
-    Id_fichier = models.AutoField(primary_key=True)
+    id_fichier = models.AutoField(primary_key=True)
     nom_fichier = models.CharField(max_length=250)
     fichier = models.FileField(upload_to='cours/')
     date_ajout = models.DateField(auto_now=True)
