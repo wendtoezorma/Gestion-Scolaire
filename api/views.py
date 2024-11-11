@@ -133,10 +133,12 @@ class EtudiantNotesList(APIView):
         notes_dict = {}
         for note_data in note_serializer.data:
             module_name = note_data['matiere_module']['nom_module']
+            
             notes_dict[module_name] = {
                 'Note1': note_data['Note1'],
                 'Note2': note_data['Note2'],
-                'moyenne': note_data['moyenne']
+                'moyenne': note_data['moyenne'],
+                
             }
 
         return Response({
@@ -184,7 +186,7 @@ class StudentProfileView(APIView):
         except Etudiant.DoesNotExist:
             return Response({'error': 'Étudiant non trouvé'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = EtudiantSerializer(etudiant)
+        serializer = EtudiantSerializer(etudiant, context={'request': request})
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         
 #emploi du temps 

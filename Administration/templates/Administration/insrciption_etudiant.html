@@ -4,122 +4,50 @@
 {% block styles %}
 {{ block.super }}
 
-
 <style>
- /* Assure que le body et le conteneur occupent tout l'espace disponible */
-/* Assure que le body et le conteneur occupent tout l'espace disponible */
-body {
-    overflow: hidden; /* Cache les barres de défilement */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: none;
-    padding: 0;
-    margin: 0;
+    body {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important; /* Centrer horizontalement */
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
+    background: none !important;
+    padding-top: 80px;
+    margin-left: 0;
 }
 
-.background {
-    position: absolute;
-    top: 0;
-    left: 0;
+.form-control {
     width: 100%;
-    height: 100%;
-    z-index: 0; /* Assurez-vous que l'arrière-plan est sous le contenu principal */
-    pointer-events: none;
-    background-color: #ffffff; /* Fond blanc */
-    overflow: hidden;
-}
-
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.background .bubble {
-    position: absolute;
-    background-color: rgba(6, 9, 223, 0.838); /* Couleur de fond semi-transparente */
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-    z-index: 100; /* Assurez-vous que les bulles sont visibles au-dessus de l'arrière-plan */
-}
-
-@keyframes bubbleAnimation {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(-100%, 100%); }
-    100% { transform: translate(0, 0); }
-}
-
-.background .bubble:nth-child(1) {
-    top: 10%;
-    left: 10%;
-    animation-duration: 10s;
-    animation-delay: 0s;
-}
-
-.background .bubble:nth-child(2) {
-    top: 30%;
-    left: 30%;
-    animation-duration: 12s;
-    animation-delay: 2s;
-}
-
-.background .bubble:nth-child(3) {
-    top: 50%;
-    left: 60%;
-    animation-duration: 14s;
-    animation-delay: 4s;
-}
-
-.background .bubble:nth-child(4) {
-    top: 70%;
-    left: 20%;
-    animation-duration: 16s;
-    animation-delay: 6s;
-}
-
-.background .bubble:nth-child(5) {
-    top: 80%;
-    left: 50%;
-    animation-duration: 18s;
-    animation-delay: 8s;
-}
-.background .bubble:nth-child(6) {
-    top: 80%;
-    right: 70%;
-    animation-duration: 20s;
-    animation-delay: 10s;
-}
-.background .bubble:nth-child(7) {
-    top: 80%;
-    left: 80%;
-    animation-duration: 22s;
-    animation-delay: 12s;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
 }
 
 form {
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-width: 90vw; /* Largeur maximale du formulaire */
-    max-height: 90vh; /* Hauteur maximale du formulaire */
+    width: 100%;
+    max-width: 1200px; /* Largeur maximale du formulaire */
     text-align: left;
     background-color: rgba(255, 255, 255, 0.8);
     position: relative;
     z-index: 2;
     margin: auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Disposition flexible en colonnes */
     gap: 20px;
-    overflow: auto; /* Ajoute un défilement si le contenu dépasse */
+    overflow: auto; /* Ajoute un défilement si nécessaire */
 }
 
 form h1 {
-    grid-column: span 2;
+    grid-column: span 2; /* Fais en sorte que le titre occupe toute la largeur */
     margin-bottom: 20px;
     color: #333;
     text-align: center;
@@ -130,12 +58,10 @@ form label {
     font-weight: bold;
     color: #333;
 }
-#id_bourse,
-#id_photo,
+
 form input[type="text"],
-form input[type="password"],
-form input[type="bourse"],
-form input[type="email"] {
+form input[type="email"],
+form select {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -163,14 +89,11 @@ form input[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-.form-control {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ced4da;
-    border-radius: 20px;
-    transition: background-color 0.3s ease;
-    background-color: #ffffff;
+.reinscription-btn {
+    margin: 20px 0;
+    text-align: center;
+    z-index: 2;
+    position: relative;
 }
 
 .btn-success {
@@ -179,55 +102,45 @@ form input[type="submit"]:hover {
     background-color: #40d67a;
     color: #fff;
     border: none;
-    padding: 12px 12px;
     font-size: 16px;
     border-radius: 25px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="background">
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-</div>
+    <div class="background">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
 
+    <!-- Ajouter un bouton pour réinscrire un étudiant -->
+    <div class="reinscription-btn">
+        <a href="{% url 'reinscription_etudiant' %}" class="btn btn-success">Réinscrire un étudiant</a>
+    </div>
 
+    <form method="post" enctype="multipart/form-data">
+        <h1>Créer un nouvel étudiant</h1>
+        <br>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <br>
+        <input type="submit" value="Créer étudiant">
+    </form>
 
-<form method="post">
-    <h1>Créer un nouvel étudiant</h1>
-    <br>
-    <br>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <br>
-    <input type="submit" value="Créer étudiant">
-  </form>
-
-  <script>
-    // JavaScript pour cloner le premier formulaire et l'ajouter à la fin du corps du document
-    document.getElementById("add_student_button").addEventListener("click", function() {
-      var formClone = document.querySelector("form").cloneNode(true);
-      document.body.appendChild(formClone);
-    });
-  </script>
-
+    <script>
+        // JavaScript pour cloner le premier formulaire et l'ajouter à la fin du corps du document
+        //document.getElementById("add_student_button").addEventListener("click", function() {
+        //document.body.appendChild(formClone);
+        //});
+    </script>
 {% endblock %}

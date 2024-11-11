@@ -1,6 +1,19 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import check_password, make_password
-from .models import Etudiant
+from .models import Etudiant 
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Etudiant, Scolarite
+
+
+import json
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Etudiant, Scolarite
+from django.contrib import messages
+
 from .forms import EtudiantCreationForm, EtudiantLoginForm, UpdatePasswordForm
 from .paswords_generators import generateur_mdp
 from django.shortcuts import render, redirect
@@ -133,30 +146,6 @@ def admin_dashboard (request):
     return render(request,"Administration/admin_dashboard.html",context)
 
 
-"""
-@login_required(login_url='login')
-def inscription_etudiant(request):
-    if request.method == 'POST':
-        form = EtudiantCreationForm(request.POST)
-        if form.is_valid():
-            etudiant = form.save(commit=False)
-            #mot_de_passe = form.cleaned_data['mot_de_passe']
-            etudiant.set_password1(form.cleaned_data['mot_de_passe'])
-            etudiant.save()
-            # Envoyer un email à l'étudiant avec le mot de passe généré (optionnel)
-            # send_mail(
-            #     'Votre mot de passe temporaire',
-            #     f'Votre mot de passe temporaire est {mot_de_passe}',
-            #     'admin@exemple.com',
-            #     [etudiant.email_etudiant],
-            #     fail_silently=False,
-            # )
-            return redirect('admin_dashboard')
-    else:
-        form = EtudiantCreationForm()
-    return render(request, "Administration/insrciption_etudiant.html", {'form': form})
-"""
-
 def generate_random_password(length=8):
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(characters) for _ in range(length))
@@ -166,7 +155,7 @@ from django.utils import timezone  # Ajoutez ceci pour la gestion des dates
 @login_required(login_url='login')
 def inscription_etudiant(request):
     if request.method == 'POST':
-        form = EtudiantCreationForm(request.POST)
+        form = EtudiantCreationForm(request.POST, request.FILES)
         if form.is_valid():
             etudiant = form.save(commit=False)
             # Générer un mot de passe aléatoire
@@ -193,9 +182,19 @@ def inscription_etudiant(request):
                 'annee_academique_etudiant': etudiant_data['annee_academique_etudiant'],
                 'bourse_type': etudiant_data['bourse'].type_bourse,
                 'raw_password': raw_password,  # Passer le mot de passe brut à la session
+                'photo_name': request.FILES['photo'].name if 'photo' in request.FILES else None  # Conserver le nom du fichier
+                
+                 
             }
 
+             # Stocker la photo dans la session sous forme de nom de fichier
+            '''photo = request.FILES.get('photo')
+            if photo:
+                request.session['etudiant_data']['photo_name'] = photo.name  # Conserver le nom de fichier
+            '''
+
             # Afficher la page de récapitulatif
+            #etudiant.photo = request.FILES.get('photo')
             return redirect('confirmer_inscription_etudiant')
 
     else:
@@ -212,6 +211,7 @@ def modifier_etudiant(request, id):
         form = EtudiantCreationForm(request.POST, instance=etudiant)
         if form.is_valid():
             form.save()
+            messages.success(request, "LES information de l'etudiant ont été modifiées avec succès.")
             return redirect('admin_dashboard')  # Redirige vers le profil après la modification
     else:
         form = EtudiantCreationForm(instance=etudiant)
@@ -239,6 +239,7 @@ def confirmer_inscription_etudiant(request):
         date_naissance = datetime.fromisoformat(etudiant_data['Date_naiss_etudiant']) if etudiant_data['Date_naiss_etudiant'] else None
         photo = request.FILES.get('photo')  # Si vous utilisez un champ fichier dans le formulaire
         bourse_type = etudiant_data.get('bourse_type')
+      
         # Récupérer la filière à partir de l'ID stocké dans la session
         #filiere = Filiere.objects.get(id=etudiant_data['filiere_id'])
 
@@ -253,15 +254,17 @@ def confirmer_inscription_etudiant(request):
             lieu_naiss_etudiant=etudiant_data['lieu_naiss_etudiant'],
             nationalite_etudiant=etudiant_data['nationalite_etudiant'],
             #filiere=etudiant_data['filiere'],
+            photo= photo,
             filiere=filiere,  # Utiliser l'objet filière récupéré
-            bourse=Boursier.objects.get(type_bourse=bourse_type),  # Récupérer l'objet Boursier basé sur le type
-            
-            photo=photo,
+            bourse=Boursier.objects.get(type_bourse=bourse_type),  # Récupérer l'objet Boursier basé sur le type 
             niveau_etudiant=etudiant_data['niveau_etudiant'],
             annee_academique_etudiant=etudiant_data['annee_academique_etudiant'],
             mdp_etudiant=make_password(etudiant_data['raw_password']) # Hacher le mot de passe
         )
         etudiant.save()  # Enregistrer l'étudiant dans la base de données
+           # Ajouter un message de succès
+        messages.success(request, "L'inscription de l'étudiant a été confirmée avec succès.")
+
         # Optionnel: Supprimer les données de la session après l'inscription
         del request.session['etudiant_data']
         return redirect('admin_dashboard')  # Rediriger vers le tableau de bord
@@ -341,6 +344,7 @@ def creer_filiere(request):
         form = FiliereForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Filiere creer avec succes.")
             return redirect('admin_dashboard')  # Rediriger vers le tableau de bord administrateur
     else:
         form = FiliereForm()
@@ -353,6 +357,7 @@ def creer_cours(request):
         form = CoursModuleForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Cours creeé avec succes.")
             return redirect('admin_dashboard')  # Rediriger vers le tableau de bord administrateur
     else:
         form = CoursModuleForm()
@@ -368,44 +373,12 @@ def creer_professeur(request):
         form = ProfesseurForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "L'inscription du proffesseur a été confirmée avec succès.")
             return redirect('admin_dashboard')  # Rediriger vers la liste des professeurs après la création réussie
     else:
         form = ProfesseurForm()
     return render(request, 'Administration/creer_professeur.html', {'form': form})
 
-"""@login_required(login_url='login')
-def creer_note(request):
-    if request.method == 'GET':
-        filiere_id = request.GET.get('filiere_id')
-        niveau = request.GET.get('niveau')
-        module_id = request.GET.get('module_id')
-        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
-        module = Cours_Module.objects.get(Id_module=module_id)
-        
-        context = {
-            'etudiants': etudiants,
-            'module': module,
-            'filiere_id': filiere_id,
-            'niveau': niveau
-        }
-        return render(request, 'Administration/add_note.html', context)
-    elif request.method == 'POST':
-        module_id = request.POST.get('module_id')
-        etudiants = request.POST.getlist('etudiant_id')
-        notes1 = request.POST.getlist('note1')
-        notes2 = request.POST.getlist('note2')
-        
-        for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
-            note = Notes(
-                etudiant_id=etudiant_id,
-                matiere_module_id=module_id,
-                Note1=float(note1),
-                Note2=float(note2)
-            )
-            note.save()
-        messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée
-"""
 @login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
     etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
@@ -622,6 +595,7 @@ def voir_notes(request, filiere_id, niveau):
     else:
         return redirect('admin_dashboard')
 
+
 @login_required(login_url='login')
 def upload_file(request):
     if request.method == 'POST':
@@ -632,11 +606,10 @@ def upload_file(request):
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-            # Handle file upload
-            file = request.FILES['file']
-            df = pd.read_excel(file)
+            # Lire le fichier Excel téléchargé
+            df = pd.read_excel(uploaded_file)
 
-            # Remplacer les NaN par des chaînes vides    
+            # Remplacer les NaN par des chaînes vides
             df.fillna('', inplace=True)
 
             # Créer un buffer pour sauvegarder le PDF
@@ -651,7 +624,7 @@ def upload_file(request):
 
             # Appliquer un style au tableau
             style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.peachpuff),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -666,21 +639,29 @@ def upload_file(request):
             elements.append(table)
             doc.build(elements)
 
-            # Créer une réponse HTTP avec le contenu du PDF
-            buffer.seek(0)
-            response = HttpResponse(buffer, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="fichier_modifié.pdf"'
+            # Créer un chemin pour sauvegarder le PDF
+            pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
 
-            return response
+            # Sauvegarder le contenu PDF dans le fichier
+            with open(pdf_file_path, 'wb') as f:
+                f.write(buffer.getvalue())
+
+            # Créer une nouvelle instance de UploadedFile pour le PDF
+            pdf_uploaded_file_instance = UploadedFile(file=pdf_file_path)
+            pdf_uploaded_file_instance.save()
+
+            # Optionnel : rediriger vers une page de succès ou afficher un message
+            return redirect('list_uploaded_files')  # Remplacez par le nom de votre vue
+
     else:
         form = UploadFileForm()
+
     return render(request, 'Administration/upload.html', {'form': form})
-# afficher les fichier deja uploader
 
 
 @login_required(login_url='login')
 def list_uploaded_files(request):
-    files = UploadedFile.objects.all()
+    files = UploadedFile.objects.all().order_by('-uploaded_at')
     return render(request, 'Administration/list_files.html', {'files': files})
 
 #supprimer un fichier de la bd
@@ -781,6 +762,7 @@ def etudiant_notes(request):
     # Assurez-vous que l'étudiant est connecté et qu'il a une session active
     etudiant_id = request.session.get('etudiant_id')
     if not etudiant_id:
+        
         return redirect('etudiant_login')  # Rediriger vers la page de connexion si non authentifié
 
     etudiant = get_object_or_404(Etudiant, matricule=etudiant_id)
@@ -866,6 +848,20 @@ def gestion_scolarite(request):
 
 from django.http import JsonResponse
 
+def obtenir_informations_etudiant(request):
+    if request.method == 'GET':
+        etudiant_id = request.GET.get('etudiant_id')
+        try:
+            scolarite = Scolarite.objects.get(etudiant_id=etudiant_id)
+            data = {
+                'tranche_1': scolarite.tranche_1,
+                'tranche_2': scolarite.tranche_2,
+                'tranche_3': scolarite.tranche_3,
+            }
+            return JsonResponse(data)
+        except Scolarite.DoesNotExist:
+            return JsonResponse({'error': 'Scolarité non trouvée'}, status=404)
+
 def get_scolarite(request, etudiant_id):
     scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
     
@@ -912,16 +908,25 @@ def infos(request):
         form = Infos_Form(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Information partagée avec succès.')
+                
             return redirect('voir_infos')
     else:
         form = Infos_Form()
 
     return render(request, 'Administration/infos.html', {'form': form, 'infos_list': infos_list})
-
 def voir_info(request):
-    infos = Infos.objects.all()  # Récupérer toutes les instances d'Infos
+    if request.method == 'POST':
+        # Suppression d'un message
+        info_id = request.POST.get('id_infos')  # Assurez-vous que c'est 'id_infos'
+        if info_id:
+            info = get_object_or_404(Infos, id_infos=info_id)
+            info.delete()
+            messages.success(request, 'Le message a été supprimé avec succès.')
+            return redirect('infos')  # Redirigez vers la même page après la suppression
+
+    infos = Infos.objects.all().order_by('-date_creation')  # Récupérer toutes les instances d'Infos
     return render(request, 'Administration/voir_informations.html', {'infos': infos})
+
 
 
 ############# fichiers ###########
@@ -935,6 +940,7 @@ def upload_cours(request):
         form = CoursFichierForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Fichier ajouté avec succès.')
             return redirect('cours_list')  # Redirige vers une page liste des cours après le téléchargement
     else:
         form = CoursFichierForm()
@@ -1116,3 +1122,85 @@ def profil_etudiant(request, matricule):
     }
 
     return render(request, 'Administration/profil_etudiant.html', context) 
+
+
+def reinscription_etudiant(request):
+    etudiant = None  # Initialiser l'étudiant à None au début
+
+    if request.method == 'POST':
+        # Vérifier quel formulaire est soumis en fonction du champ 'niveau_etudiant'
+        if 'niveau_etudiant' in request.POST and 'annee_academique' in request.POST:
+            # Traitement du formulaire de réinscription d'étudiant
+            matricule = request.POST.get('matricule')  # Récupérer le matricule caché dans le formulaire
+            etudiant = get_object_or_404(Etudiant, matricule=matricule)
+
+            # Récupérer le nouveau niveau et l'année académique
+            nouveau_niveau = request.POST.get('niveau_etudiant')
+            nouvelle_annee_academique = request.POST.get('annee_academique')
+
+            # Vérification de la scolarité précédente
+            scolarite_precedente = Scolarite.objects.filter(etudiant=etudiant).order_by('-annee_academique').first()
+
+            if scolarite_precedente and scolarite_precedente.Montant_restant == 0.0:
+                # Exporter les anciennes données au format JSON
+                ancienne_data = {
+                    'etudiant_id': etudiant.matricule,
+                    'niveau_etudiant': etudiant.niveau_etudiant,
+                    'annee_academique': scolarite_precedente.annee_academique,
+                    'total': scolarite_precedente.total,
+                    'Montant_restant': scolarite_precedente.Montant_restant,
+                    'tranche_1': scolarite_precedente.tranche_1,
+                    'tranche_2': scolarite_precedente.tranche_2,
+                    'tranche_3': scolarite_precedente.tranche_3,
+                }
+                
+                # Enregistrer les anciennes données dans un fichier JSON
+                with open(f"ancienne_scolarite_{etudiant.matricule}.json", "w") as json_file:
+                    json.dump(ancienne_data, json_file)
+
+                # Mettre à jour les informations de l'étudiant
+                etudiant.niveau_etudiant = nouveau_niveau
+                etudiant.annee_academique_etudiant = nouvelle_annee_academique
+
+                # Créer une nouvelle scolarité pour l'étudiant
+                nouvelle_scolarite = Scolarite(
+                    etudiant=etudiant,
+                    annee_academique=nouvelle_annee_academique,
+                    tranche_1=0.0,
+                    tranche_2=0.0,
+                    tranche_3=0.0,
+                )
+
+                # Calculer le total basé sur l'étudiant actuel
+                nouvelle_scolarite.total = nouvelle_scolarite.calculate_total()  # Utiliser l'instance pour calculer le total
+                nouvelle_scolarite.Montant_restant = nouvelle_scolarite.total
+              
+                # Enregistrer les modifications de l'étudiant et la nouvelle scolarité
+                nouvelle_scolarite.save()
+                scolarite_precedente.delete()
+
+
+                etudiant.save()
+                
+
+                # Message de succès et redirection
+                messages.success(request, f"L'étudiant {etudiant.nom_etudiant} a été réinscrit avec succès pour {nouvelle_annee_academique}.")
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, f"L'étudiant {etudiant.nom_etudiant} n'a pas soldé sa scolarité pour l'année précédente.")
+                return redirect('gestion_scolarite')
+
+        # Si le formulaire de recherche d'étudiant est soumis
+        elif 'matricule' in request.POST:
+            matricule = request.POST.get('matricule')
+            if matricule:
+                etudiant = get_object_or_404(Etudiant, matricule=matricule)
+            else:
+                messages.error(request, "Veuillez entrer un matricule valide.")
+                return redirect('reinscription_etudiant')
+
+    context = {
+        'etudiant': etudiant,
+        'niveaux': ['LICENCE1', 'LICENCE2', 'LICENCE3', 'MASTER1', 'MASTER2', 'DOCTORAT'],
+    }
+    return render(request, 'Administration/reinscription_etudiant.html', context)

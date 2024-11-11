@@ -12,17 +12,19 @@
 </div>
 
 <h1>Sélection du module pour ajouter des notes</h1><br>
-<form method="get" action="{% url 'creer_note' %}">
-    <label for="module">Choisir un module :</label>
-    <select name="module_id" id="module">
-        {% for module in modules %}
-            <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
-        {% endfor %}
-    </select>
-    <input type="hidden" name="filiere_id" value="{{ filiere_id }}">
-    <input type="hidden" name="niveau" value="{{ niveau }}">
-    <button type="submit">Sélectionner</button>
-</form>
+<div class="form-container">
+    <form method="get" action="{% url 'creer_note' %}">
+        <label for="module">Choisir un module :</label>
+        <select name="module_id" id="module">
+            {% for module in modules %}
+                <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="filiere_id" value="{{ filiere_id }}">
+        <input type="hidden" name="niveau" value="{{ niveau }}">
+        <button type="submit">Sélectionner</button>
+    </form>
+</div>
 {% endblock %}
 
 {% block styles %}
@@ -38,6 +40,8 @@ body {
     justify-content: flex-start !important;
     min-height: 100vh !important;
     background: none !important; /* Supprime l'arrière-plan par défaut */
+    font-family: 'Arial', sans-serif; /* Police élégante */
+    color: #333; /* Couleur de texte par défaut */
 }
 
 .background {
@@ -73,14 +77,29 @@ body {
     100% { transform: translate(0, 0); }
 }
 
+h1 {
+    margin-top: 50px;
+    color: #b7bec6; /* Couleur du titre */
+    margin-bottom: 20px;
+    font-size: 3rem; /* Taille de la police */
+    text-align: center;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center; /* Centre le formulaire horizontalement */
+    align-items: center; /* Centre le formulaire verticalement */
+    height: 50vh; /* Prend toute la hauteur de la vue */
+}
+
 form {
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2); /* Ombre plus douce */
     max-width: 700px;
     text-align: center;
     margin-top: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.95); /* Légèrement plus opaque pour une meilleure lisibilité */
     position: relative;
     z-index: 2;
 }
@@ -89,19 +108,27 @@ form label {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
-    color: #333;
+    font-size: 1.2rem; /* Taille de la police */
+    color: #555; /* Couleur légèrement plus douce */
 }
 
 form select,
 form button {
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    border: 2px solid #007bff; /* Bordure colorée */
     border-radius: 25px;
     font-size: 16px;
     box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #f8f9fa; /* Fond clair pour le select et le bouton */
     color: #333;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+form select:focus,
+form button:focus {
+    border-color: #0056b3; /* Couleur de la bordure lors du focus */
+    outline: none; /* Supprimer le contour par défaut */
 }
 
 form button {
@@ -112,35 +139,20 @@ form button {
     font-size: 16px;
     border-radius: 25px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 form button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Couleur au survol */
+    transform: translateY(-2px); /* Légère élévation au survol */
+}
+
+form button:active {
+    transform: translateY(0); /* Retour à la position d'origine lors du clic */
+}
+
+form select:hover {
+    background-color: rgba(0, 123, 255, 0.1); /* Fond au survol pour le select */
 }
 </style>
 {% endblock %}
-
-<!--<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sélection du module</title>
-</head>
-<body>
-    <h1>Sélection du module pour ajouter des notes</h1>
-    <form method="get" action="{% url 'creer_note' %}">
-        <label for="module">Choisir un module:</label>
-        <select name="module_id" id="module">
-            {% for module in modules %}
-                <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
-            {% endfor %}
-        </select>
-        <input type="hidden" name="filiere_id" value="{{ filiere_id }}">
-        <input type="hidden" name="niveau" value="{{ niveau }}">
-        <button type="submit">Sélectionner</button>
-    </form>
-</body>
-</html>-->
-

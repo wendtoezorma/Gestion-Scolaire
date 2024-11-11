@@ -5,148 +5,146 @@
 {% block styles %}
 {{ block.super }}
 
-
 <style>
-    /* Styles spécifiques au template enfant */
-    body {
-      overflow-y: auto !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: flex-start !important;
-      min-height: 100vh !important;
-      background: none !important; /* Supprime l'arrière-plan par défaut */
-      padding-top: 80px; /* Hauteur de l'entête */
-      margin-left: 300px; /* Largeur du menu latéral */
+body {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center; /* Centrer le contenu horizontalement */
+    justify-content: flex-start !important;
+    min-height: 100vh !important;
+    background: none !important; /* Supprime l'arrière-plan par défaut */
+    padding-top: 80px; /* Hauteur de l'entête */
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background-color: #f0f4f8; /* Fond gris clair */
+}
+
+/* Animation des bulles */
+.background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 70px; /* Taille augmentée */
+    height: 70px; /* Taille augmentée */
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+}
+
+@keyframes bubbleAnimation {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-100%, 100%); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Position des bulles */
+.background .bubble:nth-child(1) { top: 10%; left: 10%; animation-duration: 10s; }
+.background .bubble:nth-child(2) { top: 30%; left: 30%; animation-duration: 12s; }
+.background .bubble:nth-child(3) { top: 50%; left: 60%; animation-duration: 14s; }
+.background .bubble:nth-child(4) { top: 70%; left: 20%; animation-duration: 16s; }
+.background .bubble:nth-child(5) { top: 80%; left: 50%; animation-duration: 18s; }
+
+/* Styles du conteneur principal */
+.container {
+  max-width: 1000px; /* Augmenter la largeur maximale */
+    width: 90%; /* Utiliser 90% de la largeur de la fenêtre */
+    margin: 20px auto;
+    padding: 30px; /* Plus d'espace interne */
+    background-color: #ffffff; /* Fond blanc pour le conteneur */
+    border-radius: 30px; /* Coins arrondis */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;  /* Transitions douces */
+}
+
+.container:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Ombre accentuée sur hover */
+}
+
+/* Styles du formulaire */
+form {
+    padding: 40px;
+    border-radius: 30px; /* Coins plus arrondis pour le formulaire */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    width: 100%; /* Prend toute la largeur */
+    max-width: 800px; /* Ajouter une largeur maximale pour le formulaire */
+    text-align: left; /* Aligner le texte à gauche */
+    background-color: rgba(255, 255, 255, 0.9); /* Fond légèrement transparent */
+    position: relative;
+    z-index: 2;
+}
+
+form h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+form label {
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+form input[type="text"],
+form input[type="email"],
+form select {
+    width: 100%;
+    padding: 12px; /* Espacement interne */
+    margin-bottom: 15px; /* Marge pour un espacement uniforme */
+    border: 1px solid #ccc;
+    border-radius: 25px; /* Coins arrondis */
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    transition: border-color 0.3s ease; /* Transition pour l'interaction */
+}
+
+form input[type="text"]:focus,
+form input[type="email"]:focus,
+form select:focus {
+    border-color: #007bff; /* Changement de couleur de bordure au focus */
+    outline: none; /* Supprimer le contour par défaut */
+}
+
+form input[type="submit"],
+button#envoyer {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Le bouton de soumission occupe toute la largeur */
+}
+
+form input[type="submit"]:hover,
+button#envoyer:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        max-width: 90%;
     }
-  
-    .background {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-      background-color: #ffffff; /* Fond blanc */
-      overflow: hidden;
-    }
-  
-    @keyframes gradientAnimation {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  
-    .background .bubble {
-      position: absolute;
-      background-color: rgba(255, 255, 255, 0.3);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      animation: bubbleAnimation 15s infinite;
-    }
-  
-    @keyframes bubbleAnimation {
-      0% { transform: translate(0, 0); }
-      50% { transform: translate(-100%, 100%); }
-      100% { transform: translate(0, 0); }
-    }
-  
-    .background .bubble:nth-child(1) {
-      top: 10%;
-      left: 10%;
-      animation-duration: 10s;
-      animation-delay: 0s;
-    }
-  
-    .background .bubble:nth-child(2) {
-      top: 30%;
-      left: 30%;
-      animation-duration: 12s;
-      animation-delay: 2s;
-    }
-  
-    .background .bubble:nth-child(3) {
-      top: 50%;
-      left: 60%;
-      animation-duration: 14s;
-      animation-delay: 4s;
-    }
-  
-    .background .bubble:nth-child(4) {
-      top: 70%;
-      left: 20%;
-      animation-duration: 16s;
-      animation-delay: 6s;
-    }
-  
-    .background .bubble:nth-child(5) {
-      top: 80%;
-      left: 50%;
-      animation-duration: 18s;
-      animation-delay: 8s;
-    }
-  
-    form {
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      max-width: 700px;
-      text-align: center;
-      background-color: rgba(255, 255, 255, 0.8);
-      position: relative;
-      z-index: 2;
-      margin: 40px 0; /* Marge en haut et en bas */
-    }
-  
-    form h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-  
-    form label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #333;
-    }
-  
-    form input[type="text"],
-    form input[type="email"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 25px;
-      font-size: 16px;
-      box-sizing: border-box;
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #333;
-    }
-  
-    form input[type="submit"] {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-  
-    form input[type="submit"]:hover {
-      background-color: #0056b3;
-    }
-  
-    .background .bubble {
-      position: absolute;
-      background-color: rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      animation: bubbleAnimation 15s infinite;
-    }
-  </style>
+}
+
+</style>
 {% endblock %}
 
 {% block content %}
@@ -159,26 +157,30 @@
     <div class="bubble"></div>
 </div>
 
-<h1>Sélection de la classe</h1>
+<div class="container">
+    <h1>Sélection de la classe</h1>
 
-<label for="select_filiere">Filière :</label>
-<select id="select_filiere">
-    {% for filiere in filieres %}
-    <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
-    {% endfor %}
-</select>
-<br><br><br>
+    <form>
+        <label for="select_filiere">Filière :</label>
+        <select id="select_filiere">
+            {% for filiere in filieres %}
+            <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
 
-<label for="select_niveau">Niveau :</label>
-<select id="select_niveau">
-  <option value="">Sélectionner un niveau</option>
-  {% for value, display in niveaux %}
-      <option value="{{ value }}">{{ display }}</option>
-  {% endfor %}
-</select>
-<br><br><br>
+        <label for="select_niveau">Niveau :</label>
+        <select id="select_niveau">
+          <option value="">Sélectionner un niveau</option>
+          {% for value, display in niveaux %}
+              <option value="{{ value }}">{{ display }}</option>
+          {% endfor %}
+        </select>
+        <br><br>
 
-<button id="envoyer">Envoyer</button>
+        <button type="button" id="envoyer">Envoyer</button>
+    </form>
+</div>
 
 <script>
 document.getElementById("envoyer").addEventListener("click", function() {

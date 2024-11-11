@@ -61,6 +61,42 @@ strong {
 .btn-secondary:hover {
     background-color: #5a6268; /* Couleur de fond au survol */
 }
+/* Style du label */
+.custom-file-label {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Style de l'input file */
+.custom-file-input {
+    display: none; /* Cache l'input file par défaut */
+}
+
+/* Style personnalisé pour le bouton */
+.custom-file-label::after {
+    content: 'Choisir un fichier';
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-label:hover::after {
+    background-color: #0056b3;
+}
+
+/* Afficher le nom du fichier sélectionné */
+.custom-file-input:valid + .custom-file-label::after {
+    content: 'Fichier sélectionné';
+}
+
 </style>
 <div>
     <h2>Récapitulatif de l'inscription de l'étudiant</h2>
@@ -74,13 +110,18 @@ strong {
     <p><strong>Année Academique :</strong> {{ etudiant_data.niveau_etudiant }}</p>
     <p><strong>Date de Naissance :</strong> {{ etudiant_data.annee_academique_etudiant }}</p>
 
+
     
     
     <li><strong>Bourse :</strong> {{ etudiant_data.bourse_type }}
     <p><strong>Téléphone:</strong> {{ etudiant_data.telephone_etudiant }}</p> <br>
     <p><strong>Mot de passe généré:</strong> <span style="font-weight: bold;">{{ etudiant_data.raw_password }}</span></p>
+    {% if etudiant_data.photo %}
+    <p><strong>Photo:</strong></p>
+    <img src="{{ etudiant_data.photo }}" alt="Photo de l'étudiant" style="max-width: 200px; height: auto;" />
+    {% endif %}
 
-    <form method="POST" action="{% url 'confirmer_inscription_etudiant' %}" class="mt-3">
+    <form method="POST" action="{% url 'confirmer_inscription_etudiant' %}" class="mt-3" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="nom_etudiant" value="{{ etudiant_data.nom_etudiant }}">
         <input type="hidden" name="prenom_etudiant" value="{{ etudiant_data.prenom_etudiant }}">
@@ -88,8 +129,11 @@ strong {
         <input type="hidden" name="telephone_etudiant" value="{{ etudiant_data.telephone_etudiant }}">
         <input type="hidden" name="bourse" value="{{ etudiant_data.bourse_type }}">
         <input type="hidden" name="filiere" value="{{ etudiant_data.filiere }}">
+        <label for="photo" class="custom-file-label">Télécharger la photo :</label><br><br><br>
+        <input type="file" name="photo" id="photo" class="custom-file-input" required>
         <input type="hidden" name="raw_password" value="{{ etudiant_data.raw_password }}">
         <button type="submit" class="btn btn-primary">Confirmer l'inscription</button>
+       
     </form>
     
     <a href="{% url 'inscription_etudiant' %}" class="btn btn-secondary mt-2">Modifier les informations</a>

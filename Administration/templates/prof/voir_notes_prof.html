@@ -1,20 +1,8 @@
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voir les Notes des Étudiants</title>
-</head>
-<body>
-
-<div class="background">
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-</div>
-
+{%extends 'prof/baseprof.html'%}
+{% block title %}Notes des etudiants {% endblock %}
+ 
+{% block profcontent %}
+    
 <h1>Choisissez un Module pour Voir les Notes</h1>
 <form method="GET">
     <label for="module">Module :</label>
@@ -48,7 +36,7 @@
                         <td>{{ note.Note1 }}</td>
                         <td>{{ note.Note2 }}</td>
                         <td>{{ note.moyenne }}</td>
-                        <td><a href="{% url 'modifier_note' note.Id_note %}">Modifier</a></td>
+                        <td><a href="{% url 'modifie_note_prof' note.Id_note %}">Modifier</a></td>
                     </tr>
                 {% endfor %}
             {% else %}
@@ -72,17 +60,7 @@ body {
     background: none !important; /* Supprime l'arrière-plan par défaut */
 }
 
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
-    animation: gradientAnimation 10s ease infinite;
-}
+
 
 @keyframes gradientAnimation {
     0% { background-position: 0% 50%; }
@@ -90,14 +68,7 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-.background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-}
+
 
 @keyframes bubbleAnimation {
     0% { transform: translate(0, 0); }
@@ -172,6 +143,5 @@ table td {
     text-align: center;
 }
 </style>
-
-</body>
-</html>
+{% endblock profcontent %}
+  

@@ -1,0 +1,143 @@
+{% extends 'Administration/base.html' %}
+{% block styles %}
+{{ block.super }}
+<style>
+    /* Général */
+    body {
+        background-color: #f8f9fa; /* Couleur de fond douce */
+        font-family: 'Arial', sans-serif; /* Police de caractère */
+    }
+
+    /* Conteneur principal */
+    .container {
+        max-width: 10000px; /* Largeur maximum */
+        margin: 50px auto; /* Centrage vertical et horizontal */
+        padding: 50px; /* Espacement intérieur */
+        background-color: #fff; /* Fond blanc */
+        border-radius: 8px; /* Coins arrondis */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    }
+
+    /* Titres */
+    h1 {
+        color: #343a40; /* Couleur du titre */
+        text-align: center; /* Centrer le texte */
+        margin-bottom: 30px; /* Espacement en bas */
+    }
+
+    h2 {
+        color: #495057; /* Couleur du sous-titre */
+        margin-bottom: 20px; /* Espacement en bas */
+    }
+
+    /* Styles des formulaires */
+    .form-group {
+        margin-bottom: 40px; /* Espacement entre les champs */
+    }
+
+    .btn {
+        width: 100%; /* Largeur complète */
+        padding: 10px; /* Espacement intérieur */
+        border-radius: 5px; /* Coins arrondis */
+        font-size: 16px; /* Taille de la police */
+    }
+
+    /* Champs de texte */
+    input[type="text"],
+    select {
+        border: 1px solid #ced4da; /* Bordure gris clair */
+        border-radius: 5px; /* Coins arrondis */
+        padding: 10px; /* Espacement intérieur */
+        width: 100%; /* Largeur complète */
+        transition: border-color 0.3s; /* Transition de la couleur de bordure */
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+        border-color: #80bdff; /* Couleur de la bordure au focus */
+        outline: none; /* Enlève le contour par défaut */
+    }
+
+    /* Boutons */
+    .btn-primary {
+        background-color: #007bff; /* Couleur de fond du bouton primaire */
+        border: none; /* Pas de bordure */
+        color: white; /* Couleur du texte */
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3; /* Couleur au survol */
+    }
+
+    .btn-success {
+        background-color: #28a745; /* Couleur de fond du bouton succès */
+        border: none; /* Pas de bordure */
+        color: white; /* Couleur du texte */
+    }
+
+    .btn-success:hover {
+        background-color: #218838; /* Couleur au survol */
+    }
+
+    /* Éléments de texte */
+    p {
+        font-size: 18px; /* Taille de la police pour les détails */
+        color: #495057; /* Couleur du texte */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Réinscription d'Étudiant</h1>
+    
+    <!-- Formulaire de recherche de l'étudiant -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="matricule">Matricule de l'Étudiant</label>
+            <input type="text" name="matricule" id="matricule" required class="form-control" placeholder="Entrez le matricule de l'étudiant">
+        </div>
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+    
+    {% if etudiant %}
+        &nbsp;<br><br>
+        <h1>Détails de l'Étudiant</h1><br>
+    <!-- Formulaire de réinscription (s'affiche seulement après avoir trouvé l'étudiant) -->
+        <form method="post" class="mt-5">
+            {% csrf_token %}
+            
+            
+            <div class="form-group">
+                <p><strong>Nom :</strong> {{ etudiant.nom_etudiant }}</p><br>
+                <p><strong>Prénom :</strong> {{ etudiant.prenom_etudiant }}</p><br>
+                <p><strong>Niveau actuel :</strong> {{ etudiant.niveau_etudiant }}</p><br>
+                <p><strong>Année académique actuelle :</strong> {{ etudiant.annee_academique_etudiant }}</p>
+            </div>
+
+            <!-- Nouveau niveau de l'étudiant -->
+            <div class="form-group">
+                <label for="niveau_etudiant">Nouveau Niveau</label>
+                <select name="niveau_etudiant" id="niveau_etudiant" required class="form-control">
+                    <option value="">Sélectionner le nouveau niveau</option>
+                    {% for niveau in niveaux %}
+                    <option value="{{ niveau }}">{{ niveau }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Nouvelle année académique -->
+            <div class="form-group">
+                <label for="annee_academique">Nouvelle Année Académique</label>
+                <input type="text" name="annee_academique" id="annee_academique" required class="form-control" placeholder="Exemple : 2023-2024">
+            </div>
+
+            <!-- Champ caché pour garder le matricule -->
+            <input type="hidden" name="matricule" value="{{ etudiant.matricule }}">
+
+            <button type="submit" class="btn btn-success">Réinscrire l'Étudiant</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

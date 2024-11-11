@@ -1,33 +1,96 @@
-
 {% extends "Administration/base.html" %}
 {% block title %}Liste des étudiants{% endblock %}
-{% block content %}
-<h1>Liste des étudiants</h1><br>
-        <h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
-        <table border="1"><br>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Sexe</th>
-                    <th>Matricule</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for etudiant in etudiants %}
-                    <tr>
-                        <td>{{ etudiant.nom_etudiant }}</td>
-                        <td>{{ etudiant.prenom_etudiant }}</td>
-                        <td>{{ etudiant.sexe_etudiant }}</td>
-                        <td>{{ etudiant.matricule }}</td>
-                    </tr>
-                {% endfor %}
-                <h2><a href="{% url 'select_module' filiere_id niveau %}">ajouter des notes</a></h2><br>
-                <a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
 
-            </tbody>
-        </table>
+{% block styles %}
+{{ block.super }}
 
+<style>
+body {
+    overflow-y: auto !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrer le contenu horizontalement */
+    justify-content: flex-start;
+    min-height: 100vh;
+    background-color: #f0f4f8; /* Fond gris clair */
+    padding-top: 80px; /* Hauteur de l'entête */
+}
+
+h1 {
+    color: #007bff; /* Couleur du titre */
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #333;
+    margin: 10px 0;
+}
+
+table {
+    width: 90%; /* Largeur du tableau */
+    margin: 20px auto; /* Centrer le tableau */
+    border-collapse: collapse; /* Supprimer les espaces entre les cellules */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre douce pour le tableau */
+    border-radius: 10px; /* Coins arrondis */
+    overflow: hidden; /* Pour les coins arrondis */
+    background-color: #fff; /* Fond blanc pour le tableau */
+}
+
+th, td {
+    padding: 12px 15px; /* Espacement interne */
+    text-align: left; /* Alignement à gauche du texte */
+}
+
+th {
+    background-color: #007bff; /* Couleur d'arrière-plan des en-têtes */
+    color: #ffffff; /* Couleur du texte des en-têtes */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Fond gris clair pour les lignes paires */
+}
+
+tr:hover {
+    background-color: #e9ecef; /* Couleur de fond au survol */
+}
+
+a {
+    color: #060606; /* Couleur des liens */
+    text-decoration: none; /* Pas de soulignement */
+    transition: color 0.3s ease; /* Transition douce pour le changement de couleur */
+}
+
+a:hover {
+    color: #0056b3; /* Couleur des liens au survol */
+}
+
+</style>
 {% endblock %}
 
->>>>>>> origin/master
+{% block content %}
+<h1>Liste des étudiants</h1><br>
+<h2>Filière: {{ filiere_id }} - Niveau: {{ niveau }}</h2><br>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Sexe</th>
+            <th>Matricule</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for etudiant in etudiants %}
+        <tr>
+            <td>{{ etudiant.nom_etudiant }}</td>
+            <td>{{ etudiant.prenom_etudiant }}</td>
+            <td>{{ etudiant.sexe_etudiant }}</td>
+            <td>{{ etudiant.matricule }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2><a href="{% url 'select_module' filiere_id niveau %}">Ajouter des notes</a></h2><br>
+<a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
+{% endblock %}

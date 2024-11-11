@@ -135,6 +135,16 @@
 </style>
 {% endblock %}
 {% block content %}
+
+{% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <br>
 <br>
 <br>
@@ -266,5 +276,15 @@ $(document).ready(function() {
         });
     });
 });
+
+
+    // Masquer le message après 5 secondes (5000 ms)
+    setTimeout(function() {
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 4000); // 5000 millisecondes = 5 secondes
+
 </script>
 {% endblock %}

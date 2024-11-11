@@ -1,14 +1,8 @@
-
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier les Notes d'un Étudiant</title>
-</head>
-<body>
+{%extends 'prof/baseprof.html'%}
+{% block title %}Modifier des notes {% endblock %}
+ 
+{% block profcontent %}
     
-</body>
-</html>
 <style>
 /* Styles spécifiques au template enfant */
 body {
@@ -124,3 +118,5 @@ form button:hover {
     <button type="submit">Enregistrer</button>
 </form>
 
+{% endblock profcontent %}
+  

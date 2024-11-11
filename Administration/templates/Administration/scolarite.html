@@ -15,21 +15,16 @@
     border-collapse: collapse;
     }
 
-  /* Styles spécifiques au template enfant */
-  body {
+    body {
     overflow-y: auto !important;
-    overflow-y: auto !important; 
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
     min-height: 100vh !important;
-    background: none !important; /* Supprime l'arrière-plan par défaut */
-    padding-top: 80px; /* Hauteur de l'entête */
-    margin-left: 0px; /* Largeur du menu latéral */
-    
-  }
-  
+    background: none !important; 
+    padding-top: 80px; 
+}
   
     .card {
         width: 100%;
@@ -144,6 +139,7 @@
   }
 
   form {
+    
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -153,10 +149,12 @@
     position: relative;
     z-index: 2;
     margin: 40px 0; /* Marge en haut et en bas */
-    margin-left: 450px; /* Largeur du menu latéral */
-    margin-top:10em;
+    margin-left: 200px; /* Ajustez cette valeur pour déplacer le formulaire plus à gauche */
+    margin-top: 10em;
+
+
     
-  }
+}
 
   form h2 {
     margin-bottom: 20px;
@@ -165,7 +163,7 @@
   .btn-success {
     width: 30%;
     padding: 10px;
-    background-color: #40d67a;
+    background-color: #007bff;/* #40d67a*/
     color: #fff;
     border: none;
     padding: 12px 12px;
@@ -218,6 +216,16 @@ form input[type="submit"] {
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+            <div class="alert custom-alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <div class="container">
     
 </div>
@@ -258,7 +266,7 @@ form input[type="submit"] {
     
     <!-- Formulaire de Scolarité -->
     <div class="mb-4">
-        <form method="post" class="mt-10">
+        <form method="post" class="mt-10" >
             <h1>Gestion de la Scolarité</h1>
             <br>
             <br>
@@ -373,6 +381,38 @@ form input[type="submit"] {
 <!-- Ajouter jQuery pour la gestion des événements -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-etudiant');
+
+        searchInput.addEventListener('change', function(event) {
+            const etudiantId = event.target.value; // Récupère l'ID de l'étudiant sélectionné
+
+            // Envoie une requête AJAX pour obtenir les informations de l'étudiant
+            fetch(`/obtenir_informations_etudiant?etudiant_id=${etudiantId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des informations');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Remplissez les champs avec les valeurs retournées
+                    document.querySelector('[name="tranche_1"]').value = data.tranche_1 || '';
+                    document.querySelector('[name="tranche_2"]').value = data.tranche_2 || '';
+                    document.querySelector('[name="tranche_3"]').value = data.tranche_3 || '';
+                })
+                .catch(error => console.error(error));
+        });
+    });
+     document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-etudiant');
+
+        searchInput.addEventListener('change', function(event) {
+            console.log('Étudiant sélectionné:', event.target.value);
+            // Logique supplémentaire ici
+        });
+    });
     $(document).ready(function() {
         function filterTable() {
             var filiere = $('#filter-filiere').val();
@@ -477,6 +517,28 @@ form input[type="submit"] {
                 document.querySelector('[name="tranche_2"]').value = data.tranche_2;
                 document.querySelector('[name="tranche_3"]').value = data.tranche_3;
             });
+    });
+
+   
+    // Lorsqu'un étudiant est sélectionné, effectuer une requête AJAX pour obtenir ses données de scolarité
+    $('#id_etudiant').change(function() {
+        var etudiant_id = $(this).val();  // Récupérer l'ID de l'étudiant sélectionné
+        if (etudiant_id) {
+            $.ajax({
+                
+                url: '{% url "get_scolarite" 0 %}'.replace('0', etudiant_id),
+                type: 'GET',
+                success: function(data) {
+                    // Préremplir les champs des tranches avec les données récupérées
+                    $('#id_tranche_1').val(data.tranche_1);
+                    $('#id_tranche_2').val(data.tranche_2);
+                    $('#id_tranche_3').val(data.tranche_3);
+                },
+                error: function() {
+                    alert("Erreur lors de la récupération des informations de scolarité.");
+                }
+            });
+        }
     });
 
 

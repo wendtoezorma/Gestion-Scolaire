@@ -17,7 +17,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 class EtudiantCreationForm(forms.ModelForm):
-    mot_de_passe = forms.CharField(widget=forms.PasswordInput, label='Mot de passe temporaire',required=False)
+    mot_de_passe = forms.CharField(widget=forms.HiddenInput, label='Mot de passe temporaire',required=False)
 
     class Meta:
         model = Etudiant
@@ -31,11 +31,16 @@ class EtudiantCreationForm(forms.ModelForm):
             'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
             'niveau_etudiant': forms.Select(attrs={'class': 'form-control'}),
             'filiere': forms.Select(attrs={'class': 'form-control'}),
+            'bourse' :forms.Select(attrs={'class': 'form-control'}),
             'annee_academique_etudiant': forms.Select(attrs={'class': 'form-control'}),
             'mot_de_passe': forms.PasswordInput(attrs={"placeholder": "Mot de passe"}),
             'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
             'type_bac': forms.Select(attrs={'class': 'form-control'}),
+            'photo': forms.HiddenInput()
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['photo'].required = False
 
     
 class EtudiantLoginForm(forms.Form):

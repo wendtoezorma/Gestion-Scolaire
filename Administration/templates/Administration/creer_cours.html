@@ -7,107 +7,98 @@
 
 <style>
   /* Styles spécifiques au template enfant */
-  body {
-    overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    min-height: 100vh !important;
-    background: none !important; /* Supprime l'arrière-plan par défaut */
-    padding-top: 80px; /* Hauteur de l'entête */
-    margin-left: 420px; /* Largeur du menu latéral */
-  }
+body {
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-height: 100vh !important;
+  background: none !important; /* Supprime l'arrière-plan par défaut */
+  padding-top: 80px; /* Hauteur de l'entête */
+  margin: 0; /* Retire les marges par défaut */
+}
 
-  .background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    background-color: #ffffff; /* Fond blanc */
-    overflow: hidden;
-  }
+/* Fond d'écran */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background-color: #ffffff; /* Fond blanc */
+  overflow: hidden;
+}
 
-  @keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+/* Animations de bulles */
+@keyframes bubbleAnimation {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-100%, 100%); }
+  100% { transform: translate(0, 0); }
+}
 
-  .background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-  }
+.background .bubble {
+  position: absolute;
+  background-color: rgba(15, 47, 223, 0.3);
+  border-radius: 50%;
+  animation: bubbleAnimation 1s infinite;
+}
 
-  @keyframes bubbleAnimation {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(-100%, 100%); }
-    100% { transform: translate(0, 0); }
-  }
+.background .bubble:nth-child(1) {
+  top: 10%;
+  left: 10%;
+  animation-duration: 10s;
+  animation-delay: 0s;
+}
 
-  .background .bubble:nth-child(1) {
-    top: 10%;
-    left: 10%;
-    animation-duration: 10s;
-    animation-delay: 0s;
-  }
+.background .bubble:nth-child(2) {
+  top: 30%;
+  left: 30%;
+  animation-duration: 12s;
+  animation-delay: 2s;
+}
 
-  .background .bubble:nth-child(2) {
-    top: 30%;
-    left: 30%;
-    animation-duration: 12s;
-    animation-delay: 2s;
-  }
+.background .bubble:nth-child(3) {
+  top: 50%;
+  left: 60%;
+  animation-duration: 14s;
+  animation-delay: 4s;
+}
 
-  .background .bubble:nth-child(3) {
-    top: 50%;
-    left: 60%;
-    animation-duration: 14s;
-    animation-delay: 4s;
-  }
+.background .bubble:nth-child(4) {
+  top: 70%;
+  left: 20%;
+  animation-duration: 16s;
+  animation-delay: 6s;
+}
 
-  .background .bubble:nth-child(4) {
-    top: 70%;
-    left: 20%;
-    animation-duration: 16s;
-    animation-delay: 6s;
-  }
+.background .bubble:nth-child(5) {
+  top: 80%;
+  left: 50%;
+  animation-duration: 18s;
+  animation-delay: 8s;
+}
 
-  .background .bubble:nth-child(5) {
-    top: 80%;
-    left: 50%;
-    animation-duration: 18s;
-    animation-delay: 8s;
-  }
-  form {
+/* Style du formulaire */
+form {
   padding: 40px;
   border-radius: 15px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  max-width: 100%; /* Occupe toute la largeur disponible */
+  width: 100%; /* Occupe toute la largeur disponible */
+  max-width: 800px; /* Largeur maximale */
   text-align: left;
   background-color: rgba(255, 255, 255, 0.8);
   position: relative;
   z-index: 2;
   margin: 40px auto; /* Centré horizontalement */
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Grille responsive */
-  gap: 20px; /* Espacement entre les éléments */
-}
-
-form div {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 form h2 {
-  grid-column: span 2; /* Titre occupe toute la largeur */
   margin-bottom: 20px;
   color: #333;
 }
@@ -119,9 +110,12 @@ form label {
 }
 
 form input[type="text"],
-form input[type="email"] {
+form input[type="email"],
+form input[type="file"],
+form select,
+form input[type="number"] {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 25px;
@@ -140,40 +134,47 @@ form input[type="submit"] {
   border-radius: 25px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 100%; /* Le bouton de soumission occupe toute la largeur de sa cellule */
+  width: 100%; /* Le bouton de soumission occupe toute la largeur */
 }
 
 form input[type="submit"]:hover {
   background-color: #0056b3;
 }
 
+/* Container pour centrer le formulaire */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 30px;
+  background-color: #aca5bc; /* Fond légèrement gris */
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
-  .background .bubble {
-    position: absolute;
-    background-color: rgba(15, 47, 223, 0.3);
-    border-radius: 50%;
-    animation: bubbleAnimation 1s infinite;
+.container:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Ombre accentuée sur hover */
+  background-color: #f9f9f9; /* Changement subtil de couleur sur hover */
+}
+
+/* Responsivité */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+    max-width: 90%;
   }
-  .form-control {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ced4da;
-    border-radius: 20px;
-    transition: background-color 0.3s ease;
-    background-color: #ffffff;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1100px;
   }
-  .btn-success {
-    width: 50%;
-    padding: 10px;
-    background-color: #40d67a;
-    color: #fff;
-    border: none;
-    padding: 12px 12px;
-    font-size: 16px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 </style>
@@ -187,7 +188,7 @@ form input[type="submit"]:hover {
     <div class="bubble"></div>
     <div class="bubble"></div>
   </div>
-
+<div class="container">
   <form method="post">
     <h2>Créer un nouveau cours</h2>
     <br>
@@ -196,4 +197,5 @@ form input[type="submit"]:hover {
     {{ form.as_p }}
     <button type="submit" class="btn btn-success">Créer le cours</button>
   </form>
+</div>
 {% endblock %}

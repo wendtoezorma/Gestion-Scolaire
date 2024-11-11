@@ -1,6 +1,17 @@
 {% extends 'Administration/base.html' %}
 
 {% block content %}
+
+
+{% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+            <div class="custom-alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
   <h2>Liste des fichiers uploadés</h2>
   <table>
     <thead>
@@ -28,4 +39,15 @@
       {% endfor %}
     </tbody>
   </table>
+  
+
+<script>
+  // Masquer le message après 5 secondes (5000 ms)
+  setTimeout(function() {
+      var messageContainer = document.getElementById('message-container');
+      if (messageContainer) {
+          messageContainer.style.display = 'none';
+      }
+  }, 4000); // 5000 millisecondes = 5 secondes
+</script>
 {% endblock %}

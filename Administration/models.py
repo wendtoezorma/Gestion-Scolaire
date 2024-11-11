@@ -94,6 +94,9 @@ class professeurs(models.Model):
     def check_password(self, password):
         return check_password(password, self.mdp_prof)
     
+    def get_nom_prof(self):
+        """Méthode pour obtenir le nom complet du professeur."""
+        return self.__str__()
     
 
 class Boursier(models.Model):
@@ -122,7 +125,7 @@ import string
 import random
 
 def generate_random_password(length=8):
-    characters = string.ascii_letters + string.digits + string.punctuation
+    characters = string.ascii_letters + string.digits + '@#'
     return ''.join(random.choice(characters) for i in range(length))
 
 
@@ -375,6 +378,7 @@ class Enseignement(models.Model):
 class Scolarite(models.Model):
     Id_scolarite = models.AutoField(primary_key=True)
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='scolarite', null=True)
+    annee_academique = models.CharField(max_length=20, default='2023/2024') 
     tranche_1 = models.FloatField(default=0)
     tranche_2 = models.FloatField(default=0)
     tranche_3 = models.FloatField(default=0)

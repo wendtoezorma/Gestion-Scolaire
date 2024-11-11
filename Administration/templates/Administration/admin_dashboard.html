@@ -1,7 +1,8 @@
 {% extends "Administration/base.html" %}
 {% block title %}Admin Dashboard{% endblock %}
 {% block styles %}
-<style>
+<style>   
+    
     :root {
         --blue: #5490aa;/*5490aa*anncienne couleur*/
         --white: #fff;
@@ -60,6 +61,13 @@
         margin-left: 300px; /* Ajustez cette valeur pour qu'elle corresponde à la largeur du menu de navigation */
         transition: margin-left 0.3s;
     }
+    .main.active {
+            
+            
+            margin-left: 80px;
+            width: calc(100% - 80px); /* Largeur de la page principale ajustée */
+            transition: margin-left 0.3s ease;
+        }
 
     @media (max-width: 991px) {
         .main {
@@ -75,9 +83,200 @@
     #connected_color{
         color:green;
     }
+           /* Style général du bouton déconnexion */
+.menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color:var(--blue) ; /* Couleur rouge pour déconnexion */
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ajout d'ombre */
+}
+
+/* Icône à l'intérieur du bouton */
+.menu-link .icon {
+    margin-right: 10px;
+}
+
+ /* Effet au survol */
+ .menu-link:hover {
+    background-color: #1b03f1 ; /* Couleur plus foncée au survol */
+    transform: scale(1.05); /* Légère augmentation de la taille */
+}
+
+/* Effet lors du clic */
+.menu-link:active {
+    transform: scale(0.98); /* Légère réduction pour l'effet de clic */
+}
+
+/* Style du texte dans le bouton */
+.menu-link .title {
+    font-weight: bold;
+}
+
+/* Pour assurer la responsivité */
+@media (max-width: 600px) {
+    .menu-link {
+        width: 100%;
+        padding: 15px;
+    }
+}
+.dash {
+    position: relative;
+    overflow: hidden;
+}
+
+
+.bubble {
+    width: 50px;
+    height: 50px;
+    background-color: #0644f0;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -50px;
+    animation: rise 10s infinite ease-in-out;
+    opacity: 0.3;
+}
+
+
+/* Différentes tailles de bulles */
+.bubble:nth-child(2) {
+    width: 80px;
+    height: 80px;
+    animation-duration: 12s;
+    left: 10%;
+}
+
+.bubble:nth-child(3) {
+    width: 60px;
+    height: 60px;
+    animation-duration: 15s;
+    left: 50%;
+}
+
+.bubble:nth-child(4) {
+    width: 40px;
+    height: 40px;
+    animation-duration: 8s;
+    left: 70%;
+}
+
+.bubble:nth-child(5) {
+    width: 80px;
+    height: 80px;
+    animation-duration: 18s;
+    left: 90%;
+}
+.bubble:nth-child(6) {
+    width: 60px;
+    height: 60px;
+    animation-duration: 22s;
+    left: 18%;
+}
+.bubble:nth-child(7) {
+    width: 90px;
+    height: 90px;
+    animation-duration: 8s;
+    left: 50%;
+}
+.bubble:nth-child(8) {
+    width: 40px;
+    height: 40px;
+    animation-duration: 38s;
+    left: 79%;
+}
+.bubble:nth-child(9) {
+    width: 100px;
+    height: 100px;
+    animation-duration: 18s;
+    right: 30%;
+}
+.bubble:nth-child(10) {
+    width: 57px;
+    height: 57px;
+    animation-duration: 20s;
+    right: 75%;
+}
+
+/* Animation des bulles */
+@keyframes rise {
+    0% {
+        bottom: -50px;
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(20px);
+    }
+
+    100% {
+        bottom: 110%;
+        transform: translateX(-20px);
+    }
+}
+
+/* Animation du titre */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+#admindec{
+    margin-left: 30px;
+}
+
+
+/* le message de susces */
+.custom-alert-success {
+    background-color: #d4edda;  /* Vert clair */
+    color: #155724;             /* Texte en vert foncé */
+    border: 1px solid #c3e6cb;  /* Bordure vert clair */
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#message-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;  /* Pour que le message soit au-dessus de tout */
+    width: 50%;     /* Largeur du conteneur */
+    opacity: 1;
+}
+
+#message-container.hide {
+    opacity: 0;
+}
+
 </style>
 {% endblock %}
 {% block content %}
+
+{% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+            <div class="alert custom-alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <div class="cardBox">
     <div class="card">
         <div>
@@ -88,7 +287,8 @@
             <ion-icon name="people-outline"></ion-icon>
         </div>
     </div>
-
+    <div class="bubble"></div>
+    <div class="bubble"></div>
     <div class="card">
         <div>
             <div class="numbers">{{ total_professeurs }}</div>
@@ -120,7 +320,7 @@
             <ion-icon name="man-outline"></ion-icon>
         </div>
     </div>
-
+    <div class="bubble"></div>
     <div class="card">
         <div>
             <div class="numbers">{{ total_etudiants_feminin }}</div>
@@ -139,6 +339,28 @@
             <ion-icon name="eye-outline"></ion-icon>
         </div>
     </div>
+    <div class="bubble"></div>
+    <!-- Bubble elements -->
+
+<div class="bubble"></div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
+<div class="bubble"></div>
 </div>
+<div class="bubble"></div>
+<div class="bubble"></div>
+
+<script>
+    // Masquer le message après 5 secondes (5000 ms)
+    setTimeout(function() {
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 4000); // 5000 millisecondes = 5 secondes
+</script>
+
+
 
 {% endblock %}

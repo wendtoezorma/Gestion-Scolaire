@@ -4,187 +4,121 @@
 {{ block.super }}
 
 <style>
-    /* Assure que le body et le conteneur occupent tout l'espace disponible */
-   /* Assure que le body et le conteneur occupent tout l'espace disponible */
-   body {
-       overflow: hidden; /* Cache les barres de défilement */
-       display: flex;
-       flex-direction: column;
-       align-items: center;
-       justify-content: center;
-       min-height: 100vh;
-       background: none;
-       padding: 0;
-       margin: 0;
-   }
-   
-   .background {
-       position: absolute;
-       top: 0;
-       left: 0;
-       width: 100%;
-       height: 100%;
-       z-index: 0; /* Assurez-vous que l'arrière-plan est sous le contenu principal */
-       pointer-events: none;
-       background-color: #ffffff; /* Fond blanc */
-       overflow: hidden;
-   }
-   
-   @keyframes gradientAnimation {
-       0% { background-position: 0% 50%; }
-       50% { background-position: 100% 50%; }
-       100% { background-position: 0% 50%; }
-   }
-   
-   .background .bubble {
-       position: absolute;
-       background-color: rgba(6, 9, 223, 0.838); /* Couleur de fond semi-transparente */
-       width: 60px;
-       height: 60px;
-       border-radius: 50%;
-       animation: bubbleAnimation 15s infinite;
-       z-index: 100; /* Assurez-vous que les bulles sont visibles au-dessus de l'arrière-plan */
-   }
-   
-   @keyframes bubbleAnimation {
-       0% { transform: translate(0, 0); }
-       50% { transform: translate(-100%, 100%); }
-       100% { transform: translate(0, 0); }
-   }
-   
-   .background .bubble:nth-child(1) {
-       top: 10%;
-       left: 10%;
-       animation-duration: 10s;
-       animation-delay: 0s;
-   }
-   
-   .background .bubble:nth-child(2) {
-       top: 30%;
-       left: 30%;
-       animation-duration: 12s;
-       animation-delay: 2s;
-   }
-   
-   .background .bubble:nth-child(3) {
-       top: 50%;
-       left: 60%;
-       animation-duration: 14s;
-       animation-delay: 4s;
-   }
-   
-   .background .bubble:nth-child(4) {
-       top: 70%;
-       left: 20%;
-       animation-duration: 16s;
-       animation-delay: 6s;
-   }
-   
-   .background .bubble:nth-child(5) {
-       top: 80%;
-       left: 50%;
-       animation-duration: 18s;
-       animation-delay: 8s;
-   }
-   
-   form {
-       padding: 40px;
-       border-radius: 15px;
-       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-       max-width: 90vw; /* Largeur maximale du formulaire */
-       max-height: 90vh; /* Hauteur maximale du formulaire */
-       text-align: left;
-       background-color: rgba(255, 255, 255, 0.8);
-       position: relative;
-       z-index: 2;
-       margin: auto;
-       display: grid;
-       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-       gap: 20px;
-       overflow: auto; /* Ajoute un défilement si le contenu dépasse */
-   }
-   
-   form h1 {
-       grid-column: span 2;
-       margin-bottom: 20px;
-       color: #333;
-       text-align: center;
-   }
-   
-   form label {
-       margin-bottom: 10px;
-       font-weight: bold;
-       color: #333;
-   }
-   
-   form input[type="text"],
-   form input[type="email"] {
-       width: 100%;
-       padding: 10px;
-       margin-bottom: 15px;
-       border: 1px solid #ccc;
-       border-radius: 25px;
-       font-size: 16px;
-       box-sizing: border-box;
-       background-color: rgba(255, 255, 255, 0.9);
-       color: #333;
-   }
-   
-   form input[type="submit"] {
-       background-color: #007bff;
-       color: #fff;
-       border: none;
-       padding: 12px 20px;
-       font-size: 16px;
-       border-radius: 25px;
-       cursor: pointer;
-       transition: background-color 0.3s ease;
-       width: 100%;
-   }
-   
-   form input[type="submit"]:hover {
-       background-color: #0056b3;
-   }
-   
-   .form-control {
-       width: 100%;
-       padding: 10px;
-       margin-bottom: 15px;
-       border: 1px solid #ced4da;
-       border-radius: 20px;
-       transition: background-color 0.3s ease;
-       background-color: #ffffff;
-   }
-   
-   .btn-success {
-       width: 50%;
-       padding: 10px;
-       background-color: #40d67a;
-       color: #fff;
-       border: none;
-       padding: 12px 12px;
-       font-size: 16px;
-       border-radius: 25px;
-       cursor: pointer;
-       transition: background-color 0.3s ease;
-   }
-   
-   
-   </style>
+    body {
+        overflow-y: auto !important; /* Utilise l'overflow du template d'ajout de notes */
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        min-height: 200vh !important;
+        background: none !important; /* Supprime l'arrière-plan par défaut */
+        
+    }
+
+    .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 400%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+        background-color: #f0f4f8; /* Couleur de fond douce */
+    }
+
+    form {
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+        max-width: 800px; /* Largeur fixe pour le formulaire */
+        width: 150%; /* Permet au formulaire de s'ajuster à la taille de l'écran */
+        text-align: center;
+        margin: 20px auto; /* Centre le formulaire horizontalement */
+        background-color:  rgba(255, 255, 255, 0.5);
+        position: relative;
+        z-index: 2;
+    }
+
+    form h1 {
+        margin-bottom: 20px;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+    }
+
+    form label {
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+        width: 200%; /* Prendre toute la largeur */
+        text-align: left; /* Alignement à gauche */
+    }
+
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="file"],
+    form select,
+    form input[type="number"],
+    form input[type="submit"],
+    .btn-success {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 2px solid #0e0e0e; /* Changez la couleur de bordure pour la rendre visible */
+        border-radius: 20px;
+        font-size: 16px;
+        box-sizing: border-box;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #333;
+        transition: border-color 0.3s ease;
+    }
+
+    form input[type="text"]:focus,
+    form input[type="email"]:focus,
+    form input[type="file"]:focus,
+    form select:focus,
+    form input[type="number"]:focus {
+        border-color: #0c0c0c; /* Changez la couleur de bordure au focus */
+        outline: none;
+    }
+
+    form input[type="submit"],
+    .btn-success {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    form input[type="submit"]:hover,
+    .btn-success:hover {
+        background-color: #0056b3;
+    }
+
+    .add-file {
+        margin-top: 20px;
+        text-align: center; /* Centrer le lien */
+    }
+
+    .add-file a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .add-file a:hover {
+        text-decoration: underline;
+    }
+</style>
 {% endblock %}
+
 {% block content %}
+<div class="background"></div>
 <form method="post" enctype="multipart/form-data">
-    
     <h1>Upload Cours</h1>
-    <br>
-    <br>
-    <br>
     {% csrf_token %}
     {{ form.as_p }}
-    <br>
-    <br>
     <button type="submit" class="btn btn-success">Upload</button>
-    <div class="add-file"><a href="{% url 'cours_list' %} "></i>Voir cours , TD ou Exercices Enregister</a></div>
+    <div class="add-file"><a href="{% url 'cours_list' %}">Voir cours, TD ou Exercices Enregistrés</a></div>
 </form>
-
 {% endblock content %}

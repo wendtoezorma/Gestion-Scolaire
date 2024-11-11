@@ -37,20 +37,32 @@ class FiliereSerializer(serializers.ModelSerializer):
     class Meta:
         model = Filiere
         fields = ['nom_filiere']
+class ProfesseurSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = professeurs
+        fields = ['nom_prof', 'prenom_prof']  # Vous pouvez ajouter d'autres champs si nécessaire
+
 
 class CoursModuleSerializer(serializers.ModelSerializer):
     filiere = FiliereSerializer()  # Utilisez le serializer de Filiere
-
+    professeur = ProfesseurSerializer()
     class Meta:
         model = Cours_Module
-        fields = ['nom_module', 'credit_module', 'volume_horaire','filiere']
+        fields = ['nom_module', 'credit_module', 'volume_horaire','filiere','professeur']
 
 class EtudiantSerializer(serializers.ModelSerializer):
     filiere = FiliereSerializer()
     class Meta:
         model = Etudiant
-        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere','photo']
+        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere','photo',]
 
+   
+    def get_photo(self, obj):
+        request = self.context.get('request')
+        if obj.photo:
+            photo_url = obj.photo.url
+            return request.build_absolute_uri(photo_url)
+        return None  # ou return '' si vous préférez une chaîne vide
 
 #emploi du temps 
 

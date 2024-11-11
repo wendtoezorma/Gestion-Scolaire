@@ -1,6 +1,10 @@
 from django.urls import path,include
 from Administration.views import *
 from django.views.generic.base import RedirectView
+from django.conf.urls import handler404
+
+handler404 = 'django.views.defaults.page_not_found'
+
 ###Pour le mdp oublié
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
@@ -15,6 +19,7 @@ urlpatterns = [
     path('recherche-etudiants/', recherche_etudiants_pour_solarite, name='recherche_etudiants_pour_solarite'),
     path('upload_cours/', upload_cours, name='upload_cours'), 
     path('cours_list/', cours_list, name='cours_list'),
+    path('obtenir_informations_etudiant', obtenir_informations_etudiant, name='obtenir_informations_etudiant'),
     # 
     
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
@@ -71,6 +76,8 @@ urlpatterns = [
     path('prof_dashboard/', prof_dashboard, name='prof_dashboard'),
     path('generer_bulletin/<int:matricule>/<str:semestre>/', generer_bulletin, name='generer_bulletin'),
     path('recherche/', recherche_etudiant, name='recherche_etudiant'),
+    path('reinscription/', reinscription_etudiant, name='reinscription_etudiant'), 
+    path('reinscription/<int:etudiant_id>/', reinscription_etudiant, name='reinscription_etudiant'),
     
     ##################################  Informations #####################################
     path('infos/', infos, name='infos'), 

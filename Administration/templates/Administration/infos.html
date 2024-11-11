@@ -18,6 +18,7 @@
        background: none;
        padding: 0;
        margin: 0;
+       padding-top: 80px;
    }
    
    .background {
@@ -93,7 +94,7 @@
        padding: 40px;
        border-radius: 15px;
        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-       max-width: 90vw; /* Largeur maximale du formulaire */
+       max-width: 600px; /* Largeur maximale du formulaire */
        max-height: 90vh; /* Hauteur maximale du formulaire */
        text-align: left;
        background-color: rgba(255, 255, 255, 0.8);
@@ -171,11 +172,22 @@
        transition: background-color 0.3s ease;
    }
    
+
    
    </style>
 {% endblock  %}
     
 {% block content %}
+
+{% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+            <div class="custom-alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <form method="post" enctype="multipart/form-data">
     
     <h1>FAIRE PART D'UNE INFORMATION </h1>
@@ -191,5 +203,18 @@
         <a href="/voir_info">Voir Informations Enregistées</a></div>
 </form>
     
+
+
+<script>
+    // Masquer le message après 5 secondes (5000 ms)
+    setTimeout(function() {
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 4000); // 5000 millisecondes = 5 secondes
+</script>
+
+
 {% endblock content %}
     

@@ -34,7 +34,8 @@ def Professeur_dashboard(request):
 def Voir_notes(request):
     professeur_id = request.session.get('professeur_id')
     filieres = Filiere.objects.all()
-    niveaux = Etudiant.objects.values_list('niveau_etudiant', flat=True).distinct()
+    niveaux = Etudiant._meta.get_field('niveau_etudiant').choices
+    
     return render(request, 'prof/tri_pour_classe_pour_prof.html', {'filieres': filieres, 'niveaux': niveaux,'professeurs_id': professeur_id})
 
 

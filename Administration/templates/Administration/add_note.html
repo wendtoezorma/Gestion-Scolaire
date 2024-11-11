@@ -26,7 +26,7 @@ body {
     height: 100%;
     z-index: -1;
     pointer-events: none;
-    background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
+    background-image: linear-gradient(120deg, #1e3c72, #2a69ac); /* Dégradé de bleu */
     animation: gradientAnimation 10s ease infinite;
 }
 
@@ -36,36 +36,24 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-.background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-}
-
-@keyframes bubbleAnimation {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(-100%, 100%); }
-    100% { transform: translate(0, 0); }
-}
-
 form {
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
     max-width: 800px;
+    width: 100%; /* Permet au formulaire de s'ajuster à la taille de l'écran */
     text-align: center;
-    margin-top: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
+    margin: 20px auto; /* Centre le formulaire horizontalement */
+    background-color: rgba(255, 255, 255, 0.9);
     position: relative;
     z-index: 2;
 }
 
 form h1, form h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: #101010;
+    font-family: 'Arial', sans-serif;
+    
 }
 
 form table {
@@ -80,12 +68,28 @@ form table th, form table td {
 }
 
 form table th {
-    background-color: #f2f2f2;
+    background-color: #f0f8ff;
     text-align: center;
+    font-weight: bold;
+    color: #007bff;
 }
 
 form table td {
     text-align: center;
+}
+
+form input[type="number"] {
+    width: 80%;
+    padding: 5px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="number"]:focus {
+    border-color: #0056b3;
+    outline: none;
 }
 
 form button {
@@ -96,12 +100,35 @@ form button {
     font-size: 16px;
     border-radius: 25px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 form button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
 }
+
+form button:active {
+    transform: scale(0.95);
+}
+.h1 {
+    font-family: 'Arial', sans-serif; /* Choisissez une police moderne */
+    color: #2c3e50; /* Couleur de texte sombre pour un bon contraste */
+    text-align: center; /* Centre le texte */
+    margin-bottom: 20px; /* Espace sous l'élément */
+    font-weight: bold; /* Gras pour plus d'impact */
+}
+
+.h1:nth-of-type(1) {
+    font-size: 1em; /* Taille de police plus grande pour le titre principal */
+    text-transform: uppercase; /* Transforme le texte en majuscules pour le titre principal */
+}
+
+.h1:nth-of-type(2) {
+    font-size: 1.5em; /* Taille de police plus petite pour le sous-titre */
+    color: #34495e; /* Couleur légèrement plus claire pour le sous-titre */
+}
+
 </style>
 {% endblock %}
 
@@ -115,8 +142,8 @@ form button:hover {
     <div class="bubble"></div>
 </div>
 
-<h1>Ajouter des notes pour le module {{ module.nom_module }}</h1>
-<h2>Module: {{ module.nom_module }} <br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
+<h1 class="h1">Ajouter des notes pour le module {{ module.nom_module }}</h1>
+<h2 class="h1">Module: {{ module.nom_module }} <br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
 
 <form method="post">
     {% csrf_token %}
