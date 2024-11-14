@@ -32,8 +32,8 @@ TEMPLATES_DIRS=os.path.join(BASE_DIR,"templates")
 SECRET_KEY = 'django-insecupyoluyiujtrre-0-ofzo)haefmy*4kjfhdsfcg!;9t#yjd#o)3bz9targmy7%ljn5woz0!zjd*o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+DEBUG = False
+ALLOWED_HOSTS = ["Geststudents.pythonanywhere.com"]
 
 
 # Application definition
@@ -129,13 +129,12 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-      BASE_DIR / "static",
-    
-]
+      BASE_DIR / "static-files",
 
+]
 
 
 # Default primary key field type
@@ -178,10 +177,10 @@ LOGGING = {
     },
 
 }
-DEBUG = True
+DEBUG = False
 
 AUTHENTICATION_BACKENDS = [
-    
+
     'Administration.backends.AdministrationBackend',  # Pour les utilisateurs lambda
     'django.contrib.auth.backends.ModelBackend',  # Pour les superutilisateurs
 ]
