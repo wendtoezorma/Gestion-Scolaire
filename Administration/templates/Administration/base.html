@@ -37,6 +37,8 @@
             --gray: #f5f5f5;
             --black1: #222;
             --black2: #999;
+            
+
         }
         body {
             min-height: 100vh;
@@ -101,6 +103,7 @@
             height: 60px;
             align-items: center;
         }
+
 
         .navigation ul li:hover a,
         .navigation ul li.hovered a {
@@ -396,6 +399,8 @@
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
 }
+
+
 .custom-alert-success.fade-out {
     opacity: 0;
 }
@@ -461,6 +466,43 @@
     #message-container.hide {
         opacity: 0;
     }
+    /* Style de base pour le menu */
+ul.navigation {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+ul.navigation li {
+    margin-right: 20px;
+}
+
+ul.navigation li a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+    position: relative;
+    padding: 10px;
+}
+
+/* Effet de survol */
+ul.navigation li a:hover {
+    color: #fff;
+    background-color: #007bff;
+}
+
+/* Effet de "maintien" sur l'élément cliqué */
+ul.navigation li a.active {
+    color: #fff;
+    background-color: #0056b3;
+}
+
+/* Animation de transition */
+ul.navigation li a {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
       
     </style>
     {% endblock %}
@@ -472,6 +514,7 @@
 </head>
 
 <body>
+    
 
     <!-- =============== Navigation ================ -->
     <div class="container">
@@ -534,17 +577,7 @@
                         <span class="title">Ouvrir une classe</span>
                     </a>
                 </li>         
-                <li>
-                    <a href="{% url 'cours_list' %}">
-
-                        <span class="icon">
-                            <ion-icon name="list-outline"></ion-icon>
-                        </span>
-
-                        <span class="title">Liste Cours</span>
-
-                    </a>
-                </li>
+                
                 <li>
                     <a href="{% url 'upload_cours' %} ">
                         <span class="icon">
@@ -610,6 +643,7 @@
         </div>
         <!-- =============== Main ===================== -->
         <div class="main">
+
             <div class="topbar">
                 <div class="toggle">
                     <ion-icon name="menu-outline"></ion-icon>
@@ -624,7 +658,7 @@
                     </form>
                 </div>
             </div>
-
+           
             {% block content %}{% endblock %}
             
         </div>

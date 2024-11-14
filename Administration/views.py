@@ -601,60 +601,22 @@ def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
+
+            # Vérifier si le fichier est bien un PDF
+            if not uploaded_file.name.endswith('.pdf'):
+                messages.error(request, "Veuillez télécharger un fichier PDF valide.")
+                return redirect('upload_file')
+
+            # Sauvegarder le fichier directement dans le modèle UploadedFile
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-            # Lire le fichier Excel téléchargé
-            df = pd.read_excel(uploaded_file)
-
-            # Remplacer les NaN par des chaînes vides
-            df.fillna('', inplace=True)
-
-            # Créer un buffer pour sauvegarder le PDF
-            buffer = io.BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=letter)
-
-            # Préparer les données pour le tableau
-            data = [df.columns.to_list()] + df.values.tolist()
-
-            # Créer le tableau
-            table = Table(data)
-
-            # Appliquer un style au tableau
-            style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ])
-            table.setStyle(style)
-
-            # Construire le PDF
-            elements = []
-            elements.append(table)
-            doc.build(elements)
-
-            # Créer un chemin pour sauvegarder le PDF
-            pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
-
-            # Sauvegarder le contenu PDF dans le fichier
-            with open(pdf_file_path, 'wb') as f:
-                f.write(buffer.getvalue())
-
-            # Créer une nouvelle instance de UploadedFile pour le PDF
-            pdf_uploaded_file_instance = UploadedFile(file=pdf_file_path)
-            pdf_uploaded_file_instance.save()
-
-            # Optionnel : rediriger vers une page de succès ou afficher un message
-            return redirect('list_uploaded_files')  # Remplacez par le nom de votre vue
-
+            messages.success(request, "Le fichier PDF a été téléchargé avec succès.")
+            return redirect('list_uploaded_files')  # Redirigez vers une page listant les fichiers
     else:
         form = UploadFileForm()
+
 
     return render(request, 'Administration/upload.html', {'form': form})
 

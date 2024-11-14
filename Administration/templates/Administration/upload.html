@@ -1,154 +1,119 @@
 {% extends 'Administration/base.html' %}
-{%block content %}
+
+{% block content %}
 {{ block.super }}
 <style>
-    /* Styles spécifiques au template enfant */
-    body {
-      overflow-y: auto !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: flex-start !important;
-      min-height: 100vh !important;
-      background: none !important; /* Supprime l'arrière-plan par défaut */
-      padding-top: 80px; /* Hauteur de l'entête */
-      margin-left: 300px; /* Largeur du menu latéral */
-    }
-  
-    .background {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-      background-color: #ffffff; /* Fond blanc */
-      overflow: hidden;
-    }
-  
-    @keyframes gradientAnimation {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  
-    .background .bubble {
-      position: absolute;
-      background-color: rgba(255, 255, 255, 0.3);
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      animation: bubbleAnimation 15s infinite;
-    }
-  
-    @keyframes bubbleAnimation {
-      0% { transform: translate(0, 0); }
-      50% { transform: translate(-100%, 100%); }
-      100% { transform: translate(0, 0); }
-    }
-  
-    .background .bubble:nth-child(1) {
-      top: 10%;
-      left: 10%;
-      animation-duration: 10s;
-      animation-delay: 0s;
-    }
-  
-    .background .bubble:nth-child(2) {
-      top: 30%;
-      left: 30%;
-      animation-duration: 12s;
-      animation-delay: 2s;
-    }
-  
-    .background .bubble:nth-child(3) {
-      top: 50%;
-      left: 60%;
-      animation-duration: 14s;
-      animation-delay: 4s;
-    }
-  
-    .background .bubble:nth-child(4) {
-      top: 70%;
-      left: 20%;
-      animation-duration: 16s;
-      animation-delay: 6s;
-    }
-  
-    .background .bubble:nth-child(5) {
-      top: 80%;
-      left: 50%;
-      animation-duration: 18s;
-      animation-delay: 8s;
-    }
-  
-    form {
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      max-width: 700px;
-      text-align: center;
-      background-color: rgba(255, 255, 255, 0.8);
-      position: relative;
-      z-index: 2;
-      margin: 40px 0; /* Marge en haut et en bas */
-    }
-  
-    form h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-  
-    form label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: bold;
-      color: #333;
-    }
-  
-    form input[type="text"],
-    form input[type="email"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 25px;
-      font-size: 16px;
-      box-sizing: border-box;
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #333;
-    }
-  
-    form input[type="submit"] {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-  
-    form input[type="submit"]:hover {
-      background-color: #0056b3;
-    }
-  
-    .background .bubble {
-      position: absolute;
-      background-color: rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      animation: bubbleAnimation 15s infinite;
-    }
-  </style>
+  /* Styles spécifiques au template enfant */
+  body {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-height: 200vh !important;
+    background: none !important;
+    font-family: Arial, sans-serif; /* Police uniforme */
+  }
 
-    <h1>Importer Emploi du Temps</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <h2><a href="{% url 'list_uploaded_files' %}">voir les emplois du temps envoyés</a></h2>
-        <button type="submit">Générer</button>
-    </form>
+  .contenu {
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    height: 100vh; /* Prend toute la hauteur de la vue */
+    text-align: center; /* Aligne le texte au centre */
+  }
 
-{% endblock%}
+  form {
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px; /* Largeur maximale du formulaire */
+    text-align: left;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 2;
+    margin: 20px 0; /* Réduit la marge en bas et en haut du formulaire */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Grille responsive */
+    gap: 20px; /* Espacement entre les éléments */
+  }
+
+  form div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  form h2 {
+    grid-column: span 2; /* Titre occupe toute la largeur */
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  form label {
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  form input[type="text"],
+  form input[type="email"],
+  form input[type="file"],
+  form select,
+  form input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+  }
+
+  form input[type="submit"],
+  button#envoyer {
+    background-color: #0056b3; /* Bleu ciel intense */
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Le bouton de soumission occupe toute la largeur de sa cellule */
+  }
+
+  form input[type="submit"]:hover,
+  button#envoyer:hover {
+    background-color: #007bff; /* Bleu plus foncé */
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5); /* Ombre bleutée */
+  }
+
+  .background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background-color: #ffffff; /* Fond blanc */
+    overflow: hidden;
+  }
+
+</style>
+
+
+
+<div class="contenu">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h2>Importer votre emploi du temps</h2>
+    {{ form.as_p }}
+    <button type="submit" id="envoyer">Générer</button>
+    <div><a href="{% url 'list_uploaded_files' %}">voir les emplois du temps envoyés</a></div>
+  </form>
+</div>
+
+{% endblock %}

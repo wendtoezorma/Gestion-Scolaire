@@ -133,76 +133,11 @@
 }
 
 
-.bubble {
-    width: 50px;
-    height: 50px;
-    background-color: #0644f0;
-    border-radius: 50%;
-    position: absolute;
-    bottom: -50px;
-    animation: rise 10s infinite ease-in-out;
-    opacity: 0.3;
-}
+
 
 
 /* Différentes tailles de bulles */
-.bubble:nth-child(2) {
-    width: 80px;
-    height: 80px;
-    animation-duration: 12s;
-    left: 10%;
-}
 
-.bubble:nth-child(3) {
-    width: 60px;
-    height: 60px;
-    animation-duration: 15s;
-    left: 50%;
-}
-
-.bubble:nth-child(4) {
-    width: 40px;
-    height: 40px;
-    animation-duration: 8s;
-    left: 70%;
-}
-
-.bubble:nth-child(5) {
-    width: 80px;
-    height: 80px;
-    animation-duration: 18s;
-    left: 90%;
-}
-.bubble:nth-child(6) {
-    width: 60px;
-    height: 60px;
-    animation-duration: 22s;
-    left: 18%;
-}
-.bubble:nth-child(7) {
-    width: 90px;
-    height: 90px;
-    animation-duration: 8s;
-    left: 50%;
-}
-.bubble:nth-child(8) {
-    width: 40px;
-    height: 40px;
-    animation-duration: 38s;
-    left: 79%;
-}
-.bubble:nth-child(9) {
-    width: 100px;
-    height: 100px;
-    animation-duration: 18s;
-    right: 30%;
-}
-.bubble:nth-child(10) {
-    width: 57px;
-    height: 57px;
-    animation-duration: 20s;
-    right: 75%;
-}
 
 /* Animation des bulles */
 @keyframes rise {
@@ -268,6 +203,7 @@
 {% endblock %}
 {% block content %}
 
+
 {% if messages %}
     <div id="message-container">
         {% for message in messages %}
@@ -287,8 +223,7 @@
             <ion-icon name="people-outline"></ion-icon>
         </div>
     </div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
+    
     <div class="card">
         <div>
             <div class="numbers">{{ total_professeurs }}</div>
@@ -348,8 +283,7 @@
 
 <div class="bubble"></div>
 </div>
-<div class="bubble"></div>
-<div class="bubble"></div>
+
 
 <script>
     // Masquer le message après 5 secondes (5000 ms)

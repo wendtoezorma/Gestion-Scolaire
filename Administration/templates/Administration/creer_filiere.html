@@ -5,6 +5,10 @@
 {{ block.super }}
 
 <style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+
     form {
         padding: 40px;
         border-radius: 15px;
@@ -14,64 +18,58 @@
         background-color: rgba(255, 255, 255, 0.8);
         position: relative;
         z-index: 2;
-        margin: 40px 0; /* Marge en haut et en bas */
-        margin-left: 30px;
-      }
-    .btn-primary {
-        width: 30%;
-        padding: 10px;
-        background-color: #40d67a;
-        color: #fff;
-        border: none;
-        padding: 12px 12px;
-        font-size: 20px;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+        margin: 40px 0;
     }
-    
-    
+
     form label {
         display: block;
-        margin-bottom: 10px;
-        font-size:20px;
+        margin-bottom: 12px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        text-align: left;
     }
-    
+
     .form-control {
-        margin:30px;
         width: 60%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ced4da;
-        border-radius: 20px;
-        transition: background-color 0.3s ease;
-        background-color: #ffffff;
-        font-style: bold;
+        padding: 12px; /* Augmenter la taille des champs */
+        margin-bottom: 20px; /* Espacement uniforme */
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        font-size: 16px;
+        background-color: rgba(255, 255, 255, 0.9);
     }
+
+    .btn-primary {
+        width: 60%; /* Ajuster la largeur du bouton */
+        padding: 14px;
+        background-color: #0056b3;
+        color: #ffffff;
+        border: none;
+        font-size: 18px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #007bff;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5);
+    }
+
 </style>
 
 {% endblock %}
+
 {% block content %}
 <div class="main">
     <form method="post">
         <h1>Créer une filière</h1>
-        <br>
-        <br>
+        <br><br>
         {% csrf_token %}
         {{ form.as_p }}
-        <br>
-        <br>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <br><br>
+        <button type="submit" class="btn-primary">Enregistrer</button>
     </form>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-</div>  
+</div>
 {% endblock %}
-
