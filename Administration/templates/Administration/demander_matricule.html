@@ -2,80 +2,105 @@
 
 {% block content %}
 <style>
+    /* Style général */
     body {
-        background-color: var(--gray); /* Couleur de fond */
-        font-family: Arial, sans-serif; /* Police générale */
-        margin: 0; /* Supprime la marge par défaut */
-        padding: 20px; /* Espace autour du contenu */
+        overflow-y: auto !important; 
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        min-height: 100vh !important;
+        background: none !important;
+        font-family: Arial, sans-serif; /* Police uniforme */
+        padding-top: 30px; /* Hauteur de l'entête */
+        
+        
+        margin-left: 50px; /* Décale légèrement le contenu vers la gauche */
     }
 
+    /* Conteneur du formulaire */
     .form-container {
         max-width: 500px; /* Largeur maximale du conteneur */
         margin: 50px auto; /* Centre le conteneur verticalement */
-        padding: 20px; /* Espace intérieur pour le contenu */
-        background-color: var(--white); /* Couleur de fond blanche */
-        border-radius: 10px; /* Coins arrondis */
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Ombre légère pour donner du relief */
+        padding: 40px; /* Espace intérieur pour le contenu */
+        background-color: rgba(255, 255, 255, 0.8); /* Fond du formulaire avec opacité */
+        border-radius: 15px; /* Coins arrondis */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Ombre légère pour donner du relief */
         position: relative; /* Positionnement relatif pour les éléments enfants */
         text-align: center; /* Centre le texte */
     }
 
-    h2 {
-        color: var(--blue); /* Couleur du titre */
-        margin-bottom: 20px; /* Espace sous le titre */
-    }
+    /* Style du titre */
+   
+    form h2 {
+    grid-column: span 2; /* Titre occupe toute la largeur */
+    margin-bottom: 20px;
+    color: #333;
+  }
 
-    .illustration {
-        max-width: 100%; /* Largeur maximale pour l'image */
-        height: auto; /* Garde les proportions de l'image */
-        margin-bottom: 20px; /* Espace sous l'image */
-    }
-
+    /* Styles des labels */
     label {
         font-weight: bold; /* Gras pour les étiquettes */
-        margin-bottom: 5px; /* Espace sous les étiquettes */
+        margin-bottom: 10px; /* Espace sous les étiquettes */
         display: block; /* Affichage en bloc pour les étiquettes */
     }
 
-    input[type="number"] {
+    /* Style des champs de saisie */
+    input[type="number"],
+    input[type="text"] {
         width: 100%; /* Largeur complète pour le champ de saisie */
-        padding: 10px; /* Espace intérieur */
+        padding: 12px; /* Espace intérieur */
         margin-bottom: 15px; /* Espace sous le champ de saisie */
-        border: 1px solid var(--gray); /* Bordure grise */
-        border-radius: 5px; /* Coins arrondis */
-        font-size: 1rem; /* Taille de police */
+        border: 1px solid #ccc; /* Bordure grise */
+        border-radius: 25px; /* Coins arrondis */
+        font-size: 16px; /* Taille de la police */
+        box-sizing: border-box; /* Assure que le padding est pris en compte dans la largeur totale */
+        background-color: rgba(255, 255, 255, 0.9); /* Fond légèrement transparent */
+        color: #333; /* Couleur du texte */
         transition: border-color 0.3s; /* Transition pour le changement de couleur de bordure */
     }
 
-    input[type="number"]:focus {
-        border-color: var(--blue); /* Change la couleur de la bordure au focus */
+    /* Focus sur les champs */
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+        border-color: #007bff; /* Change la couleur de la bordure au focus */
         outline: none; /* Supprime le contour par défaut */
     }
 
-    button {
+    /* Style des boutons */
+    button,
+    input[type="submit"] {
         width: 100%; /* Largeur complète pour le bouton */
-        padding: 10px; /* Espace intérieur */
-        background-color: var(--blue); /* Couleur de fond bleue */
-        color: var(--white); /* Couleur de texte blanche */
+        padding: 14px; /* Espace intérieur */
+        background-color:   #0056b3; /* Couleur de fond bleue */
+        color: #fff; /* Couleur du texte blanche */
         border: none; /* Supprime la bordure */
-        border-radius: 5px; /* Coins arrondis */
-        font-size: 1rem; /* Taille de police */
+        border-radius: 25px; /* Coins arrondis */
+        font-size: 16px; /* Taille de la police */
         cursor: pointer; /* Change le curseur sur hover */
         transition: background-color 0.3s; /* Transition douce pour le changement de couleur */
     }
 
-    button:hover {
-        background-color: darken(var(--blue), 10%); /* Assombrit la couleur au survol */
+    /* Effet au survol du bouton */
+    button:hover,
+    input[type="submit"]:hover {
+        background-color: #007bff; /* Assombrit la couleur au survol */
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5); /* Ombre bleutée */
+    }
+
+    /* Flexbox pour centrer le formulaire */
+    .contenu {
+        display: flex;
+        justify-content: center; /* Centre horizontalement */
+        align-items: center; /* Centre verticalement */
+        height: 100vh; /* Prend toute la hauteur de la vue */
     }
 </style>
 
 <div class="form-container">
-    <h2>Voir le profil de l'étudiant</h2>
     
-    <!-- Lien pour télécharger une image de formulaire -->
-   
-
     <form method="POST" onsubmit="redirigerProfil(event)">
+        <h2>Voir le profil de l'étudiant</h2>
         {% csrf_token %}
         <label for="matricule">Entrez le matricule de l'étudiant :</label>
         <input type="number" id="matricule" name="matricule" required>

@@ -16,7 +16,8 @@
     min-height: 100vh !important;
     background: none !important; /* Supprime l'arrière-plan par défaut */
     padding-top: 80px; /* Hauteur de l'entête */
-    margin-left: 0; /* Supprimer la marge gauche */
+    margin-left: 200px; /* Supprimer la marge gauche */
+
   }
 
   .background {
@@ -37,69 +38,25 @@
     100% { background-position: 0% 50%; }
   }
 
-  .background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-  }
-
   @keyframes bubbleAnimation {
     0% { transform: translate(0, 0); }
     50% { transform: translate(-100%, 100%); }
     100% { transform: translate(0, 0); }
   }
 
-  .background .bubble:nth-child(1) {
-    top: 10%;
-    left: 10%;
-    animation-duration: 10s;
-    animation-delay: 0s;
-  }
-
-  .background .bubble:nth-child(2) {
-    top: 30%;
-    left: 30%;
-    animation-duration: 12s;
-    animation-delay: 2s;
-  }
-
-  .background .bubble:nth-child(3) {
-    top: 50%;
-    left: 60%;
-    animation-duration: 14s;
-    animation-delay: 4s;
-  }
-
-  .background .bubble:nth-child(4) {
-    top: 70%;
-    left: 20%;
-    animation-duration: 16s;
-    animation-delay: 6s;
-  }
-
-  .background .bubble:nth-child(5) {
-    top: 80%;
-    left: 50%;
-    animation-duration: 18s;
-    animation-delay: 8s;
-  }
-  
   form {
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     max-width: 900px; /* Largeur maximale du formulaire */
     text-align: left;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: NONE;
     position: relative;
     z-index: 2;
     margin: 40px 0; /* Supprimer la marge à gauche et à droite */
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Grille responsive */
-    gap: 20px; /* Espacement entre les éléments */
+    gap: 30px; /* Espacement entre les éléments */
   }
 
   form div {
@@ -157,47 +114,29 @@
     transition: background-color 0.3s ease;
     background-color: #ffffff;
   }
-
-  .btn-success {
-    width: 50%;
-    padding: 10px;
-    background-color: #40d67a;
+  
+  .btn-primary {
+    background-color:   #0056b3; /* Bleu ciel intense */
     color: #fff;
     border: none;
-    padding: 12px 12px;
+    padding: 12px 20px;
     font-size: 16px;
     border-radius: 25px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .container {
-    max-width: 1200px;
-    width: 200%;
-    margin: 20px auto;
-    padding: 30px; /* Plus d'espace interne */
-    background-color: #cbc8d2; /* Fond légèrement gris */
-    border-radius: 20px; /* Coins plus arrondis */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Ombre douce */
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Transitions douces */
+  .btn-primary:hover {
+    background-color: #007bff; /* Bleu plus foncé */
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5); /* Ombre bleutée */
   }
 
-  .container:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Ombre accentuée sur hover */
-    background-color: #f9f9f9; /* Changement subtil de couleur sur hover */
-  }
+  
+  
 
-  @media (max-width: 768px) {
-    .container {
-      padding: 20px;
-      max-width: 90%;
-    }
+  form button {
+    width: auto; /* Ajuste la taille selon le contenu */
+    align-self: center; /* Centre le bouton */
   }
 
 </style>
@@ -205,21 +144,16 @@
 
 {% block content %}
 <div class="background">
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
-  <div class="bubble"></div>
+  
 </div>
 
 <form method="post">
   <h1>Créer un Professeur</h1>
-  <br>
+  
   <br>
   {% csrf_token %}
   {{ form.as_p }}
   <br>
-  <button type="submit" class="btn btn-success">Enregistrer</button>
+  <button type="submit" class="btn btn-primary">Enregistrer</button>
 </form>
 {% endblock %}

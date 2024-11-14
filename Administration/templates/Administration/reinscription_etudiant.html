@@ -1,4 +1,5 @@
 {% extends 'Administration/base.html' %}
+
 {% block styles %}
 {{ block.super }}
 <style>
@@ -10,7 +11,7 @@
 
     /* Conteneur principal */
     .container {
-        max-width: 10000px; /* Largeur maximum */
+        max-width: 1200px; /* Largeur maximum */
         margin: 50px auto; /* Centrage vertical et horizontal */
         padding: 50px; /* Espacement intérieur */
         background-color: #fff; /* Fond blanc */
@@ -32,7 +33,7 @@
 
     /* Styles des formulaires */
     .form-group {
-        margin-bottom: 40px; /* Espacement entre les champs */
+        margin-bottom: 20px; /* Espacement entre les champs */
     }
 
     .btn {
@@ -60,35 +61,58 @@
 
     /* Boutons */
     .btn-primary {
-        background-color: #007bff; /* Couleur de fond du bouton primaire */
+        background-color:  #0056b3; /* Couleur de fond du bouton primaire */
         border: none; /* Pas de bordure */
         color: white; /* Couleur du texte */
     }
 
     .btn-primary:hover {
-        background-color: #0056b3; /* Couleur au survol */
+        background-color: #007bff; /* Couleur au survol */
     }
 
     .btn-success {
-        background-color: #28a745; /* Couleur de fond du bouton succès */
+        background-color: #0056b3;; /* Couleur de fond du bouton succès */
         border: none; /* Pas de bordure */
         color: white; /* Couleur du texte */
     }
 
     .btn-success:hover {
-        background-color: #218838; /* Couleur au survol */
+        background-color:  #007bff; /* Couleur au survol */
     }
 
-    /* Éléments de texte */
-    p {
-        font-size: 18px; /* Taille de la police pour les détails */
-        color: #495057; /* Couleur du texte */
+    /* Grille pour le formulaire */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Trois colonnes */
+        gap: 20px;
     }
+
+    /* S'assurer que les champs prennent toute la largeur sur les petits écrans */
+    .form-group {
+        grid-column: span 3;
+    }
+
+    /* Champ qui occupe deux colonnes */
+    .form-group.double {
+        grid-column: span 2;
+    }
+
+    /* Adaptation responsive pour les petits écrans */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr; /* Une seule colonne sur petit écran */
+        }
+
+        .form-group {
+            grid-column: span 1; /* Chaque champ occupe une colonne */
+        }
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+
     <h1>Réinscription d'Étudiant</h1>
     
     <!-- Formulaire de recherche de l'étudiant -->
@@ -102,35 +126,47 @@
     </form>
     
     {% if etudiant %}
-        &nbsp;<br><br>
-        <h1>Détails de l'Étudiant</h1><br>
-    <!-- Formulaire de réinscription (s'affiche seulement après avoir trouvé l'étudiant) -->
+        <br>
+        <br>
+        <h2>Détails de l'Étudiant</h2>
         <form method="post" class="mt-5">
             {% csrf_token %}
-            
-            
-            <div class="form-group">
-                <p><strong>Nom :</strong> {{ etudiant.nom_etudiant }}</p><br>
-                <p><strong>Prénom :</strong> {{ etudiant.prenom_etudiant }}</p><br>
-                <p><strong>Niveau actuel :</strong> {{ etudiant.niveau_etudiant }}</p><br>
-                <p><strong>Année académique actuelle :</strong> {{ etudiant.annee_academique_etudiant }}</p>
+
+            <!-- Informations de l'étudiant -->
+            <div class="form-row">
+                <div class="form-group">
+                    <p><strong>Nom :</strong> {{ etudiant.nom_etudiant }}</p>
+                </div>
+                <div class="form-group">
+                    <p><strong>Prénom :</strong> {{ etudiant.prenom_etudiant }}</p>
+                </div>
+                <div class="form-group">
+                    <p><strong>Niveau actuel :</strong> {{ etudiant.niveau_etudiant }}</p>
+                </div>
+                <div class="form-group">
+                    <p><strong>Année académique actuelle :</strong> {{ etudiant.annee_academique_etudiant }}</p>
+                </div>
             </div>
 
             <!-- Nouveau niveau de l'étudiant -->
-            <div class="form-group">
-                <label for="niveau_etudiant">Nouveau Niveau</label>
-                <select name="niveau_etudiant" id="niveau_etudiant" required class="form-control">
-                    <option value="">Sélectionner le nouveau niveau</option>
-                    {% for niveau in niveaux %}
-                    <option value="{{ niveau }}">{{ niveau }}</option>
-                    {% endfor %}
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="niveau_etudiant">Nouveau Niveau</label>
+                    <select name="niveau_etudiant" id="niveau_etudiant" required class="form-control">
+                        <option value="">Sélectionner le nouveau niveau</option>
+                        {% for niveau in niveaux %}
+                        <option value="{{ niveau }}">{{ niveau }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
             
             <!-- Nouvelle année académique -->
-            <div class="form-group">
-                <label for="annee_academique">Nouvelle Année Académique</label>
-                <input type="text" name="annee_academique" id="annee_academique" required class="form-control" placeholder="Exemple : 2023-2024">
+            <div class="form-row">
+                <div class="form-group double">
+                    <label for="annee_academique">Nouvelle Année Académique</label>
+                    <input type="text" name="annee_academique" id="annee_academique" required class="form-control" placeholder="Exemple : 2023-2024">
+                </div>
             </div>
 
             <!-- Champ caché pour garder le matricule -->
@@ -139,5 +175,5 @@
             <button type="submit" class="btn btn-success">Réinscrire l'Étudiant</button>
         </form>
     {% endif %}
-</div>
+
 {% endblock %}
