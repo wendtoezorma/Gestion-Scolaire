@@ -435,3 +435,28 @@ class InfosView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+import requests
+
+def verifier_etudiants_connectes(request):
+    """
+    Vérifie l'état de connexion de chaque étudiant en interrogeant l'application mobile.
+    """
+    mobile_api_url = "http://localhost:3001/is-connected/"
+    etudiants = Etudiant.objects.all()
+
+    connectes = 0
+    for etudiant in etudiants:
+        try:
+            response = requests.get(f"{mobile_api_url}{etudiant.matricule}")
+            if response.status_code == 200 and response.json().get("connected"):
+                etudiant.Connecter = True
+                connectes += 1
+            else:
+                etudiant.Connecter = False
+            etudiant.save()
+        except requests.ConnectionError:
+            return JsonResponse({"success": False, "message": "Erreur de connexion à l'application mobile."}, status=500)
+
+    return JsonResponse({"success": True, "connectes": connectes})

@@ -10,9 +10,9 @@ def apercu_caisse():
     )
     total_general = (tranches['total_tranche_1'] or 0) + (tranches['total_tranche_2'] or 0) + (tranches['total_tranche_3'] or 0)
     return total_general or 0.0
-
+from .models import Etudiant
 def nombre_etudiants_connecter():
-    from .models import Etudiant
+    
     etudiant_connecter = Etudiant.objects.filter(Connecter=True).count()
     
     return  etudiant_connecter or 0

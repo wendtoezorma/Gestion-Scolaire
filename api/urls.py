@@ -23,6 +23,8 @@ urlpatterns = [
     path('download-pdf/<int:file_id>/', download_pdf_cours, name='download_pdf'),
     path('scolarite/', ScolariteDetailView.as_view(), name='scolarite-detail'),
     path('infos/', InfosView.as_view(), name='infos_api'),
+    path('api/verifier-etudiants-connectes/', verifier_etudiants_connectes, name='verifier-etudiants-connectes'),
+
 
 
     

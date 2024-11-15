@@ -201,3 +201,13 @@ LOGOUT_REDIRECT_URL = ('login')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'sessionid'
+
+# Configuration Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Utilisation de Redis comme broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilisation de Redis comme backend pour les résultats
+
+# Optionnel, configurer un préfixe pour les files d'attente
+CELERY_DEFAULT_QUEUE = 'default'
+

@@ -232,11 +232,17 @@ def confirmer_inscription_etudiant(request):
         filiere = Filiere.objects.get(Id_filiere=etudiant_data['filiere_id'])
 
         etudiant_data['filiere'] = filiere.nom_filiere  # Ajouter le nom de la filière aux données de la session
-
+        # Convertir la date de naissance
+        if 'Date_naiss_etudiant' in etudiant_data:
+            try:
+                date_naissance = datetime.strptime(etudiant_data['Date_naiss_etudiant'], '%Y-%m-%d')
+                etudiant_data['date_naissance'] = date_naissance.strftime('%d-%m-%Y')  # Format d'affichage
+            except ValueError:
+                etudiant_data['date_naissance'] = "Date invalide"
 
     if request.method == 'POST' and etudiant_data:
         # Convertir la date de naissance de chaîne à objet date
-        date_naissance = datetime.fromisoformat(etudiant_data['Date_naiss_etudiant']) if etudiant_data['Date_naiss_etudiant'] else None
+        date_naissance = datetime.strptime(etudiant_data['Date_naiss_etudiant'], '%Y-%m-%d')
         photo = request.FILES.get('photo')  # Si vous utilisez un champ fichier dans le formulaire
         bourse_type = etudiant_data.get('bourse_type')
       
@@ -455,6 +461,8 @@ def creer_note(request):
 def liste_etudiants_par_classe(request, filiere_id, niveau):
     etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
     modules = Cours_Module.objects.filter(filiere_id=filiere_id)
+    filiere = Filiere.objects.get(Id_filiere=filiere_id)  # Récupération de la filière
+    
     
 
 
@@ -463,6 +471,7 @@ def liste_etudiants_par_classe(request, filiere_id, niveau):
         'filiere_id': filiere_id,
         'niveau': niveau,
         'modules': modules,
+        'nom_filiere': filiere.nom_filiere,  # Ajout du nom de la filière
         
 
     }
@@ -595,19 +604,73 @@ def voir_notes(request, filiere_id, niveau):
     else:
         return redirect('admin_dashboard')
 
+from io import BytesIO  # Importer BytesIO du module io
 
-@login_required(login_url='login')
+from django.shortcuts import render
+from django.http import HttpResponse
+from io import BytesIO
+import pandas as pd
+from .forms import UploadFileForm
+from .models import UploadedFile
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from django.contrib.auth.decorators import login_required
+
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+            # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
+            uploaded_file_instance = UploadedFile(file=uploaded_file)
+            uploaded_file_instance.save()
 
-            # Vérifier si le fichier est bien un PDF
-            if not uploaded_file.name.endswith('.pdf'):
-                messages.error(request, "Veuillez télécharger un fichier PDF valide.")
-                return redirect('upload_file')
+            # Lire le fichier Excel téléchargé
+            df = pd.read_excel(uploaded_file)
 
+            # Remplacer les NaN par des chaînes vides
+            df.fillna('', inplace=True)
+
+            # Créer un buffer pour sauvegarder le PDF
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+            # Préparer les données pour le tableau
+            data = [df.columns.to_list()] + df.values.tolist()
+
+            # Créer le tableau
+            table = Table(data)
+
+            # Appliquer un style au tableau
+            style = TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ])
+            table.setStyle(style) # Construire le PDF
+            elements = []
+            elements.append(table)
+            doc.build(elements)
+
+            # Créer un chemin pour sauvegarder le PDF
+            pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
+
+            # Sauvegarder le contenu PDF dans le fichier
+            with open(pdf_file_path, 'wb') as f:
+                f.write(buffer.getvalue())
+
+            # Créer une nouvelle instance de UploadedFile pour le PDF
+            pdf_uploaded_file_instance = UploadedFile(file=pdf_file_path)
+            pdf_uploaded_file_instance.save()
+
+            # Optionnel : rediriger vers une page de succès ou afficher un message
+            return redirect('list_uploaded_files')  # Remplacez par le nom de votre vue
             # Sauvegarder le fichier directement dans le modèle UploadedFile
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
@@ -616,7 +679,6 @@ def upload_file(request):
             return redirect('list_uploaded_files')  # Redirigez vers une page listant les fichiers
     else:
         form = UploadFileForm()
-
 
     return render(request, 'Administration/upload.html', {'form': form})
 

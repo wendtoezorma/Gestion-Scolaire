@@ -26,7 +26,7 @@
       {% for file in files %}
         <tr>
           <td>{{ forloop.counter }}</td>
-          <td><a href="{% url 'display' file.id %}">{{ file.file.name }}</a></td>
+          <td><a href="{% url 'display_table' file.id %}">{{ file.file.name }}</a></td>
           <td>{{ file.uploaded_at }}</td>
           <td>
             <a href="{% url 'delete_file' file.id %}">Supprimer</a>
