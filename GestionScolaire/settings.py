@@ -1,3 +1,4 @@
+
 """
 Django settings for GestionnaireScolaire project.
 
@@ -32,8 +33,8 @@ TEMPLATES_DIRS=os.path.join(BASE_DIR,"templates")
 SECRET_KEY = 'django-insecupyoluyiujtrre-0-ofzo)haefmy*4kjfhdsfcg!;9t#yjd#o)3bz9targmy7%ljn5woz0!zjd*o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ["Geststudents.pythonanywhere.com"]
+DEBUG = True
+ALLOWED_HOSTS = ["geststudents.pythonanywhere.com"]
 
 
 # Application definition
@@ -177,7 +178,7 @@ LOGGING = {
     },
 
 }
-DEBUG = False
+DEBUG = True
 
 AUTHENTICATION_BACKENDS = [
 
@@ -187,7 +188,8 @@ AUTHENTICATION_BACKENDS = [
 
 ################ pour le telechargement des fichiers ###########
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/home/Geststudents/Gestion-Scolaire/media/'
 
 
 
@@ -200,3 +202,14 @@ LOGOUT_REDIRECT_URL = ('login')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_NAME = 'sessionid'
+
+# Configuration Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Utilisation de Redis comme broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilisation de Redis comme backend pour les résultats
+
+# Optionnel, configurer un préfixe pour les files d'attente
+CELERY_DEFAULT_QUEUE = 'default'
+
+

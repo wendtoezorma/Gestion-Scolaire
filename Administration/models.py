@@ -34,7 +34,7 @@ class Filiere(models.Model):
 
     def __str__(self):
         return self.nom_filiere
-    
+
 
 ########## La table des professeurs ###########
 class professeurs(models.Model):
@@ -61,43 +61,43 @@ class professeurs(models.Model):
         ordering = ['-date_ajout']
         verbose_name = "professeur"
         verbose_name_plural = "professeurs"
-    
+
 
     def __str__(self):
         if (self.niveau_prof=="Lamda" or self.niveau_prof=="Vacataire"):
             self.niveau_prof="Mr"
-            
+
         elif (self.niveau_prof=="Docteur"):
             self.niveau_prof="Dr"
-            
+
         elif (self.niveau_prof=="Professeur"):
             self.niveau_prof="Pr"
-            
+
         elif (self.niveau_prof=="Professeur"):
             self.niveau_prof="Ing"
-            
+
         return f"{self.niveau_prof}.{self.nom_prof} {self.prenom_prof}"
-    
-    
+
+
     def save(self, *args, **kwargs):
         # Hacher le mot de passe avant d'enregistrer l'objet, mais ne pas mettre à jour password_updated ici
         if self.pk is None and self.mdp_prof:
             self.mdp_prof = make_password(self.mdp_prof)
         super().save(*args, **kwargs)
-    
-    
-    
+
+
+
 
     def set_password(self, password):
         self.mdp_prof = make_password(password)
 
     def check_password(self, password):
         return check_password(password, self.mdp_prof)
-    
+
     def get_nom_prof(self):
         """Méthode pour obtenir le nom complet du professeur."""
         return self.__str__()
-    
+
 
 class Boursier(models.Model):
     TYPE_CHOICES = [
@@ -107,20 +107,20 @@ class Boursier(models.Model):
         ('boursier_particulier_75', 'Boursier Particulier 75%'),
     ]
     type_bourse = models.CharField(max_length=50, choices=TYPE_CHOICES, default='non_boursier')
-    reduction = models.FloatField(default=0.0) 
+    reduction = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.type_bourse
 from django.core.validators import MinLengthValidator
 import re
-from .gestion_scolarite import calculate_total 
+from .gestion_scolarite import calculate_total
 from django.core.exceptions import ValidationError
 def validate_password_special_char(value):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', value):
         raise ValidationError(
             "Le mot de passe doit contenir au moins un caractère spécial : !@#$%^&*(),.?\":{}|<>"
         )
-    
+
 import string
 import random
 
@@ -136,7 +136,7 @@ class Etudiant(models.Model):
     prenom_etudiant = models.CharField(max_length=270)
     email_etudiant = models.EmailField(unique=True)
     telephone_etudiant = models.CharField(max_length=200)
-    
+
     choix_sexe = [
         ('Selectionner', "Selectionner"),
         ('Masculin', "Masculin"),
@@ -173,7 +173,7 @@ class Etudiant(models.Model):
         max_length=25,
         choices=[
             ('BACCALAUREAT SERIE A1', 'BACCALAUREAT SERIE A1'),
-            ('BACCALAUREAT SERIE A2', 'BACCALAUREAT SERIE A2'),
+            ('BACCALAUREAT SERIE A4', 'BACCALAUREAT SERIE A4'),
             ('BACCALAUREAT SERIE C', 'BACCALAUREAT SERIE C'),
             ('BACCALAUREAT SERIE D', 'BACCALAUREAT SERIE D'),
             ('BACCALAUREAT SERIE E', 'BACCALAUREAT SERIE E'),
@@ -182,33 +182,33 @@ class Etudiant(models.Model):
         ],
         default='BACCALAUREAT SERIE D'
     )
-    
+
     # Nouveau champ pour la photo de l'étudiant
     photo = models.ImageField(upload_to='photos/', null=True, blank=True)
-    
-     
+
+
     class Meta:
         ordering = ['nom_etudiant']
         verbose_name = "Etudiant"
         verbose_name_plural = "Etudiants"
-      
-    
+
+
     def __str__(self):
         return f"{self.nom_etudiant} {self.prenom_etudiant} || {self.filiere} || {self.niveau_etudiant}"
-    
+
     def save(self, *args, **kwargs):
         # Générer un mot de passe aléatoire si le champ est vide
         if not self.mdp_etudiant:
             self.mdp_etudiant = generate_random_password(8)  # Spécifiez la longueur souhaitée ici
         super().save(*args, **kwargs)  # Appeler la méthode save du parent
-    
-    
+
+
     def set_password(self, raw_password):
         self.mdp_etudiant = make_password(raw_password)
         self.password_updated = True
         self.save()
-    
-        
+
+
     def set_password1(self, raw_password):
         self.mdp_etudiant = make_password(raw_password)
         self.save()
@@ -216,13 +216,13 @@ class Etudiant(models.Model):
 
     def check_password(self, raw_password):
         return check_password(raw_password, self.mdp_etudiant)
-    
+
     def get_filiere_display(self):
         if self.filiere:
             return self.filiere.nom_filiere
         return "Non spécifié"
- 
-    
+
+
 class Cours_Module(models.Model):
     Id_module = models.AutoField(primary_key=True)
     nom_module = models.CharField(max_length=250)
@@ -265,7 +265,7 @@ class Cours_Module(models.Model):
         return self.nom_module
 
 
-    
+
 
 class Notes(models.Model):
     Id_note = models.AutoField(primary_key=True)
@@ -279,11 +279,11 @@ class Notes(models.Model):
         ordering = ['matiere_module']
         verbose_name = "Note"
         verbose_name_plural = "Notes"
-        
+
     def save(self, *args, **kwargs):
         self.moyenne = (self.Note1 + self.Note2) / 2
         super(Notes, self).save(*args, **kwargs)
-        
+
 
     def __str__(self):
         return f"{self.etudiant.nom_etudiant} - {self.matiere_module.nom_module} - Moyenne: {self.moyenne}"
@@ -313,8 +313,8 @@ class Administration(AbstractBaseUser, PermissionsMixin):
     ]
     sexe = models.CharField(max_length=12, choices=choix_sexe, default='SELECTIONNER')
     date_ajout = models.DateField(auto_now=True)
-    is_active = models.BooleanField(default=True)#actif automatiquement 
-    is_staff = models.BooleanField(default=False)# par defaut il n'est pas admin 
+    is_active = models.BooleanField(default=True)#actif automatiquement
+    is_staff = models.BooleanField(default=False)# par defaut il n'est pas admin
     #mot_de_passe = models.CharField(max_length=500, blank=True)
     groups = models.ManyToManyField(
         'auth.Group',
@@ -342,8 +342,8 @@ class Administration(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.nom
-    
-    
+
+
 
     @staticmethod
     def create_superuser(email, password=None, **extra_fields):
@@ -358,7 +358,7 @@ class Administration(AbstractBaseUser, PermissionsMixin):
 
 
 
-############# On crée à ce niveau une classe pour prof et filiere ######### 
+############# On crée à ce niveau une classe pour prof et filiere #########
 class Enseignement(models.Model):
     professeur=models.ForeignKey(professeurs,related_name='prof',on_delete=models.CASCADE)
     module_enseigner = models.ForeignKey(Cours_Module,related_name='coursenseigner',on_delete=models.CASCADE)
@@ -370,32 +370,32 @@ class Enseignement(models.Model):
         ordering = ['date_ajout']
         verbose_name = "Enseignement"
         verbose_name_plural = "Enseignements"
-    
+
     def __str__(self):
         return self.professeur.nom_prof
-    
+
 ######### La table pour la gestion de scolarité #########
 class Scolarite(models.Model):
     Id_scolarite = models.AutoField(primary_key=True)
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='scolarite', null=True)
-    annee_academique = models.CharField(max_length=20, default='2023/2024') 
+    annee_academique = models.CharField(max_length=20, default='2023/2024')
     tranche_1 = models.FloatField(default=0)
     tranche_2 = models.FloatField(default=0)
     tranche_3 = models.FloatField(default=0)
     total = models.FloatField(default=0, editable=False)
     Montant_restant = models.FloatField(editable=False, default=0.0)
     montant_total_verse = models.FloatField(editable=False, default=0.0)
-    
+
     date_payement = models.DateField(auto_now=True)
 
     class Meta:
         ordering = ['-date_payement']
         verbose_name = "Scolarite"
         verbose_name_plural = "Scolarite"
-    
+
     #####Importons la bibliothèque qui gère la scolarité en fonction de la filiere et du niveau d'étude
-        
-    from .gestion_scolarite import calculate_total    
+
+    from .gestion_scolarite import calculate_total
     def save(self, *args, **kwargs):
         self.total = self.calculate_total()
         self.montant_total_verse=(self.tranche_1 + self.tranche_2 + self.tranche_3)
@@ -405,11 +405,11 @@ class Scolarite(models.Model):
 
     def __str__(self):
         return f"Payement de {self.etudiant.nom_etudiant} {self.etudiant.prenom_etudiant} {self.etudiant.filiere} {self.etudiant.niveau_etudiant}"
-    
+
     @classmethod
     def get_totaux(cls):
         return cls.objects.aggregate(total_sum=models.Sum('total'))['total_sum'] or 0
-    
+
 
 
 class Emploi(models.Model):
@@ -436,7 +436,7 @@ class UploadedFile(models.Model):
     def __str__(self):
         return self.file.name
 
-        
+
 ############################## Les TD COURS ET ANCIENS SUJETS #################
 
 class CoursFichier(models.Model):
@@ -471,8 +471,8 @@ class CoursFichier(models.Model):
         ('Devoir 2', "Devoir 2"),
         ('Devoir Session ', "Devoir Session"),
     ], default='Selectionner')
-    
-    class Meta: 
+
+    class Meta:
         ordering = ['date_ajout']
         verbose_name = "Cours Fichier"
         verbose_name_plural = "Cours Fichiers"
@@ -488,7 +488,7 @@ class Infos(models.Model):
     message=models.TextField(max_length=100000)
     contenu=models.FileField(upload_to="infos/",blank=True)
     date_creation=models.DateField(auto_now=True)
-    class Meta: 
+    class Meta:
         ordering = ['date_creation']
         verbose_name = "info"
         verbose_name_plural = "infos"

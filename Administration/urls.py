@@ -24,7 +24,7 @@ urlpatterns = [
     
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('upload_file', upload_file, name='upload_file'),
-    path('display_table/<int:file_id>/', display_table, name='display'),
+    path('display_table/<int:file_id>/', display_table, name='display-table'),
 
     path('files/', list_uploaded_files, name='list_uploaded_files'),
     path('delete/<int:file_id>/', delete_file, name='delete_file'),
