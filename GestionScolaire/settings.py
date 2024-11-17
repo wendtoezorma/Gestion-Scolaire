@@ -1,3 +1,4 @@
+
 """
 Django settings for GestionnaireScolaire project.
 
@@ -33,7 +34,7 @@ SECRET_KEY = 'django-insecupyoluyiujtrre-0-ofzo)haefmy*4kjfhdsfcg!;9t#yjd#o)3bz9
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ["geststudents.pythonanywhere.com"]
 
 
 # Application definition
@@ -129,13 +130,12 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-      BASE_DIR / "static",
-    
-]
+      BASE_DIR / "static-files",
 
+]
 
 
 # Default primary key field type
@@ -181,14 +181,15 @@ LOGGING = {
 DEBUG = True
 
 AUTHENTICATION_BACKENDS = [
-    
+
     'Administration.backends.AdministrationBackend',  # Pour les utilisateurs lambda
     'django.contrib.auth.backends.ModelBackend',  # Pour les superutilisateurs
 ]
 
 ################ pour le telechargement des fichiers ###########
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/home/Geststudents/Gestion-Scolaire/media/'
 
 
 
@@ -210,4 +211,5 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilisation de Redis comme
 
 # Optionnel, configurer un préfixe pour les files d'attente
 CELERY_DEFAULT_QUEUE = 'default'
+
 
