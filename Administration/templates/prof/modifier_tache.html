@@ -1,0 +1,11 @@
+{%extends 'prof/baseprof.html'%}
+
+{% block profcontent %}
+<h2>Modifier la tâche</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+</form>
+<a href="{% url 'prof_dashboard' %}" class="btn btn-secondary mt-2">Retour</a>
+{% endblock %}

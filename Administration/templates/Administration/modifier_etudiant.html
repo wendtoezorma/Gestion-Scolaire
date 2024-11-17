@@ -1,0 +1,68 @@
+{% extends "Administration/base.html" %}
+
+{% block title %}Modifier l'étudiant - {{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Styles globaux */
+    body {
+        min-height: 100vh;
+        overflow-x: hidden;
+        background-color: var(--white);
+        font-family: Arial, sans-serif; /* Police générale pour la lisibilité */
+    }
+
+    .container {
+        max-width: 10000px; /* Limite la largeur du conteneur */
+        margin: 20px auto; /* Centre le conteneur avec un espace en haut et en bas */
+        padding: 20px; /* Espace intérieur pour le contenu */
+        background-color: var(--white); /* Couleur de fond blanche */
+        border-radius: 10px; /* Coins arrondis */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Ombre légère pour donner du relief */
+        text-align: center
+    }
+    
+    h1 {
+        color: var(--blue); /* Couleur de texte bleue */
+        text-align: center; /* Centre le texte */
+        margin-bottom: 20px; /* Espace sous le titre */
+        font-size: 1.5rem; /* Taille de police */
+    }
+    
+    form {
+        display: flex; /* Utilise flexbox pour une mise en page flexible */
+        flex-direction: column; /* Aligne les éléments verticalement */
+    }
+    
+    form input,
+    form select,
+    form button {
+        margin-bottom: 10px; /* Espace entre les éléments du formulaire */
+        padding: 5px; /* Espace intérieur pour les champs */
+        border: 1px solid var(--blue); /* Bordure grise */
+        border-radius: 20px; /* Coins arrondis pour les champs */
+        font-size: 1rem; /* Taille de police */
+    }
+    
+    form button {
+        background-color: var(--blue); /* Couleur de fond bleue pour le bouton */
+        color: var(--white); /* Couleur de texte blanche */
+        cursor: pointer; /* Change le curseur sur hover */
+        transition: background-color 0.3s; /* Transition douce pour le changement de couleur */
+    }
+    
+    form button:hover {
+        background-color: darken(var(--blue), 10%); /* Assombrit la couleur au survol */
+    }
+</style>
+<h1>Modifier les informations de {{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }}</h1>
+<div class="container">
+   
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+    </form>
+</div>
+{% endblock %}

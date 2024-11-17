@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{% block title %}Enseignants Dashboard{% endblock %}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="shortcut icon" href="{% static 'Administration/prof/assetsPROF/img/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/vendors.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/style.css' %}" />
+    
+    <!-- jQuery et Bootstrap JS pour faire fonctionner le menu hamburger -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    {% block styles %}
+    {% endblock %}
+    
+    {% block extra_css %}
+    {% if not block.super %}
+    {% endif %}
+    {% endblock %}
+
+    <!-- Ajout du CSS pour le loader -->
+    <style>
+        
+        /* Loader styles */
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fixer l'en-tête */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #fff; /* Fond blanc pour l'en-tête */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Espacer le contenu sous l'en-tête */
+        .app-main {
+            margin-top: 70px; /* Ajuste selon la hauteur de ton en-tête */
+        }
+
+        /* Ajustement du menu hamburger */
+        .navbar-toggler-icon {
+            background-color: #000; /* Changer la couleur du bouton hamburger */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader Wrapper -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <div class="app">
+        <div class="app-wrap">
+            <!-- Header -->
+            <header class="app-header top-bar">
+                <nav class="navbar navbar-expand-md">
+                    <div class="navbar-header">
+                        <!-- <a class="navbar-brand" href="index.html">
+                            <img src="{% static 'Administration/prof/assetsPROF/img/logo.png' %}" class="img-fluid logo-desktop" alt="logo" />
+                            <img src="{% static 'Administration/prof/assetsPROF/img/logo-icon.png' %}" class="img-fluid logo-mobile" alt="logo" />
+                        </a>
+                         Bouton hamburger -->
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Notifications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Messages</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="ti-user"></i> Profil
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="#">Paramètres</a>
+                                    <a class="dropdown-item" href="#">Déconnexion</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+            
+            <!-- Sidebar -->
+            <aside class="app-navbar">
+                <div class="sidebar-nav scrollbar scroll_light">
+                    <ul class="metismenu" id="sidebarNav">
+                        <li class="nav-static-title">Menu</li>
+                        <li class="active">
+                            <a class="has-arrow" href="{% url 'prof_dashboard' %}" aria-expanded="false">
+                                <i class="nav-icon ti ti-rocket"></i>
+                                <span class="nav-title">Dashboards</span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'voir_notes' %}">
+                                <span class="icon fas fa-clipboard-list"></span>
+                                <span class="title">Notes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'upload_cours_prof' %}">
+                                <span class="icon fas fa-upload"></span>
+                                <span class="title">Enregistrer cours et TD</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'cours_list_prof' %}">
+                                <span class="icon fas fa-book"></span>
+                                <span class="title">Cours</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'list_uploaded_files_prof' %}">
+                                <span class="icon fas fa-calendar-alt"></span>
+                                <span class="title">Emplois du temps Semaine</span>
+                            </a>
+                        </li>   
+                        <li>
+                            <a href="{% url 'logout_prof' %}">
+                                <span class="icon fas fa-calendar-alt"></span>
+                                <span class="title">Deconnexion</span>
+                            </a>
+                        </li>         
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="app-main" id="main">
+                {% block profcontent %} {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'Administration/prof/assetsPROF/js/vendors.js' %}"></script>
+    <script src="{% static 'Administration/prof/assetsPROF/js/app.js' %}"></script>
+    
+
+    <!-- Script pour enlever le loader après que la page est complètement chargée -->
+    <script>
+        window.addEventListener('load', function() {
+            document.getElementById('loader').style.display = 'none';
+
+        });
+        
+            window.addEventListener('load', function () {
+                // Attendre 5 secondes avant de cacher le loader
+                setTimeout(function () {
+                    document.getElementById('loader').style.display = 'none';
+                }, 5000); // 5000 ms = 5 secondes
+            });
+
+
+    </script>
+</body>
+
+</html>

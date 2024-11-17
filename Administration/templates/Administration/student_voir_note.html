@@ -1,0 +1,122 @@
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note Etudiant</title>
+</head>
+<body>
+    
+
+<h2>Bienvenue, {{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }}</h2>
+<h3>Voir mes moyennes</h3>
+<h2>Bienvenue, {{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }}</h2>
+<h3>Voir mes notes et moyennes</h3>
+
+<!-- Afficher un message d'erreur si présent -->
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<!-- Formulaire pour choisir le module -->
+<form method="post">
+    {% csrf_token %}
+    <label for="module">Sélectionnez un module :</label>
+    <select name="module_id" id="module">
+        <!-- Parcours toutes les notes de l'étudiant pour lister les modules -->
+        {% for note in notes %}
+        <option value="{{ note.matiere_module.id }}">{{ note.matiere_module.nom_module }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Voir la note</button>
+</form>
+
+{% if selected_module %}
+    <h3>Notes pour {{ selected_module.nom_module }}</h3>
+    <p>Nom du professeur : {{ enseignement.professeur.nom_prof }} {{ enseignement.professeur.prenom_prof }}</p>
+    <p>Note 1 : {{ note.Note1 }}</p>
+    <p>Note 2 : {{ note.Note2 }}</p>
+    <p>Moyenne : {{ note.moyenne }}</p>
+{% endif %}
+
+</body>
+</html>
+Pour addnote 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter des notes</title>
+</head>
+<body>
+    <h1>Ajouter des notes pour le module {{ module.nom_module }}</h1>
+    <h2>Module: {{ module.nom_module }} <br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="module_id" value="{{ module.Id_module }}">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Note 1</th>
+                    <th>Note 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        <td>
+                            <input type="hidden" name="etudiant_id" value="{{ etudiant.matricule }}">
+                            <input type="number" name="note1" step="0.01" required>
+                        </td>
+                        <td><input type="number" name="note2" step="0.01" required></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Enregistrer les notes</button>
+    </form>
+</body>
+</html>
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter des notes</title>
+</head>
+<body>
+    <h1>Ajouter des notes</h1>
+    <h2>Module: {{ module.nom_module }} - Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Note 1</th>
+                    <th>Note 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        <td><input type="number" name="note1_{{ etudiant.id }}" step="0.01" required></td>
+                        <td><input type="number" name="note2_{{ etudiant.id }}" step="0.01" required></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Enregistrer les notes</button>
+    </form>
+</body>
+</html>
+
+-->

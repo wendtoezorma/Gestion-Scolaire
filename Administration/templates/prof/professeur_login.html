@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <title>Enseignants Connexion</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Page de connexion pour les enseignants" />
+    <meta name="author" content="" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'Administration/prof/assetsPROF/img/favicon.ico' %}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <!-- Plugin stylesheets -->
+    <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/vendors.css' %}" />
+    <!-- App style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/style.css' %}" />
+    <style>
+        .input-container {
+    display: flex;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 25px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+.icon {
+    margin-right: 10px;
+    color: #808080;
+}
+input {
+    border: none;
+    background: none;
+    flex: 1;
+    outline: none;
+}
+.btn-login {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+
+    </style>
+</head>
+
+<body class="bg-white">
+    <div class="app">
+        <div class="app-wrap">
+            <!-- Start login content -->
+            <div class="app-contant">
+                <div class="bg-white">
+                    <div class="container-fluid p-0">
+                        <div class="row no-gutters">
+                            <div class="col-sm-6 col-lg-5 col-xxl-3 align-self-center order-2 order-sm-1">
+                                <div class="d-flex align-items-center h-100-vh">
+                                    <div class="login p-50">
+                                        <h1 class="mb-2">Connexion Professeur</h1>
+                                        
+
+                                        <!-- Formulaire de connexion -->
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            
+                                            <div class="input-container">
+                                                <span class="icon">&#9993;</span>
+                                                {{ form.email_prof }}
+                                            </div>
+                                            <div class="input-container">
+                                                <span class="icon">&#128274;</span>
+                                                {{ form.mdp_prof }}
+                                            </div>
+                                            
+                                            <button type="submit">Se connecter</button>
+                                        </form>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xxl-9 col-lg-7 bg-gradient o-hidden order-1 order-sm-2">
+                                <div class="row align-items-center h-100">
+                                    <div class="col-7 mx-auto">
+                                        <img class="img-fluid" src="{% static 'Administration/prof/assetsPROF/img/bg/login.svg' %}" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End login content -->
+        </div>
+    </div>
+
+    <!-- Plugins -->
+    <script src="{% static 'Administration/prof/assetsPROF/js/vendors.js' %}"></script>
+
+    <!-- Custom app -->
+    <script src="{% static 'Administration/prof/assetsPROF/js/app.js' %}"></script>
+</body>
+
+</html>
