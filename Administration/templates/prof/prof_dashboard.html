@@ -2,75 +2,100 @@
 {% block title %}Tableau de bord du professeur{% endblock %}
 
 {% block profcontent %}
-<div class="container">
-    <h1 style="text-align: center;">Tableau de bord du professeur</h1>
-    
-    <div class="dashboard">
-        <div class="card">
-            <h2>Mes Cours</h2>
-            <ul>
-                {% for cours in mes_cours %}
-                <li>{{ cours.nom }}</li>
-                {% endfor %}
-            </ul>
+<div class="container-fluid mt-4">
+    <!-- Section principale -->
+    <div class="row">
+        <!-- Calendrier des événements -->
+        <div class="col-lg-9 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Calendrier des événements</h5>
+                </div>
+                <div class="card-body">
+                    <div id="event-calendar" class="event-calendar"></div>
+                </div>
+            </div>
         </div>
-
-        <div class="card">
-            <h2>Notifications</h2>
-            <ul>
-                {% for notification in notifications %}
-                <li>{{ notification }}</li>
-                {% endfor %}
-            </ul>
+        <!-- Liste des tâches -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">To-Do List</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group" id="taches-list">
+                        {% for tache in taches %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ tache.titre }}</span>
+                                <span class="badge {% if tache.statut == 'en_attente' %}badge-primary{% elif tache.statut == 'terminee' %}badge-success{% else %}badge-danger{% endif %}">
+                                    {{ tache.get_statut_display }}
+                                </span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">Aucune tâche à afficher.</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'ajouter_tache' %}" class="btn btn-sm btn-primary">Ajouter une tâche</a>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="card">
-            <h2>Statistiques</h2>
-            <p>Moyenne des notes : {{ moyenne_notes }}</p>
-            <p>Taux de participation : {{ taux_participation }}%</p>
-        </div>
-
-        <div class="card">
-            <h2>Calendrier</h2>
-            <p>Prochain événement : {{ prochain_evenement }}</p>
-        </div>
+        
     </div>
 </div>
 
 <style>
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.card {
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-
-.card ul {
-    list-style: none;
-    padding: 0;
-}
-
-.card ul li {
-    margin-bottom: 5px;
-}
-
+    /* Personnalisation générale */
+    .card {
+        border-radius: 0.75rem;
+    }
+    .card-header {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+    .list-group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #event-calendar {
+        min-height: 300px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Page chargée. Affichage des tâches.");
+        
+        // Appel AJAX pour récupérer les tâches
+        fetch('/enseignant/api/get_taches/')
+
+            .then(response => response.json())
+            .then(data => {
+                const tachesList = document.getElementById('taches-list');
+                tachesList.innerHTML = ''; // Effacer la liste actuelle
+
+                // Ajouter les tâches récupérées à la liste
+                data.taches.forEach(tache => {
+                    const li = document.createElement('li');
+                    li.classList.add('list-group-item');
+                    li.innerHTML = `
+                        <span>${tache.titre}</span>
+                        <span class="badge ${tache.statut === 'en_attente' ? 'badge-primary' : tache.statut === 'terminee' ? 'badge-success' : 'badge-danger'}">
+                            ${tache.statut}
+                        </span>
+                    `;
+                    tachesList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error("Erreur lors de la récupération des tâches:", error);
+            });
+    });
+</script>
+
 {% endblock profcontent %}

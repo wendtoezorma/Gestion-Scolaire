@@ -147,7 +147,7 @@ def admin_dashboard (request):
 
 
 def generate_random_password(length=8):
-    characters = string.ascii_letters + string.digits + string.punctuation
+    characters = string.ascii_letters + string.digits #+ string.punctuation
     return ''.join(random.choice(characters) for _ in range(length))
  # Assurez-vous que cette fonction est bien définie
 from django.utils import timezone  # Ajoutez ceci pour la gestion des dates
@@ -444,8 +444,8 @@ def creer_note(request):
 
         for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
             # Traiter les valeurs vides pour les notes
-            note1 = float(note1) if note1 else None
-            note2 = float(note2) if note2 else None
+            note1 = float(note1) if note1 else 0.0
+            note2 = float(note2) if note2 else 0.0
 
             note, created = Notes.objects.update_or_create(
                 etudiant_id=etudiant_id,
@@ -622,6 +622,11 @@ def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+
+            uploaded_file = form.cleaned_data['file']
+            uploaded_file_instance = UploadedFile(file=uploaded_file)
+            uploaded_file_instance.save()
+
             # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
             uploaded_file_instance = UploadedFile(file=uploaded_file)
@@ -661,19 +666,29 @@ def upload_file(request):
             # Créer un chemin pour sauvegarder le PDF
             pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
 
+              # Créer un fichier temporaire pour sauvegarder le PDF dans le système
+            pdf_file_name = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
+            pdf_file_path = os.path.join(settings.MEDIA_ROOT, pdf_file_name)
+
             # Sauvegarder le contenu PDF dans le fichier
             with open(pdf_file_path, 'wb') as f:
                 f.write(buffer.getvalue())
+
+            # Sauvegarder le contenu PDF dans le fichier
+            with open(pdf_file_path, 'wb') as f:
+                f.write(buffer.getvalue())
+           
 
             # Créer une nouvelle instance de UploadedFile pour le PDF
             pdf_uploaded_file_instance = UploadedFile(file=pdf_file_path)
             pdf_uploaded_file_instance.save()
 
+
+            messages.success(request, "Le fichier PDF a été téléchargé avec succès.")
             # Optionnel : rediriger vers une page de succès ou afficher un message
             return redirect('list_uploaded_files')  # Remplacez par le nom de votre vue
             # Sauvegarder le fichier directement dans le modèle UploadedFile
-            uploaded_file_instance = UploadedFile(file=uploaded_file)
-            uploaded_file_instance.save()
+            
 
             messages.success(request, "Le fichier PDF a été téléchargé avec succès.")
             return redirect('list_uploaded_files')  # Redirigez vers une page listant les fichiers
@@ -685,7 +700,8 @@ def upload_file(request):
 
 @login_required(login_url='login')
 def list_uploaded_files(request):
-    files = UploadedFile.objects.all().order_by('-uploaded_at')
+    #files = UploadedFile.objects.all().order_by('-uploaded_at')
+    files = UploadedFile.objects.exclude(file__endswith='.pdf').order_by('-uploaded_at')
     return render(request, 'Administration/list_files.html', {'files': files})
 
 #supprimer un fichier de la bd
@@ -696,18 +712,70 @@ def delete_file(request, file_id):
     file.delete()
     messages.success(request, 'Fichier supprimé avec succès.')
     return redirect('list_uploaded_files')
+import pandas as pd
+from django.shortcuts import get_object_or_404, render
+from PyPDF2 import PdfReader
+import os
+from django.conf import settings
 
-def display_table(request,file_id):
+def display_table(request, file_id):
+    # Récupérer l'objet UploadedFile à partir de l'ID du fichier
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
-    #file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_excel.xlsx')
     file_path = uploaded_file.file.path
-    df = pd.read_excel(file_path)
 
-    # Convert DataFrame to HTML table
-    table_html = df.to_html(index=False)
+    # Vérifier l'extension du fichier
+    file_extension = os.path.splitext(uploaded_file.file.name)[1].lower()
 
-    return render(request, 'Administration/display_table.html', {'table_html': table_html})
- ### tous ece qui concerne le mdp oublier 
+    if file_extension == '.pdf':
+        # Si le fichier est un PDF, l'ouvrir et afficher le contenu
+        try:
+            with open(file_path, 'rb') as file:
+                reader = PdfReader(file)
+                text = ""
+                for page in reader.pages:
+                    text += page.extract_text()  # Extraire le texte du PDF
+            #return render(request, 'Administration/display_pdf.html', {'pdf_text': text})
+            return redirect(reverse('display_pdf', args=[file_id]))
+        except Exception as e:
+            return render(request, 'Administration/error.html', {'message': 'Erreur lors de l\'ouverture du PDF', 'error': str(e)})
+
+    elif file_extension in ['.xls', '.xlsx']:
+        # Si le fichier est un Excel, le lire avec pandas et afficher sous forme de table HTML
+        try:
+            df = pd.read_excel(file_path, engine='openpyxl')  # Utiliser openpyxl pour les fichiers .xlsx
+            table_html = df.to_html(index=False)  # Convertir le DataFrame en HTML
+            return render(request, 'Administration/display_table.html', {'table_html': table_html})
+        except Exception as e:
+            return render(request, 'Administration/error.html', {'message': 'Erreur lors de l\'ouverture du fichier Excel', 'error': str(e)})
+
+    else:
+        return render(request, 'Administration/error.html', {'message': 'Format de fichier non supporté.'})
+
+from PyPDF2 import PdfReader
+from django.shortcuts import render
+
+def display_pdf(request, file_id):
+       # Récupérer le fichier PDF à partir de la base de données
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+
+    # Chemin du fichier PDF
+    file_path = uploaded_file.file.path
+
+    # Extraire le texte du PDF
+    with open(file_path, 'rb') as file:
+        reader = PdfReader(file)
+        pdf_text = ""
+        for page in reader.pages:
+            # Combine le texte extrait de chaque page
+            pdf_text += page.extract_text()
+
+    # Diviser le texte en lignes
+    rows = pdf_text.strip().split("\n")
+
+    # Transformer chaque ligne en colonnes (en supposant des séparateurs comme espaces ou tabulations)
+    table_data = [row.split() for row in rows if row.strip()]  # Ignorer les lignes vides
+
+    return render(request, 'Administration/display_pdf.html', {'table_data': table_data})
 
 
 
@@ -1122,21 +1190,26 @@ def demander_matricule(request):
         return redirect('profil_etudiant_cursus', matricule=matricule)
     return render(request, 'Administration/demander_matricule.html')
 
+from django.shortcuts import render, get_object_or_404
+from .models import Etudiant, Notes, Cours_Module, professeurs
 
 def profil_etudiant(request, matricule):
     # Récupérer l'étudiant via son matricule
     etudiant = get_object_or_404(Etudiant, matricule=matricule)
     
-    # Récupérer les notes de l'étudiant pour l'année académique donnée
+    # Récupérer l'année académique de l'étudiant
     annee_academique = etudiant.annee_academique_etudiant
-    notes = Notes.objects.filter(etudiant=etudiant, matiere_module__filiere=etudiant.filiere, matiere_module__niveau=etudiant.niveau_etudiant)
-
-    # Récupérer les modules que l'étudiant a suivis
+    
+    # Récupérer toutes les notes de l'étudiant, indépendamment des modules suivis avant ou après son inscription
+    notes = Notes.objects.filter(etudiant=etudiant)
+    
+    # Récupérer tous les modules pour la filière et le niveau de l'étudiant
     cours_modules = Cours_Module.objects.filter(filiere=etudiant.filiere, niveau=etudiant.niveau_etudiant)
-
-    # Récupérer les enseignants de l'étudiant pour les cours qu'il a eus
+    
+    # Récupérer tous les enseignants pour les modules que l'étudiant a suivis
     enseignants = professeurs.objects.filter(modules__in=cours_modules)
-
+    # Pour chaque note, récupérer les enseignants associés au module
+   
     context = {
         'etudiant': etudiant,
         'notes': notes,
@@ -1145,7 +1218,8 @@ def profil_etudiant(request, matricule):
         'annee_academique': annee_academique
     }
 
-    return render(request, 'Administration/profil_etudiant.html', context) 
+    return render(request, 'Administration/profil_etudiant.html', context)
+
 
 
 def reinscription_etudiant(request):

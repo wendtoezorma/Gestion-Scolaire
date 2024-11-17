@@ -29,7 +29,28 @@ def connexion_Prof(request):
 
 @professeur_login_required
 def Professeur_dashboard(request):
-    return render(request, 'prof/prof_dashboard.html')
+    #taches = Tache.objects.all()
+    #taches = Tache.objects.filter(professeur=request.user.professeur)
+     # Vérifiez si l'utilisateur est authentifié via la session
+    if 'professeur_id' in request.session:
+        professeur_id = request.session['professeur_id']
+        
+        # Récupérer le professeur en utilisant l'ID de la session
+        try:
+            professeur = professeurs.objects.get(Id_prof=professeur_id)
+            
+            # Filtrer les tâches associées à ce professeur
+            taches = Tache.objects.filter(professeur=professeur)
+            
+        except professeurs.DoesNotExist:
+            taches = None  # Si le professeur n'existe pas, pas de tâches
+    context = {
+        'taches': taches,
+        
+    } 
+    return render(request, 'prof/prof_dashboard.html',context)
+
+
 @professeur_login_required
 def Voir_notes(request):
     professeur_id = request.session.get('professeur_id')
@@ -105,7 +126,8 @@ def upload_cours_prof(request):
 
 @professeur_login_required
 def list_uploaded_files_prof(request):
-    files = UploadedFile.objects.all()
+    #files = UploadedFile.objects.all()
+    files = UploadedFile.objects.exclude(file__endswith='.pdf').order_by('-uploaded_at')
     return render(request, 'prof/list_files_prof.html', {'files': files})
 
 @professeur_login_required
@@ -224,3 +246,96 @@ def logout_prof(request):
     if 'professeur_id' in request.session:
         del request.session['professeur_id']  # Supprimer la session du professeur
     return redirect('connexion_Prof')  # Rediriger vers la page de connexion
+
+
+# views.py
+from django.shortcuts import render, get_object_or_404, redirect
+
+from .forms import TacheForm
+
+from django.contrib.auth.decorators import login_required
+
+
+def ajouter_tache(request):
+    if request.method == 'POST':
+        form = TacheForm(request.POST)
+        if form.is_valid():
+            # Récupérer l'ID du professeur à partir de la session
+            professeur_id = request.session.get('professeur_id')
+            
+            # Assurez-vous que l'ID du professeur existe dans la session
+            if professeur_id:
+                professeur = professeurs.objects.get(Id_prof=professeur_id)
+                tache = form.save(commit=False)
+                tache.professeur = professeur  # Associer la tâche au professeur
+                tache.save()
+                return redirect('Professeur_dashboard')
+            else:
+                # Si le professeur n'est pas trouvé dans la session
+                return redirect('Professeur_dashboard')  # Ou afficher un message d'erreur
+    else:
+        form = TacheForm()
+    return render(request, 'prof/ajouter_tache.html', {'form': form})
+
+@login_required
+def modifier_tache(request, pk):
+    tache = get_object_or_404(Tache, pk=pk)
+    
+    # Vérifiez que la tâche appartient au professeur connecté
+    if tache.professeur.Id_prof != request.session.get('professeur_id'):
+        return redirect('Professeur_dashboard')  # Redirigez si ce n'est pas sa tâche
+    
+    if request.method == 'POST':
+        form = TacheForm(request.POST, instance=tache)
+        if form.is_valid():
+            form.save()
+            return redirect('Professeur_dashboard')
+    else:
+        form = TacheForm(instance=tache)
+    return render(request, 'prof/modifier_tache.html', {'form': form})
+
+
+
+def supprimer_tache(request, pk):
+    tache = get_object_or_404(Tache, pk=pk)
+    
+    # Vérifiez que la tâche appartient au professeur connecté
+    if tache.professeur.Id_prof != request.session.get('professeur_id'):
+        return redirect('Professeur_dashboard')  # Redirigez si ce n'est pas sa tâche
+    
+    if request.method == 'POST':
+        tache.delete()
+        return redirect('Professeur_dashboard')
+    
+    return render(request, 'prof/supprimer_tache.html', {'tache': tache})
+
+from django.http import JsonResponse
+
+
+def get_taches(request):
+    # Vérifiez si un professeur est connecté via la session
+    if 'professeur_id' in request.session:
+        professeur_id = request.session['professeur_id']
+        
+        # Récupérer le professeur en utilisant l'ID de la session
+        try:
+            professeur = professeurs.objects.get(Id_prof=professeur_id)
+            
+            # Filtrer les tâches pour ce professeur
+            taches = Tache.objects.filter(professeur=professeur)
+        except professeurs.DoesNotExist:
+            taches = []  # Si le professeur n'existe pas, renvoyer une liste vide
+    else:
+        taches = []  # Si aucun professeur n'est connecté, renvoyer une liste vide
+
+    # Préparer les données à renvoyer au frontend
+    taches_data = [
+        {
+            'titre': tache.titre,
+            'statut': tache.statut,
+            'id': tache.id,
+        }
+        for tache in taches
+    ]
+
+    return JsonResponse({'taches': taches_data})

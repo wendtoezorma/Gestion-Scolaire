@@ -431,8 +431,8 @@ class Emploi(models.Model):
 from django.db import models
 
 class UploadedFile(models.Model):
-    file = models. FileField(upload_to='uploaded_files/')
-    uploaded_at = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Date de téléchargement')
+    file = models.FileField(upload_to='uploaded_files/')
+    uploaded_at = models. DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name='Date de téléchargement')
     def __str__(self):
         return self.file.name
 
@@ -467,9 +467,9 @@ class CoursFichier(models.Model):
     type_fichier = models.CharField(max_length=200, choices=[
         ('Cours', "Cours"),
         ('TD', "TD"),
-        ('Devoir 1', "Devoir 1"),
-        ('Devoir 2', "Devoir 2"),
-        ('Devoir Session ', "Devoir Session"),
+        ('Devoir ', "Devoir "),
+     
+     
     ], default='Selectionner')
     
     class Meta: 
@@ -492,6 +492,29 @@ class Infos(models.Model):
         ordering = ['date_creation']
         verbose_name = "info"
         verbose_name_plural = "infos"
+
+    def __str__(self):
+        return self.titre
+
+# models.py
+from django.db import models
+from datetime import datetime
+class Tache(models.Model):
+    professeur = models.ForeignKey('Professeurs', on_delete=models.CASCADE, related_name='taches', default=1)  # Assurez-vous que Professeur est le bon modèle
+    STATUS_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('terminee', 'Terminée'),
+        ('en_retard', 'En retard'),
+    ]
+    titre = models.CharField(max_length=255, verbose_name="Titre")
+    
+    statut = models.CharField(
+        max_length=10, 
+        choices=STATUS_CHOICES, 
+        default='en_attente', 
+        verbose_name="Statut"
+    )
+    
 
     def __str__(self):
         return self.titre

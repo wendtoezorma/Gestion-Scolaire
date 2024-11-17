@@ -225,19 +225,40 @@ def display_table(request, file_id):
 
     return Response({'table_html': table_html}, status=status.HTTP_200_OK)
 """
+import pandas as pd
+import pdfplumber
+from rest_framework.decorators import api_view
+from django.http import JsonResponse
+
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+import os
+
 @api_view(['GET'])
 def display_table(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
     file_path = uploaded_file.file.path
     
-    # Lire le fichier Excel dans un DataFrame pandas
-    df = pd.read_excel(file_path)
+    # Vérifier l'extension du fichier
+    file_extension = os.path.splitext(file_path)[1].lower()
 
-    # Convertir le DataFrame en dictionnaire (orient="records" permet une liste de dictionnaires)
-    data = df.to_dict(orient='records')
-
-    # Renvoyer la réponse JSON
-    return JsonResponse({'data': data}, status=status.HTTP_200_OK)
+    if file_extension in ['.xls', '.xlsx']:  # Si c'est un fichier Excel
+        # Lire le fichier Excel dans un DataFrame pandas
+        df = pd.read_excel(file_path)
+        # Convertir le DataFrame en dictionnaire
+        data = df.to_dict(orient='records')
+        return JsonResponse({'data': data}, status=status.HTTP_200_OK)
+    
+    elif file_extension == '.pdf':  # Si c'est un fichier PDF
+        # Lire le fichier PDF avec pdfplumber
+        with pdfplumber.open(file_path) as pdf:
+            text = ""
+            for page in pdf.pages:
+                text += page.extract_text()
+        return JsonResponse({'data': text}, status=status.HTTP_200_OK)
+    
+    else:
+        return JsonResponse({'error': 'Unsupported file format'}, status=status.HTTP_400_BAD_REQUEST)
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -360,7 +381,7 @@ class CoursFichierAPI(APIView):
 from django.http import HttpResponse, Http404, FileResponse
 def download_pdf_cours(request, file_id):
   # Récupérer le fichier correspondant à l'ID
-    cours_fichier = get_object_or_404(CoursFichier, Id_fichier=file_id)
+    cours_fichier = get_object_or_404(CoursFichier, id_fichier=file_id)
 
     # Obtenir le chemin du fichier PDF (dans ce cas, 'fichier' est supposé être un champ FileField)
     file_path = cours_fichier.fichier.path  # Obtenir le chemin complet du fichier sur le serveur

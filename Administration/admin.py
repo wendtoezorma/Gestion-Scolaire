@@ -38,6 +38,19 @@ class AdminScolarite(admin.ModelAdmin):
 class UploadedFileAdmin(admin.ModelAdmin):
     list_display = ('file', 'uploaded_at')  # Champs à afficher dans la liste
 
+# admin.py
+from django.contrib import admin
+from .models import Tache
+
+@admin.register(Tache)
+class TacheAdmin(admin.ModelAdmin):
+    list_display = ('titre', 'statut')  # Affiche ces champs dans la liste des tâches
+    list_filter = ('statut',)  # Ajoute un filtre par statut
+    search_fields = ('titre',)  # Ajoute un champ de recherche sur le titre
+    
+    professeur = ('professeur')
+
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import Administration

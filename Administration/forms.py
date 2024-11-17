@@ -32,12 +32,18 @@ class EtudiantCreationForm(forms.ModelForm):
             'niveau_etudiant': forms.Select(attrs={'class': 'form-control'}),
             'filiere': forms.Select(attrs={'class': 'form-control'}),
             'bourse' :forms.Select(attrs={'class': 'form-control'}),
-            'annee_academique_etudiant': forms.Select(attrs={'class': 'form-control'}),
+            'annee_academique_etudiant': forms.Select(attrs={'class': 'form-control' }),
             'mot_de_passe': forms.PasswordInput(attrs={"placeholder": "Mot de passe"}),
             'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
             'type_bac': forms.Select(attrs={'class': 'form-control'}),
-            'photo': forms.HiddenInput()
+            'photo': forms.HiddenInput(),
+            'Date_naiss_etudiant': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'jj/MM/AA'})
+            
+            
         }
+        
+         
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['photo'].required = False

@@ -24,7 +24,8 @@ urlpatterns = [
     
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('upload_file', upload_file, name='upload_file'),
-    path('display_table/<int:file_id>/', display_table, name='display-table'),
+    path('display_table/<int:file_id>/', display_table, name='displaytable'),
+    path('display_pdf/<int:file_id>/', display_pdf, name='display_pdf'),
 
     path('files/', list_uploaded_files, name='list_uploaded_files'),
     path('delete/<int:file_id>/', delete_file, name='delete_file'),
@@ -82,7 +83,7 @@ urlpatterns = [
     ##################################  Informations #####################################
     path('infos/', infos, name='infos'), 
     path('voir_info/', voir_info , name='voir_infos'), 
-    
+     
 ]
 ########### pour les fichiers #########
 from django.conf import settings

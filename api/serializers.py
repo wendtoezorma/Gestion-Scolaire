@@ -71,15 +71,15 @@ class UploadedFileSerializer(serializers.ModelSerializer):
     download_url = serializers.SerializerMethodField()
     class Meta:
         model = UploadedFile
-        fields = ['id', 'file', 'uploaded_at', 'view_url','download_url']
+        fields = '__all__' #['id', 'file', 'uploaded_at', 'view_url','download_url']
     def get_download_url(self, obj):
         request = self.context.get('request')
-        download_url = request.build_absolute_uri(f'/emploi_du_temps/{obj.id}/download/')
+        download_url = request.build_absolute_uri(f'/api/emploi_du_temps/{obj.id}/download/')
         return download_url
     
     def get_view_url(self, obj):
         request = self.context.get('request')
-        view_url = request.build_absolute_uri(f'/emploi_du_temps/{obj.id}/view/')
+        view_url = request.build_absolute_uri(f'/api/emploi_du_temps/{obj.id}/view/')
         return view_url
     
 

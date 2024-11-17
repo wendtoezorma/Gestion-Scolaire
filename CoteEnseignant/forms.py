@@ -28,5 +28,17 @@ class ProfesseurLoginForm(forms.Form):
                 self.add_error('email_prof', 'Email non trouvé')
         return cleaned_data
     
+# forms.py
+from django import forms
+
+
+class TacheForm(forms.ModelForm):
+    class Meta:
+        model = Tache
+        fields = ['titre', 'statut']  # Champs inclus dans le formulaire
+        labels = {
+            'titre': 'Titre de la tâche',
+            'statut': 'Statut de la tâche',
+        }
 
 
