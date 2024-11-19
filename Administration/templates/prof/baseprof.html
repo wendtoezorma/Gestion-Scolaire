@@ -76,6 +76,41 @@
         .navbar-toggler-icon {
             background-color: #000; /* Changer la couleur du bouton hamburger */
         }
+         /* Style pour les messages d'erreur et de succès */
+    .messages {
+        margin-top: 20px;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-info {
+        background-color: #cce5ff;
+        color: #004085;
+        border: 1px solid #b8daff;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
     </style>
 </head>
 
@@ -170,6 +205,15 @@
 
             <!-- Main Content -->
             <div class="app-main" id="main">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 {% block profcontent %} {% endblock %}
             </div>
         </div>
@@ -193,6 +237,21 @@
                     document.getElementById('loader').style.display = 'none';
                 }, 5000); // 5000 ms = 5 secondes
             });
+            window.addEventListener('load', function() {
+        // Cibler tous les messages affichés
+        let messages = document.querySelectorAll('.messages .alert');
+        
+        // Pour chaque message, après 3 secondes, ajouter la classe fade-out pour le faire disparaître
+        messages.forEach(function(message, index) {
+            setTimeout(function() {
+                message.classList.add('fade-out');
+                // Supprimer l'élément après que l'animation soit terminée
+                setTimeout(function() {
+                    message.remove();
+                }, 1000); // Temps de l'animation (1 seconde)
+            }, 1000 * (index + 1)); // Décalage de 3 secondes entre chaque message (si plusieurs messages)
+            });
+        });
 
 
     </script>

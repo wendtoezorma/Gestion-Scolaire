@@ -28,6 +28,9 @@ class AdminProfesseur(admin.ModelAdmin):
     
 class AdminEnseignement(admin.ModelAdmin) :
     list_display=("professeur",'module_enseigner')
+
+class AdminPROFFILIERE(admin.ModelAdmin) :
+    list_display=("professeur",'filiere')
     
 class AdminInfos(admin.ModelAdmin) :
     list_display=("titre",'message','contenu')
@@ -109,4 +112,5 @@ admin.site.register(Enseignement,AdminEnseignement)
 admin.site.register(Scolarite,AdminScolarite)
 admin.site.register(Infos,AdminInfos)
 admin.site.register(Boursier,AdminBoursier)
+admin.site.register(ProfesseurFiliere,AdminPROFFILIERE)
 

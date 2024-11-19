@@ -19,8 +19,8 @@ urlpatterns = [
     path('modifier_note_prof/<int:note_id>/', modifier_note_prof, name='modifie_note_prof'),
     path('logout_prof', logout_prof, name='logout_prof'),
     path('ajouter/', ajouter_tache, name='ajouter_tache'),
-    path('modifier/<int:pk>/', modifier_tache, name='modifier_tache'),
-    path('supprimer_tache/<int:pk>/', supprimer_tache, name='supprimer_tache'),
+    path('modifier_tache/<int:id>/', modifier_tache, name='modifier_tache'),
+    path('supprimer_tache/<int:id>/', supprimer_tache, name='supprimer_tache'),
     path('api/get_taches/', get_taches, name='get_taches'),
    
 ]

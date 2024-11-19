@@ -114,14 +114,35 @@ def select_module_pour_prof(request, filiere_id, niveau):
 from Administration.forms import *
 @professeur_login_required
 def upload_cours_prof(request):
-    if request.method == 'POST':
-        form = CoursFichierForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('cours_list_prof')  # Redirige vers une page liste des cours après le téléchargement
-    else:
-        form = CoursFichierForm()
+    # Vérifier si le professeur est connecté (ID du professeur dans la session)
+    professeur_id = request.session.get('professeur_id')
+    
+    if professeur_id:
+        # Si le professeur est connecté, préremplir le champ professeur dans le formulaire
+        if request.method == 'POST':
+            form = CoursFichierForm(request.POST, request.FILES, professeur_id=professeur_id)
+            if form.is_valid():
+                form.save()
+                return redirect('cours_list_prof')  # Redirige vers la liste des cours
+        else:
+            form = CoursFichierForm(professeur_id=professeur_id)
+    
+
     return render(request, 'prof/upload_cours_prof.html', {'form': form})
+
+
+
+
+# def upload_cours_prof(request):
+#     if request.method == 'POST':
+#         form = CoursFichierForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('cours_list_prof')  # Redirige vers une page liste des cours après le téléchargement
+#     else:
+#         form = CoursFichierForm()
+#     
+#     return render(request, 'prof/upload_cours_prof.html', {'form': form})
 
 
 @professeur_login_required
@@ -167,6 +188,8 @@ def creer_note_prof(request):
         module_id = request.GET.get('module_id')
         etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
         module = Cours_Module.objects.get(Id_module=module_id)
+
+
         
         context = {
             'etudiants': etudiants,
@@ -174,6 +197,17 @@ def creer_note_prof(request):
             'filiere_id': filiere_id,
             'niveau': niveau
         }
+         # Récupère le module
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('Professeur_dashboard')  # Ou une autre page appropriée
+
+        # Vérifie si le professeur enseigne ce module
+        if module.professeur.Id_prof != request.session.get('professeur_id'):
+            messages.error(request, "Vous ne pouvez pas ajouter de notes pour ce module car vous ne l'enseignez pas.")
+            return redirect('Professeur_dashboard')
         
         return render(request, 'prof/add_note_prof.html', context)
     elif request.method == 'POST':
@@ -269,17 +303,19 @@ def ajouter_tache(request):
                 tache = form.save(commit=False)
                 tache.professeur = professeur  # Associer la tâche au professeur
                 tache.save()
+                messages.success(request,"tache ajouté avec succès")
                 return redirect('Professeur_dashboard')
             else:
                 # Si le professeur n'est pas trouvé dans la session
+                messages.success(request,"Reprenez")
                 return redirect('Professeur_dashboard')  # Ou afficher un message d'erreur
     else:
         form = TacheForm()
     return render(request, 'prof/ajouter_tache.html', {'form': form})
 
 @login_required
-def modifier_tache(request, pk):
-    tache = get_object_or_404(Tache, pk=pk)
+def modifier_tache(request, id):
+    tache = get_object_or_404(Tache, pk=id)
     
     # Vérifiez que la tâche appartient au professeur connecté
     if tache.professeur.Id_prof != request.session.get('professeur_id'):
@@ -289,15 +325,16 @@ def modifier_tache(request, pk):
         form = TacheForm(request.POST, instance=tache)
         if form.is_valid():
             form.save()
+            messages.success(request,"tache modifié avec succès")
             return redirect('Professeur_dashboard')
     else:
         form = TacheForm(instance=tache)
-    return render(request, 'prof/modifier_tache.html', {'form': form})
+    return render(request, 'prof/modifier_tache.html', {'form': form ,  'tache': tache})
 
 
 
-def supprimer_tache(request, pk):
-    tache = get_object_or_404(Tache, pk=pk)
+def supprimer_tache(request, id):
+    tache = get_object_or_404(Tache, id=id)
     
     # Vérifiez que la tâche appartient au professeur connecté
     if tache.professeur.Id_prof != request.session.get('professeur_id'):
@@ -306,8 +343,13 @@ def supprimer_tache(request, pk):
     if request.method == 'POST':
         tache.delete()
         return redirect('Professeur_dashboard')
+     # Si ce n'est pas une requête POST, effectuer la suppression directement
+    tache.delete()
+    messages.success(request,"tache supprimé avec succès")
+    return redirect('Professeur_dashboard')
+        
     
-    return render(request, 'prof/supprimer_tache.html', {'tache': tache})
+    #return render(request, 'prof/supprimer_tache.html', {'tache': tache})
 
 from django.http import JsonResponse
 

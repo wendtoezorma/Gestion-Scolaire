@@ -306,8 +306,7 @@ from .models import CoursFichier
 class CoursFichierForm(forms.ModelForm):
     class Meta:
         model = CoursFichier
-        fields = ['nom_fichier','fichier', 'type_fichier', 'professeur', 'module', 'filiere', 'niveau', 'annee_academique_cour']
-        
+        fields = ['nom_fichier', 'fichier', 'type_fichier', 'professeur', 'module', 'filiere', 'niveau', 'annee_academique_cour']
         widgets = {
             'professeur': forms.Select(attrs={'class': 'form-fichier'}),
             'type_fichier': forms.Select(attrs={'class': 'form-fichier'}),
@@ -316,6 +315,26 @@ class CoursFichierForm(forms.ModelForm):
             'niveau': forms.Select(attrs={'class': 'form-fichier'}),
             'annee_academique_cour': forms.Select(attrs={'class': 'form-fichier'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        professeur_id = kwargs.pop('professeur_id', None)
+        super().__init__(*args, **kwargs)
+
+        # Si l'ID du professeur est passé, préremplir le champ 'professeur'
+        if professeur_id:
+            try:
+                professeur = professeurs.objects.get(Id_prof=professeur_id)
+                # Préremplir le champ 'professeur' avec l'objet professeur correspondant
+                self.fields['professeur'].initial = professeur
+                 # Filtrer les modules en fonction du professeur
+                modules_professeur = Cours_Module.objects.filter(professeur=professeur)
+                self.fields['module'].queryset = modules_professeur
+                 # Filtrer les filières en fonction du professeur (en fonction des modules du professeur)
+                filieres_professeur = Filiere.objects.filter(cours__professeur=professeur).distinct()
+                self.fields['filiere'].queryset = filieres_professeur
+            except professeurs.DoesNotExist:
+                pass
+
 
 
 ####### pour les informations ###########

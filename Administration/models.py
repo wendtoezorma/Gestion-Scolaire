@@ -264,6 +264,12 @@ class Cours_Module(models.Model):
     def __str__(self):
         return self.nom_module
 
+class ProfesseurFiliere(models.Model):
+    professeur = models.ForeignKey('professeurs', on_delete=models.CASCADE)
+    filiere = models.ForeignKey('Filiere', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('professeur', 'filiere')  # Assurer que la combinaison est unique
 
 
 
@@ -467,8 +473,7 @@ class CoursFichier(models.Model):
     type_fichier = models.CharField(max_length=200, choices=[
         ('Cours', "Cours"),
         ('TD', "TD"),
-        ('Devoir 1', "Devoir 1"),
-        ('Devoir 2', "Devoir 2"),
+        ('Devoir', "Devoir "),
         ('Devoir Session ', "Devoir Session"),
     ], default='Selectionner')
 

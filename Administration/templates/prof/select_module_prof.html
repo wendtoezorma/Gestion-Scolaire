@@ -1,19 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sélection du module pour ajouter des notes</title>
-</head>
-
-<div class="background">
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-</div>
+{%extends 'prof/baseprof.html'%}
+{% block title %}Modifier des notes {% endblock %}
+ 
+{% block profcontent %}
 
 <h1>Sélection du module pour ajouter des notes</h1><br>
 <form method="get" action="{% url 'creer_note_prof' %}">
@@ -119,8 +107,8 @@ form button:hover {
     background-color: #0056b3;
 }
 </style>
-</body>
-</html>
+{% endblock profcontent %}
+  
 
 <!--
 <!DOCTYPE html>
