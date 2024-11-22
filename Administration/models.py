@@ -490,7 +490,7 @@ class CoursFichier(models.Model):
 class Infos(models.Model):
     id_infos = models.AutoField(primary_key=True)
     titre = models.CharField(max_length=200)
-    message=models.TextField(max_length=100000)
+    message=models.TextField(max_length=1000000)
     contenu=models.FileField(upload_to="infos/",blank=True)
     date_creation=models.DateField(auto_now=True)
     class Meta:

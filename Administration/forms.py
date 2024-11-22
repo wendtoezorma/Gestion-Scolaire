@@ -309,6 +309,8 @@ class CoursFichierForm(forms.ModelForm):
         fields = ['nom_fichier', 'fichier', 'type_fichier', 'professeur', 'module', 'filiere', 'niveau', 'annee_academique_cour']
         widgets = {
             'professeur': forms.Select(attrs={'class': 'form-fichier'}),
+            #'professeur': forms.Select(attrs={'class': 'form-fichier', 'disabled': 'disabled'}),
+
             'type_fichier': forms.Select(attrs={'class': 'form-fichier'}),
             'module': forms.Select(attrs={'class': 'form-fichier'}),
             'filiere': forms.Select(attrs={'class': 'form-fichier'}),
@@ -345,7 +347,9 @@ class Infos_Form(forms.ModelForm):
         fields=["titre","message","contenu"]
         widgets={
             "titre":forms.TextInput(attrs={"class":"form-control"}),
-            "message":forms.TextInput(attrs={"class":"form-control"}),
+            #"message":forms.TextInput(attrs={"class":"form-control"}),
+             
+            "message": forms.Textarea(attrs={"class": "form-control", "rows": 12, "style": "width: 100%;"}),  
             "contenu": forms.ClearableFileInput(attrs={"class": "form-control"})
         }
 

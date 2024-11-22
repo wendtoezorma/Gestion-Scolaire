@@ -617,51 +617,69 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from django.contrib.auth.decorators import login_required
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import Paragraph, Spacer, SimpleDocTemplate, Table
 
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
 
-            uploaded_file = form.cleaned_data['file']
-            uploaded_file_instance = UploadedFile(file=uploaded_file)
-            uploaded_file_instance.save()
+           
 
             # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-            # Lire le fichier Excel téléchargé
-            df = pd.read_excel(uploaded_file)
-
-            # Remplacer les NaN par des chaînes vides
-            df.fillna('', inplace=True)
-
-            # Créer un buffer pour sauvegarder le PDF
+             # Lire le fichier Excel téléchargé avec toutes ses feuilles
+            excel_file = pd.ExcelFile(uploaded_file)
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter)
 
-            # Préparer les données pour le tableau
-            data = [df.columns.to_list()] + df.values.tolist()
-
-            # Créer le tableau
-            table = Table(data)
-
-            # Appliquer un style au tableau
-            style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ])
-            table.setStyle(style) # Construire le PDF
+            # Créer une liste pour les éléments du PDF
             elements = []
-            elements.append(table)
+
+            for sheet_name in excel_file.sheet_names:
+                # Lire chaque feuille dans un DataFrame
+                df = excel_file.parse(sheet_name)
+
+                # Remplacer les NaN par des chaînes vides
+                df.fillna('', inplace=True)
+
+                # Ajouter un titre pour la feuille
+                elements.append(Paragraph(sheet_name, ParagraphStyle(
+                    name='Heading1',
+                    fontSize=14,
+                    textColor=colors.blue,
+                    spaceAfter=10,
+                )))
+
+                # Préparer les données pour le tableau
+                data = [df.columns.to_list()] + df.values.tolist()
+
+                # Créer le tableau
+                table = Table(data)
+
+                # Appliquer un style au tableau
+                style = TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ])
+                table.setStyle(style)
+
+                # Ajouter le tableau au PDF
+                elements.append(table)
+                elements.append(Spacer(1, 12))  # Ajouter un espace entre les feuilles
+
+            # Construire le PDF
             doc.build(elements)
+
 
             # Créer un chemin pour sauvegarder le PDF
             pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'

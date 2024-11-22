@@ -153,7 +153,18 @@ def list_uploaded_files_prof(request):
 
 @professeur_login_required
 def cours_list_prof(request):
-    cours_fichiers = CoursFichier.objects.all()
+    # Récupérer l'ID du professeur depuis la session
+
+    professeur_id = request.session.get('professeur_id')
+
+    if not professeur_id:
+        # Si aucun ID de professeur n'est trouvé dans la session, rediriger ou afficher une erreur
+        return redirect('connexion_Prof')  
+    #cours_fichiers = CoursFichier.objects.all()
+     # Filtrer les fichiers liés au professeur connecté
+
+
+    cours_fichiers = CoursFichier.objects.filter(professeur_id=professeur_id)
     if request.method == 'POST':
         scolarite_form = ScolariteForm(request.POST)
         if scolarite_form.is_valid():
@@ -296,6 +307,7 @@ def ajouter_tache(request):
         if form.is_valid():
             # Récupérer l'ID du professeur à partir de la session
             professeur_id = request.session.get('professeur_id')
+            
             
             # Assurez-vous que l'ID du professeur existe dans la session
             if professeur_id:

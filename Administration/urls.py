@@ -20,7 +20,7 @@ urlpatterns = [
     path('upload_cours/', upload_cours, name='upload_cours'), 
     path('cours_list/', cours_list, name='cours_list'),
     path('obtenir_informations_etudiant', obtenir_informations_etudiant, name='obtenir_informations_etudiant'),
-    # 
+     
     
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('upload_file', upload_file, name='upload_file'),

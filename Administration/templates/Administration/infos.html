@@ -128,6 +128,45 @@
         box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5);
     }
 
+    #loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(0, 0, 0, 0.2);
+        border-top: 5px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    #loader p {
+        margin-top: 15px;
+        font-size: 18px;
+        color: #333;
+    }
+
+
 </style>
 {% endblock  %}
     
@@ -142,6 +181,11 @@
         {% endfor %}
     </div>
 {% endif %}
+
+<div id="loader" style="display: none;">
+    <div class="spinner"></div>
+    <p>Veuillez patienter pendant le téléchargement...</p>
+</div>
 
 <div class="form-container">
     <form method="post" enctype="multipart/form-data" class="contenu">
@@ -164,6 +208,9 @@
             messageContainer.style.display = 'none';
         }
     }, 4000); // 5000 millisecondes = 5 secondes
+    document.getElementById('infoForm').addEventListener('submit', function () {
+        document.getElementById('loader').style.display = 'flex';
+    });
 </script>
 
 {% endblock content %}

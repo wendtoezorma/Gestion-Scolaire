@@ -19,8 +19,9 @@ urlpatterns = [
 
     path('etudiantprofil/', StudentProfileView.as_view(), name='etudiant_detail'),
     path('emploi_du_temps/', UploadedFileListView.as_view(), name='uploaded_file_list_api'),#pour lister les emploi du temps disponible
-    path('emploi_du_temps/<int:file_id>/view/', display_table, name='display_table'),#pour voir un emploi du temps
-    path('Download_emploi_du_temps/<int:file_id>/download/', download_pdf, name='download_pdf'),#pour le telecharger
+    path('emploi_du_temps/<int:file_id>/view/', DisplayTableAPIView.as_view(), name='display_table'),#pour voir un emploi du temps
+    path('emploi_du_temps/<int:file_id>/download/', download_pdf, name='download_pdf'),
+    #path('Download_emploi_du_temps/<int:file_id>/download/', download_pdf, name='download_pdf'),#pour le telecharger
     #path('cours-fichiers/', CoursFichierAPI.as_view(), name='cours_fichiers_api'),#envoyer sous un format html
     path('cours-fichiers/', CoursFichierAPI.as_view(), name='cours_fichiers_api'),#envoyer sous un format json
     path('download-pdf/<int:file_id>/', download_pdf_cours, name='download_pdf'),

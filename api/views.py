@@ -195,20 +195,58 @@ class UploadedFileListView(generics.ListAPIView):
     queryset = UploadedFile.objects.all()
     serializer_class = UploadedFileSerializer
 import pandas as pd
-
+"""
 class UploadedFileDetailView(generics.RetrieveAPIView):
     queryset = UploadedFile.objects.all()
+    
+    
     serializer_class = UploadedFileSerializer
+    lookup_field = 'id'
 
     def get(self, request, *args, **kwargs):
         file = self.get_object()
         file_path = file.file.path
         df = pd.read_excel(file_path)
 
+         # Remplacer les valeurs NaN par None (qui est JSON-compatible)
+        df = df.fillna('')
         # Convert DataFrame to JSON
         data = df.to_dict(orient='records')
 
         return Response(data, status=status.HTTP_200_OK)
+    
+"""
+import pandas as pd
+from rest_framework import generics, status
+from rest_framework.response import Response
+
+from .serializers import UploadedFileSerializer
+from django.template.loader import render_to_string
+
+class UploadedFileDetailView(generics.RetrieveAPIView):
+    queryset = UploadedFile.objects.all()
+    serializer_class = UploadedFileSerializer
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        # Récupérer le fichier correspondant à l'ID
+        file = self.get_object()
+        file_path = file.file.path  # Obtenir le chemin du fichier
+        df = pd.read_excel(file_path)  # Lire le fichier Excel avec pandas
+
+        # Remplacer les valeurs NaN par une chaîne vide
+        df = df.fillna('')
+
+        # Convertir les données en HTML
+        html_table = self.convert_to_html_table(df)
+
+        # Retourner le tableau HTML comme réponse
+        return Response({"html_table": html_table}, status=status.HTTP_200_OK)
+
+    def convert_to_html_table(self, df):
+        # Convertir le DataFrame en tableau HTML
+        html = df.to_html(index=False, classes="table table-striped table-bordered")
+        return html
     
 
 from rest_framework.decorators import api_view
@@ -234,17 +272,96 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 import os
 
+import io
+import pandas as pd
+import pdfplumber
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+import pandas as pd
+import io
+import pdfplumber
+
+
+class DisplayTableAPIView(APIView):
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+
+    def get(self, request, file_id):
+        # Récupérer le fichier correspondant à l'ID dans la base de données
+        uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+        
+        # Récupérer le contenu du fichier depuis la base de données
+        file_content = uploaded_file.file.read()
+
+        # Vérifier la taille du fichier
+        if len(file_content) > self.MAX_FILE_SIZE:
+            return Response({'error': 'File is too large'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Vérifier l'extension du fichier
+        file_extension = uploaded_file.file.name.split('.')[-1].lower()
+
+        # Si c'est un fichier Excel
+        if file_extension in ['xls', 'xlsx']:
+            try:
+                # Lire le fichier Excel dans un DataFrame pandas
+                df = pd.read_excel(io.BytesIO(file_content))
+
+                 # Nettoyer les NaN dans le DataFrame (remplacer les NaN par des chaînes vides)
+                df.fillna("", inplace=True)
+
+                # Supprimer les colonnes vides (entièrement vides)
+                df.dropna(axis=1, how='all', inplace=True)
+
+                # Supprimer les lignes vides (lignes qui ont seulement des valeurs vides)
+                df.dropna(axis=0, how='all', inplace=True)
+                df.fillna("", inplace=True)
+                data = df.to_dict(orient='records')
+                return Response({'data': data}, status=status.HTTP_200_OK)
+            except pd.errors.ParserError as e:
+                return Response({'error': f'Error parsing Excel file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({'error': f'Erreur lors de la lecture du fichier Excel: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Si c'est un fichier PDF
+        elif file_extension == 'pdf':
+            try:
+                # Lire le fichier PDF avec pdfplumber
+                with pdfplumber.open(io.BytesIO(file_content)) as pdf:
+                    text = ""
+                    for page in pdf.pages:
+                        text += page.extract_text()
+                return Response({'data': text}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'error': f'Erreur lors de la lecture du fichier PDF: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Si le format de fichier n'est pas supporté
+        else:
+            return Response({'error': 'Unsupported file format'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+"""
 @api_view(['GET'])
 def display_table(request, file_id):
+    
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
     file_path = uploaded_file.file.path
     
     # Vérifier l'extension du fichier
     file_extension = os.path.splitext(file_path)[1].lower()
+      
+      # Lire le fichier en tant que fichier binaire
+
+    file_content = uploaded_file.file.read()
 
     if file_extension in ['.xls', '.xlsx']:  # Si c'est un fichier Excel
         # Lire le fichier Excel dans un DataFrame pandas
-        df = pd.read_excel(file_path)
+        #df = pd.read_excel(file_path)
+        df = pd.read_excel(io.BytesIO(file_content), engine='openpyxl')
+
         # Convertir le DataFrame en dictionnaire
         data = df.to_dict(orient='records')
         return JsonResponse({'data': data}, status=status.HTTP_200_OK)
@@ -259,6 +376,7 @@ def display_table(request, file_id):
     
     else:
         return JsonResponse({'error': 'Unsupported file format'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -309,6 +427,91 @@ def download_pdf(request, file_id):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="emploi_du_temps.pdf"'
 
+    return response
+"""
+
+
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+import pandas as pd
+from io import BytesIO
+from django.http import HttpResponse
+
+from django.shortcuts import get_object_or_404
+"""
+def download_pdf(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    file_path = uploaded_file.file.path
+    df = pd.read_excel(file_path)
+
+    # Remplacer les NaN par des chaînes vides
+    df.fillna('', inplace=True)
+
+    # Créer un buffer pour sauvegarder le PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+    # Préparer les données pour le tableau
+    data = [df.columns.to_list()] + df.values.tolist()
+
+    # Créer le tableau
+    table = Table(data)
+
+    # Appliquer un style au tableau
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # En-tête en gris
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Texte blanc dans l'en-tête
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Centrer le texte dans les cellules
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Police en gras pour l'en-tête
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Espacement en bas des cellules d'en-tête
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Fond beige pour le reste du tableau
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grille autour du tableau
+    ])
+    table.setStyle(style)
+
+    # Ajuster la largeur des colonnes (si nécessaire)
+    column_widths = [max(len(str(item)) for item in col) * 7 for col in zip(*data)]  # ajuster la largeur en fonction du contenu
+    table._argW = column_widths  # Appliquer les largeurs calculées aux colonnes
+
+    # Construire le PDF
+    elements = []
+    elements.append(table)
+    doc.build(elements)
+
+    # Créer une réponse HTTP avec le contenu du PDF
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="emploi_du_temps.pdf"'
+
+    return response
+
+"""
+import os
+import shutil
+import xlwings as xw
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.conf import settings
+  # Assurez-vous que vous avez un modèle UploadedFile
+import os
+import shutil
+import xlwings as xw
+from django.http import JsonResponse
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+import tempfile
+def download_pdf(request, file_id):
+    """
+    Télécharge directement le fichier PDF spécifié par son ID.
+    """
+    # Récupération du fichier correspondant à l'ID
+    file_instance = get_object_or_404(UploadedFile, id=file_id)
+    
+    # Renvoie le fichier comme réponse avec l'en-tête pour le téléchargement
+    response = FileResponse(file_instance.file.open('rb'), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{file_instance.file.name}"'
     return response
 
 class CoursFichierAPIs(APIView):
