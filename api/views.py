@@ -251,18 +251,7 @@ class UploadedFileDetailView(generics.RetrieveAPIView):
 
 from rest_framework.decorators import api_view
 
-"""
-@api_view(['GET'])
-def display_table(request, file_id):
-    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
-    file_path = uploaded_file.file.path
-    
 
-    # Convertir DataFrame en HTML
-    table_html = df.to_html(index=False)
-
-    return Response({'table_html': table_html}, status=status.HTTP_200_OK)
-"""
 import pandas as pd
 import pdfplumber
 from rest_framework.decorators import api_view
@@ -684,3 +673,118 @@ def verifier_etudiants_connectes(request):
             return JsonResponse({"success": False, "message": "Erreur de connexion à l'application mobile."}, status=500)
 
     return JsonResponse({"success": True, "connectes": connectes})
+
+from rest_framework.exceptions import NotFound
+
+class ConnexionPersonnePrevenir(APIView):
+    def post(self, request):
+        numero = request.data.get('numero_personne_prevenir')
+        nom = request.data.get('nom_personne_prevenir')
+        try:
+            etudiant = Etudiant.objects.get(nom_personne_prevenir=nom, numero_personne_prevenir=numero)
+            request.session['personne_prevenir_id'] = etudiant.matricule
+            return Response({"message": "Connexion réussie", "etudiant": EtudiantSerializer(etudiant).data})
+        except Etudiant.DoesNotExist:
+            raise NotFound("Nom ou numéro invalide.")
+
+class DeconnexionPersonnePrevenir(APIView):
+    def post(self, request):
+        if 'personne_prevenir_id' in request.session:
+            del request.session['personne_prevenir_id']
+        return Response({"message": "Déconnexion réussie"})
+
+class DashboardPersonnePrevenir(APIView):
+    def get(self, request):
+        personne_prevenir_id = request.session.get('personne_prevenir_id')
+        if not personne_prevenir_id:
+            return Response({"error": "Vous n'êtes pas autorisé à accéder à cette page."}, status=403)
+        
+        try:
+            etudiant = Etudiant.objects.get(matricule=personne_prevenir_id)
+            return Response(EtudiantSerializer(etudiant).data)
+        except Etudiant.DoesNotExist:
+            raise NotFound("Aucune donnée trouvée.")
+
+class PersonnePrevenirAction(APIView):
+    def get(self, request, action_type):
+        personne_prevenir_id = request.session.get('personne_prevenir_id')
+        if not personne_prevenir_id:
+            return Response({"error": "Vous devez être connecté."}, status=401)
+        
+        try:
+            etudiant = Etudiant.objects.get(matricule=personne_prevenir_id)
+        except Etudiant.DoesNotExist:
+            raise NotFound("Etudiant non trouvé.")
+        
+        if action_type == 'notes':
+            notes = Notes.objects.filter(etudiant=etudiant)
+            data = NotesSerializer(notes, many=True).data
+            return Response(data)
+        
+        elif action_type == 'emploi_du_temps':
+            files = UploadedFile.objects.filter(etudiant=etudiant)
+            data = UploadedFileSerializer(files, many=True).data
+            return Response(data)
+        
+        elif action_type == 'uploaded_files':
+            files = UploadedFile.objects.exclude(file__endswith='.xlsx').order_by('-uploaded_at')
+            data = UploadedFileSerializer(files, many=True).data
+            return Response(data)
+        
+        else:
+            return Response({"error": "Action non valide."}, status=400)
+        
+class ParentInfoApi(APIView):
+    def get(self, request):
+        # Vérifier si l'utilisateur est authentifié
+        if not request.session.get('personne_prevenir_id'):
+            return Response({'error': 'Non authentifié'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Récupérer toutes les informations
+        infos_list = Infos.objects.all()
+
+        if not infos_list.exists():
+            return Response({'message': 'Aucune information trouvée'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Construire l'URL complète pour chaque fichier
+        infos_with_full_path = []
+        for info in infos_list:
+            data = {
+                'id_infos': info.id_infos,
+                'titre': info.titre,
+                'message': info.message,
+                'contenu': request.build_absolute_uri(info.contenu.url) if info.contenu else None,
+                'date_creation': info.date_creation
+            }
+            infos_with_full_path.append(data)
+
+        return Response(infos_with_full_path, status=status.HTTP_200_OK)
+    
+class ParentScolariteDetailView(APIView):
+    def get(self, request):
+        # Vérifier si l'utilisateur est authentifié
+        if not request.session.get('personne_prevenir_id'):
+            return Response({'error': 'Non authentifié'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+    def get(self, request):
+        # Récupérer l'ID de l'étudiant depuis la session
+        personne_prevenir_id = request.session.get('personne_prevenir_id')
+        
+        # Vérifier si l'ID de l'étudiant existe dans la session
+        if not personne_prevenir_id :
+            return Response({"error": "Non authentifié"}, status=401)
+        
+        # Récupérer l'étudiant correspondant à l'ID depuis la base de données
+        etudiant = get_object_or_404(Etudiant, matricule=personne_prevenir_id)
+        
+        # Récupérer la scolarité de cet étudiant
+        scolarite = Scolarite.objects.filter(etudiant=etudiant).first()
+        
+        # Si des données de scolarité existent pour cet étudiant, les sérialiser et renvoyer
+        if scolarite:
+            serializer = ScolariteSerializer(scolarite)
+            print("Données de scolarité : ", serializer.data)
+            return Response(serializer.data)  # DRF renvoie automatiquement les données en JSON
+        
+        # Si aucune scolarité n'est trouvée pour cet étudiant
+        return Response({"message": "Aucune donnée de scolarité trouvée"}, status=404)

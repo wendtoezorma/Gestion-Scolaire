@@ -7,6 +7,8 @@
     .student-list-container {
     width: 100%;
     overflow-x: auto; /* Ajoute la barre de défilement horizontale */
+   /* Empêche l'élément enfant de se diviser en plusieurs lignes */
+
     }
 
     .student-table {
@@ -138,7 +140,7 @@
     animation-delay: 8s;
   }
 
-  form {
+  .custom-form-container form {
     
     padding: 40px;
     border-radius: 15px;
@@ -148,13 +150,15 @@
     background-color: rgba(255, 255, 255, 0.8);
     position: relative;
     z-index: 2;
-    margin: 40px 0; /* Marge en haut et en bas */
-    margin-left: 200px; /* Ajustez cette valeur pour déplacer le formulaire plus à gauche */
-    margin-top: 10em;
+    margin: 200px 0px 50px 0px ; /* Marge en haut et en bas */
+    margin-left: 400px; /* Ajustez cette valeur pour déplacer le formulaire plus à gauche */
+    margin-right: 200px;
 
+    
 
     
 }
+
 
   form h2 {
     margin-bottom: 20px;
@@ -194,12 +198,6 @@ form input[type="submit"] {
   }
 
 
-  .background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-  }
   h1 {
     text-align: center;
 
@@ -212,6 +210,11 @@ form input[type="submit"] {
     padding: 0px;
     
   }
+  .cardBox{
+
+    left: 150px;
+  }
+
 </style>
 {% endblock %}
 
@@ -228,154 +231,170 @@ form input[type="submit"] {
 {% endif %}
 <div class="container">
     
-</div>
-<div class="cardBox" id="money">
-    <div class="card">
-        <div>
-            <div class="numbers" id="total_etudiant">{{ total_etudiants_inscrit }}</div>
-            <div class="cardName">Étudiants Inscrits</div>
-        </div>
-        <div class="iconBx">
-            <ion-icon name="people-outline"></ion-icon>
-        </div>
-    </div>
 
-    <div class="card">
-        <div>
-            <div class="numbers" id="total_solder">{{ total_etudiants_solde }}</div>
-            <div class="cardName">Étudiants Soldés</div>
-        </div>
-        <div class="iconBx">
-            <ion-icon name="people-outline"></ion-icon>
-        </div>
-    </div>
+        <div class="cardBox" id="money">
+            <div class="card">
+                <div>
+                    <div class="numbers" id="total_etudiant">{{ total_etudiants_inscrit }}</div>
+                    <div class="cardName">Étudiants Inscrits</div>
+                </div>
+                <div class="iconBx">
+                    <ion-icon name="people-outline"></ion-icon>
+                </div>
+            </div>
 
-    <div class="card">
-        <div>
-            <div class="numbers" id="total_caisse">{{ total_caisse }}</div>
-            <div class="cardName">CAISSE</div>
-        </div>
-        <div class="iconBx">
-            <ion-icon name="cash-outline"></ion-icon>
-        </div>
-    </div>
+            <div class="card">
+                <div>
+                    <div class="numbers" id="total_solder">{{ total_etudiants_solde }}</div>
+                    <div class="cardName">Étudiants Soldés</div>
+                </div>
+                <div class="iconBx">
+                    <ion-icon name="people-outline"></ion-icon>
+                </div>
+            </div>
 
-</div>
+            <div class="card">
+                <div>
+                    <div class="numbers" id="total_caisse">{{ total_caisse }}</div>
+                    <div class="cardName">CAISSE</div>
+                </div>
+                <div class="iconBx">
+                    <ion-icon name="cash-outline"></ion-icon>
+                </div>
+            </div>
+            <br>
+        <br>
+        
+        </div>
+        
 
-<div class="container mt-5">
     
-    <!-- Formulaire de Scolarité -->
-    <div class="mb-4">
-        <form method="post" class="mt-10" >
-            <h1>Gestion de la Scolarité</h1>
-            <br>
-            <br>
-             <!-- Ajouter un champ de recherche pour les étudiants 
-            <label for="search-etudiant">Rechercher un étudiant (Nom ou Prénom)</label>
-             <input type="text" id="search-etudiant" name="search-etudiant" class="form-control" placeholder="Rechercher...">-->
-            <br>
-            {% csrf_token %}
-            {{ scolarite_form.as_p }}
-            <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant_id.value }}">
-            <br>
-            <button type="submit" class="btn btn-success">Enregistrer</button>
-        </form>
-    </div>
-</div>
-    
-<!-- Afficher les étudiants filtrés -->
-<!-- Afficher les étudiants filtrés -->
-<div class="student-list-container">
-    <h2>Liste des étudiants</h2>
-    <table class="student-table">
-        <thead>
-            <tr>
-                <th>MATRICULE</th>
-                <th>Nom <input type="text" id="search-nom" placeholder="Rechercher Nom"></th>
-                <th>Prénom <input type="text" id="search-prenom" placeholder="Rechercher Prénom"></th>
-                <th>
-                    Filière
-                    <select id="filter-filiere">
-                        <option value="">Toutes</option>
-                        {% for filiere in filieres %}
-                        <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
-                        {% endfor %}
-                    </select>
-                </th>
-                <th>
-                    Niveau
-                    <select id="filter-niveau">
-                        <option value="">Tous</option>
-                        <option value="LICENCE1">LICENCE1</option>
-                        <option value="LICENCE2">LICENCE2</option>
-                        <option value="LICENCE3">LICENCE3</option>
-                        <option value="MASTER1">MASTER1</option>
-                        <option value="MASTER2">MASTER2</option>
-                        <option value="DOCTORAT">DOCTORAT</option>
-                    </select>
-                </th>
-                <th>
-                    Année Académique
-                    <select id="filter-anne_academique">
-                        <option value="">Tous</option>
-                        <option value="2022/2023">2022/2023</option>
-                        <option value="2023/2024">2023/2024</option>
-                        <option value="2024/2025">2024/2025</option>
-                        <option value="2026/2027">2026/2027</option>
-                        <option value="2028/2029">2028/2029</option>
-                        <option value="2030/2031">2030/2031</option>
-                    </select>
-                </th>
-                <th>1re Tranche</th>
-                <th>2e Tranche</th>
-                <th>3e Tranche</th>
-                <th>Montant Total Versé</th>
-                <th>Scolarite</th>
-                <th>Montant Restant</th>
-                <th>
-                    Bourse
-                    <select id="filter-bourse">
-                        <option value="">Toutes</option>
-                        <option value="non_boursier">non_boursier</option>
-                        <option value="boursier_etat">boursier_etat</option>
-                        <option value="	boursier_particulier_50">boursier_particulier_50</option>
-                        <option value="boursier_particulier_75">boursier_particulier_75</option>
-                    </select>
-                <th>Soldé</th>
-            </tr>
-        </thead>
-        <tbody id="student-table-body">
-            {% for scolarite in scolarites %}
-            <tr data-filiere="{{ scolarite.etudiant.filiere.Id_filiere }}" 
-                data-niveau="{{ scolarite.etudiant.niveau_etudiant }}" 
-                data-bourse="{{ scolarite.etudiant.bourse }}" 
-                data-anne_academique="{{ scolarite.etudiant.annee_academique_etudiant }}">
-                <td>{{ scolarite.etudiant.matricule }}</td>
-                <td>{{ scolarite.etudiant.nom_etudiant }}</td>
-                <td>{{ scolarite.etudiant.prenom_etudiant }}</td>
-                <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
-                <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
-                <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
-                <td>{{ scolarite.tranche_1 }}</td>
-                <td>{{ scolarite.tranche_2 }}</td>
-                <td>{{ scolarite.tranche_3 }}</td>
-                <td>{{ scolarite.montant_total_verse }}</td>
-                <td>{{ scolarite.total }}</td>
-                <td>{{ scolarite.Montant_restant }}</td>
-                <td>{{ scolarite.etudiant.bourse }}</td>
-                <td>
-                    {% if scolarite.Montant_restant == 0 %}
-                        <i class="fas fa-check-circle" style="color: green;"></i> <!-- V vert -->
-                        {% else %}
-                        <i class="fas fa-times-circle" style="color: red;"></i> <!-- Croix rouge -->
-                        {% endif %}
-                </td>
+
+    <div class="container mt-5">
+        
+        
+        
+        <!-- Formulaire de Scolarité -->
+        <div class="mb-4">
+            <div class="custom-form-container">
             
-            </tr>
-            {% endfor %}
+                <form  method="post" class="mt-10" >
+                    <h1>Gestion de la Scolarité</h1>
+                    <br>
+                    <br>
+                    <!-- Ajouter un champ de recherche pour les étudiants 
+                    <label for="search-etudiant">Rechercher un étudiant (Nom ou Prénom)</label>
+                    <input type="text" id="search-etudiant" name="search-etudiant" class="form-control" placeholder="Rechercher...">-->
+                    <br>
+                    {% csrf_token %}
+                    {{ scolarite_form.as_p }}
+                    <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant_id.value }}">
+                    <br>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </form>
+            
+            <div>
+        </div>
+        
+    </div>
+        
+    <!-- Afficher les étudiants filtrés -->
+    <!-- Afficher les étudiants filtrés -->
+    <div class="student-list-container">
+        
+        <h2>Liste des étudiants</h2>
+        
+        <table class="student-table">
+            <thead>
+                <tr>
+                    <th>MATRICULE</th>
+                    <th>Nom <input type="text" id="search-nom" placeholder="Rechercher Nom"></th>
+                    <th>Prénom <input type="text" id="search-prenom" placeholder="Rechercher Prénom"></th>
+                    <th>
+                        Filière
+                        <select id="filter-filiere">
+                            <option value="">Toutes</option>
+                            {% for filiere in filieres %}
+                            <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
+                            {% endfor %}
+                        </select>
+                    </th>
+                    <th>
+                        Niveau
+                        <select id="filter-niveau">
+                            <option value="">Tous</option>
+                            <option value="LICENCE1">LICENCE1</option>
+                            <option value="LICENCE2">LICENCE2</option>
+                            <option value="LICENCE3">LICENCE3</option>
+                            <option value="MASTER1">MASTER1</option>
+                            <option value="MASTER2">MASTER2</option>
+                            <option value="DOCTORAT">DOCTORAT</option>
+                        </select>
+                    </th>
+                    <th>
+                        Année Académique
+                        <select id="filter-anne_academique">
+                            <option value="">Tous</option>
+                            <option value="2022/2023">2022/2023</option>
+                            <option value="2023/2024">2023/2024</option>
+                            <option value="2024/2025">2024/2025</option>
+                            <option value="2026/2027">2026/2027</option>
+                            <option value="2028/2029">2028/2029</option>
+                            <option value="2030/2031">2030/2031</option>
+                        </select>
+                    </th>
+                    <th>1re Tranche</th>
+                    <th>2e Tranche</th>
+                    <th>3e Tranche</th>
+                    <th>Montant Total Versé</th>
+                    <th>Scolarite</th>
+                    <th>Montant Restant</th>
+                    <th>
+                        Bourse
+                        <select id="filter-bourse">
+                            <option value="">Toutes</option>
+                            <option value="non_boursier">non_boursier</option>
+                            <option value="boursier_etat">boursier_etat</option>
+                            <option value="	boursier_particulier_50">boursier_particulier_50</option>
+                            <option value="boursier_particulier_75">boursier_particulier_75</option>
+                        </select>
+                    <th>Soldé</th>
+                </tr>
+            </thead>
+            <tbody id="student-table-body">
+                {% for scolarite in scolarites %}
+                <tr data-filiere="{{ scolarite.etudiant.filiere.Id_filiere }}" 
+                    data-niveau="{{ scolarite.etudiant.niveau_etudiant }}" 
+                    data-bourse="{{ scolarite.etudiant.bourse }}" 
+                    data-anne_academique="{{ scolarite.etudiant.annee_academique_etudiant }}">
+                    <td>{{ scolarite.etudiant.matricule }}</td>
+                    <td>{{ scolarite.etudiant.nom_etudiant }}</td>
+                    <td>{{ scolarite.etudiant.prenom_etudiant }}</td>
+                    <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
+                    <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
+                    <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
+                    <td>{{ scolarite.tranche_1 }}</td>
+                    <td>{{ scolarite.tranche_2 }}</td>
+                    <td>{{ scolarite.tranche_3 }}</td>
+                    <td>{{ scolarite.montant_total_verse }}</td>
+                    <td>{{ scolarite.total }}</td>
+                    <td>{{ scolarite.Montant_restant }}</td>
+                    <td>{{ scolarite.etudiant.bourse }}</td>
+                    <td>
+                        {% if scolarite.Montant_restant == 0 %}
+                            <i class="fas fa-check-circle" style="color: green;"></i> <!-- V vert -->
+                            {% else %}
+                            <i class="fas fa-times-circle" style="color: red;"></i> <!-- Croix rouge -->
+                            {% endif %}
+                    </td>
+                
+                </tr>
+                {% endfor %}
 
-        </tbody>        
-    </table>
+            </tbody>        
+        </table>
+    </div>
+    </div>
 </div>
 
 <!-- Ajouter jQuery pour la gestion des événements -->

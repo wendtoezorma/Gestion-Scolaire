@@ -92,13 +92,37 @@ class CoursFichierSerializer(serializers.ModelSerializer):
         model = CoursFichier
         fields = '__all__'
 
+class BoursierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Boursier
+        fields = ['id', 'type_bourse']
+
+
 class ScolariteSerializer(serializers.ModelSerializer):
+    bourse = serializers.CharField(source='etudiant.bourse')
     class Meta:
         model = Scolarite
-        fields = ['tranche_1', 'tranche_2', 'tranche_3', 'montant_total_verse', 'Montant_restant', 'date_payement']
+        fields = ['tranche_1', 'tranche_2', 'tranche_3', 'montant_total_verse', 'Montant_restant', 'date_payement','bourse']
 
 
 class InfosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Infos
         fields = ['id_infos', 'titre', 'message', 'contenu', 'date_creation']
+
+#pour les parents
+
+class NotesSerializer(serializers.ModelSerializer):
+    nom_module = serializers.SerializerMethodField()
+    class Meta:
+        model = Notes
+        fields = ['nom_module', 'Note1', 'Note2', 'moyenne']  # Ajoutez d'autres champs si nécessaire
+
+    def get_nom_module(self, obj):
+        # Récupérer le nom du module à partir de la relation (ForeignKey)
+        return obj.matiere_module.nom_module
+
+class UploadedFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadedFile
+        fields = ['file', 'uploaded_at']  # Ajoutez d'autres champs si nécessaire

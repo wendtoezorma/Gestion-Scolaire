@@ -29,13 +29,13 @@ urlpatterns = [
 
     path('files/', list_uploaded_files, name='list_uploaded_files'),
     path('delete/<int:file_id>/', delete_file, name='delete_file'),
-    ############################################################################################################
-    #path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    #path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    #path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    #path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    #path('test-email/', test_email_view, name='test_email'),
     
+
+    ############################################################################################################
+    path('parent_connexion/', connexion_personne_prevenir, name='connexion_personne_prevenir'),
+    path('parent_dashboard/', dashboard_personne_prevenir, name='dashboard_personne_prevenir'),
+    path('parent_deconnexion/', deconnexion_personne_prevenir, name='deconnexion_personne_prevenir'),
+    path('personne_prevenir/<str:action_type>/', personne_prevenir_action, name='personne_prevenir_action'),
     ############################################################################################################
      #path("update_password",update_password,name="update_password"),
     path('creer-filiere/', creer_filiere, name='creer_filiere'),

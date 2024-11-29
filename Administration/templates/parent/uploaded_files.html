@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emploi du temps de l'étudiant</title>
+</head>
+<body>
+    <h1>Emploi du temps de l'étudiant {{ etudiant.nom }} {{ etudiant.prenom }}</h1>
+    
+    <ul>
+        {% for emploi in data %}
+            <li>
+                <!-- Lien pour télécharger ou ouvrir le fichier PDF -->
+                <a href="{{ emploi.file.url }}" target="_blank">Voir l'emploi du temps (PDF)</a> 
+                <p>Date de téléchargement : {{ emploi.uploaded_at|date:"d/m/Y H:i" }}</p>
+            </li>
+           
+        {% empty %}
+            <li>Aucun emploi du temps disponible.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

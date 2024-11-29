@@ -135,7 +135,6 @@ body {
 }
 
 /* ===================== Main ===================== */
-
 .main {
   flex: 1; /* Ajoutez cette ligne */
   background: var(--white);
@@ -169,6 +168,14 @@ body {
   align-items: center;
   font-size: 2.5rem;
   cursor: pointer;
+  transition: all 0.5s; /* Transition pour les changements de position */
+}
+
+.main.active .toggle {
+  position: relative;  /* Positionné absolument par rapport à son parent */
+  right: 20px;         /* Placer le toggle à 20px du côté droit */
+  top: 20x;           /* Placer le toggle à 20px du côté supérieur */
+  z-index: 1001;       /* Assurez-vous qu'il est au-dessus des autres éléments */
 }
 
 .search {

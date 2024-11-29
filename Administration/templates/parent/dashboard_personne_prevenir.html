@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard des parents </title>
+</head>
+<body>
+    <h1>Informations de l'étudiant</h1>
+    <p>Nom : {{ etudiant.nom_etudiant }}</p>
+    <p>Prénom : {{ etudiant.prenom_etudiant }}</p>
+    <p>Email : {{ etudiant.email_etudiant }}</p>
+    <p>Numéro : {{ etudiant.telephone_etudiant }}</p>
+    <p>Niveau : {{ etudiant.niveau_etudiant }}</p>
+
+    
+    <a href="{% url 'personne_prevenir_action' action_type='notes' %}">Voir les notes</a><br>
+    <a href="{% url 'voir_infos' %}">Voir les info </a><br>
+    <a href="{% url 'personne_prevenir_action' action_type='emploi_du_temps' %}">Voir les fichiers téléchargés</a><br>
+    <a href="{% url 'deconnexion_personne_prevenir' %}">Se déconnecter</a>
+</body>
+</html>

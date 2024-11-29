@@ -25,7 +25,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'nom_etudiant', 'prenom_etudiant', 'photo','email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere','bourse','type_bac']
+            'filiere','bourse','type_bac','nom_personne_prevenir','numero_personne_prevenir']
         widgets = {
             #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
             'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
@@ -37,7 +37,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
             'type_bac': forms.Select(attrs={'class': 'form-control'}),
             'photo': forms.HiddenInput(),
-            'Date_naiss_etudiant': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'jj/MM/AA'})
+            'Date_naiss_etudiant': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'jj/MM/AA'}),
             
             
         }

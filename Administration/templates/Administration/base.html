@@ -25,6 +25,7 @@
         @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap");
 
         /* =============== Globals ============== */
+        
         * {
             font-family: "Ubuntu", sans-serif;
             margin: 0;
@@ -186,13 +187,7 @@
             }
         }
 
-        .main.active {
-            
-            
-            width: 100%;
-            left: 80px;
-        }
-        
+       
 
                 /* Topbar */
         .topbar {
@@ -211,17 +206,27 @@
         
         }
 
-        .toggle {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5rem;
-            cursor: pointer;
-            
-        }
+        
+
+    .toggle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    cursor: pointer;
+    }
+    .toggle {
+    z-index: 10001;
+  }
+  .main.active .toggle {
+    
+    position: relative;
+    
+    left: -180px;
+  }
 
         .topbar .logo {
             display: flex;
@@ -239,24 +244,17 @@
             font-weight: 700;
         }
 
-        .topbar .search {
+.topbar .search {
             width: 400px;
             
         }
-        .search-form-parent {
-            /* Styles spécifiques pour empêcher l'influence des styles enfants */
-            
-            border: 1px solid transparent !important; 
-            padding: 10px;
-            background-color: transparent
-            /* Ajoutez d'autres styles ici */
-        }
-
-        .search-form-parent input {
+        
+       
+        .custom-search-form input [type="text"] {
             color: black;
             font-size: 16px;
-            background-color: transparent;
-            border: none
+            background-color: transparent  !important;
+            border: none  !important;
             /* Styles supplémentaires si besoin */
         }
 
@@ -265,6 +263,7 @@
         
         .topbar .search label {
             width: 100%;
+            background-color: transparent !important;
         }
 
         .topbar .search label input {
@@ -280,7 +279,7 @@
             border: 1px solid var(--black2); /* Bordure grise */
         }
         .topbar input[type="search"] {
-            background-color: transparent;
+            background-color: transparent  !important;
         }
 
         .topbar .search label ion-icon {
@@ -288,6 +287,7 @@
             top: 8px;
             left: 10px;
             font-size: 1rem;
+            background-color: transparent  !important;
         }
 
         .student-list-container {
@@ -504,6 +504,7 @@ ul.navigation li a {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+
       
     </style>
     {% endblock %}
@@ -515,6 +516,7 @@ ul.navigation li a {
 </head>
 
 <body>
+    
     
 
     <!-- =============== Navigation ================ -->
@@ -644,26 +646,28 @@ ul.navigation li a {
         </div>
         <!-- =============== Main ===================== -->
         <div class="main">
+            <header> 
+                <div class="topbar">
+                    <div class="toggle">
+                        <ion-icon name="menu-outline"></ion-icon>
+                    </div>
+                    <div class="search">
+                       
+                        <form  class="search-form-parent custom-search-form" action="{% url 'rechercher_etudiants' %}" method="get">
 
-            <div class="topbar">
-                <div class="toggle">
-                    <ion-icon name="menu-outline"></ion-icon>
+                                <label>
+                                    <input type="text" name="query" placeholder="Rechercher ici" />
+                                    <ion-icon name="search-outline"></ion-icon>
+                                </label>
+                        </form>
+                    
+                    </div>
                 </div>
-                <div class="search">
-                    <form  class="search-form-parent" action="{% url 'rechercher_etudiants' %}" method="get">
-
-                        <label>
-                            <input type="text" name="query" placeholder="Rechercher ici" />
-                            <ion-icon name="search-outline"></ion-icon>
-                        </label>
-                    </form>
-                </div>
-            </div>
-           
+            </header>
             {% block content %}{% endblock %}
-            
-        </div>
+        </div>  
     </div>
+    
 
     <!-- =========== Scripts ========== -->
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
@@ -688,6 +692,7 @@ ul.navigation li a {
             navigation.classList.toggle("active");
             main.classList.toggle("active");
         };
+        
 
         document.addEventListener("DOMContentLoaded", function() {
             var userIcon = document.getElementById("userIcon");

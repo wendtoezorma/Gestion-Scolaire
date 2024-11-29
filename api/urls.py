@@ -28,6 +28,12 @@ urlpatterns = [
     path('scolarite/', ScolariteDetailView.as_view(), name='scolarite-detail'),
     path('infos/', InfosView.as_view(), name='infos_api'),
     path('api/verifier-etudiants-connectes/', verifier_etudiants_connectes, name='verifier-etudiants-connectes'),
+    #########
+    path('api_parent_connexion/', ConnexionPersonnePrevenir.as_view(), name='connexion_personne_prevenir'),
+    path('api_parent_deconnexion/', DeconnexionPersonnePrevenir.as_view(), name='deconnexion_personne_prevenir'),
+    path('api_action/<str:action_type>/', PersonnePrevenirAction.as_view(), name='personne_prevenir_action'),
+    path('parent_Infos/', ParentInfoApi.as_view(), name='ParentInfoApi'),
+    path('parentScolarite/', ParentScolariteDetailView.as_view(), name='ParentScolarite'),
 
 ]
 

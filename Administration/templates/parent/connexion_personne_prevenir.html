@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+</head>
+<body>
+    <h1>Connexion - Personne à prévenir</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="nom_personne_prevenir">Nom :</label>
+        <input type="text" id="nom_personne_prevenir" name="nom_personne_prevenir" required>
+        <label for="numero_personne_prevenir">Numéro :</label>
+        <input type="text" id="numero_personne_prevenir" name="numero_personne_prevenir" required>
+        <button type="submit">Se connecter</button>
+    </form>
+</body>
+</html>

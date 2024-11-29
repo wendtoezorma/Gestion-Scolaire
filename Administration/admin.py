@@ -4,12 +4,9 @@ from .models import *
 from django.contrib.auth.admin import UserAdmin
 # Register your models here.
 
-"""class AdminAdministration(admin.ModelAdmin):
-    '''list_display=('nom','prenom',"sexe","email","Numero","num_CNIB",'date_ajout')'''
-    form = AdministrationAdminForm"""
     
 class AdminEtudiant(admin.ModelAdmin):
-    list_display=("matricule",'nom_etudiant','prenom_etudiant',"photo","niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout','password_updated','Connecter','type_bac','annee_academique_etudiant')
+    list_display=("matricule",'nom_etudiant','prenom_etudiant',"photo","niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout','password_updated','Connecter','type_bac','annee_academique_etudiant',"nom_personne_prevenir","numero_personne_prevenir")
 
 class AdminBoursier(admin.ModelAdmin):
     list_display=('type_bourse',"reduction")

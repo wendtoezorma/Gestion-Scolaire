@@ -109,6 +109,9 @@ strong {
     <p><strong>niveau  :</strong> {{ etudiant_data.niveau_etudiant }}</p>
     <p><strong>Année Academique :</strong> {{ etudiant_data.annee_academique_etudiant }}</p>
     <p><strong>Date de Naissance :</strong> {{ etudiant_data.date_naissance }}</p>
+    <p><strong>personne a prevenir :</strong> {{ etudiant_data.nom_personne_prevenir }}</p>
+    <p><strong>numero a prevenir :</strong> {{ etudiant_data.numero_personne_prevenir }}</p>
+
 
 
     
@@ -125,6 +128,9 @@ strong {
         {% csrf_token %}
         <input type="hidden" name="nom_etudiant" value="{{ etudiant_data.nom_etudiant }}">
         <input type="hidden" name="prenom_etudiant" value="{{ etudiant_data.prenom_etudiant }}">
+        <input type="hidden" name="nom_personne_prevenir" value="{{ etudiant_data.nom_personne_prevenir }}">
+        <input type="hidden" name="numero_personne_prevenir" value="{{ etudiant_data.numero_personne_prevenir }}">
+
         <input type="hidden" name="email_etudiant" value="{{ etudiant_data.email_etudiant }}">
         <input type="hidden" name="telephone_etudiant" value="{{ etudiant_data.telephone_etudiant }}">
         <input type="hidden" name="bourse" value="{{ etudiant_data.bourse_type }}">

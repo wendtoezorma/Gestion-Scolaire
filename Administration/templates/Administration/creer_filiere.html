@@ -1,15 +1,21 @@
+
+
 {% extends "Administration/base.html" %}
+
 {% block title %}Créer une filière{% endblock %}
 
 {% block styles %}
+
 {{ block.super }}
 
 <style>
+    
+    
     body {
         font-family: Arial, sans-serif;
     }
 
-    form {
+    .custom-form-container form {
         padding: 40px;
         border-radius: 15px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -63,13 +69,17 @@
 
 {% block content %}
 <div class="main">
-    <form method="post">
-        <h1>Créer une filière</h1>
-        <br><br>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <br><br>
-        <button type="submit" class="btn-primary">Enregistrer</button>
-    </form>
+    <div class="custom-form-container">
+        <form method="post">
+            <h1>Créer une filière</h1>
+            <br><br>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <br><br>
+            <button type="submit" class="btn-primary">Enregistrer</button>
+        </form>
+    </div>
 </div>
+
+
 {% endblock %}

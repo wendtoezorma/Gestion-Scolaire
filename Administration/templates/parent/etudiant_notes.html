@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes de l'étudiant {{ etudiant.nom }} {{ etudiant.prenom }}</title>
+</head>
+<body>
+    <h1>Notes de l'étudiant {{ etudiant.nom }} {{ etudiant.prenom }}</h1>
+
+    {% if data %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Matière</th>
+                    <th>Note 1</th>
+                    <th>Note 2</th>
+                    <th>Moyenne</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in data %}
+                    <tr>
+                        <td>{{ note.matiere }}</td>
+                        <td>{{ note.note1 }}</td>
+                        <td>{{ note.note2 }}</td>
+                        <td>{{ note.moyenne }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucune note disponible pour cet étudiant.</p>
+    {% endif %}
+</body>
+</html>

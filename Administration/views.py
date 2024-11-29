@@ -117,6 +117,97 @@ def administration_login_view(request):
     return render(request, 'registration/login.html', {'form': form})
 
 
+
+def connexion_personne_prevenir(request):
+    if request.method == 'POST':
+        numero = request.POST.get('numero_personne_prevenir')
+        nom = request.POST.get('nom_personne_prevenir')
+        try:
+            # Vérifier si les informations correspondent à un étudiant
+            etudiant = Etudiant.objects.get(
+                nom_personne_prevenir=nom,
+                numero_personne_prevenir=numero
+            )
+            # Connecter l'utilisateur si trouvé
+            request.session['personne_prevenir_id'] = etudiant.matricule  # Associer l'utilisateur à sa session
+            return redirect('dashboard_personne_prevenir')  # Redirection après connexion
+        except Etudiant.DoesNotExist:
+            return HttpResponse("Nom ou numéro invalide.")
+    return render(request, 'parent/connexion_personne_prevenir.html')
+
+
+def deconnexion_personne_prevenir(request):
+    if 'personne_prevenir_id' in request.session:
+        del request.session['personne_prevenir_id']
+    return redirect('connexion_personne_prevenir')
+
+
+
+def dashboard_personne_prevenir(request):
+    personne_prevenir_id = request.session.get('personne_prevenir_id')
+    if not personne_prevenir_id:
+        return HttpResponseForbidden("Vous n'êtes pas autorisé à accéder à cette page.")
+
+    # Récupérer les informations de l'étudiant associé
+    try:
+        etudiant = Etudiant.objects.get(matricule=personne_prevenir_id)
+        return render(request, 'parent/dashboard_personne_prevenir.html', {'etudiant': etudiant})
+    except Etudiant.DoesNotExist:
+        return HttpResponseForbidden("Aucune donnée trouvée.")
+
+# views.py
+from django.shortcuts import render, redirect
+from django.http import Http404
+from .services import PersonnePrevenir
+
+def personne_prevenir_action(request, action_type):
+    # Récupérer l'étudiant de la session
+    etudiant = PersonnePrevenir.get_etudiant_from_session(request)
+   
+    
+    if not etudiant:
+        return redirect('connexion_personne_prevenir')  # Si l'étudiant n'est pas connecté, rediriger vers la page de connexion
+   
+    # Selon l'action (notes, emploi du temps, fichiers), on appelle la méthode appropriée
+    if action_type == 'notes':
+        data = PersonnePrevenir.get_notes(etudiant)
+
+
+        template_name = 'parent/etudiant_notes.html'
+    elif action_type == 'emploi_du_temps':
+        data = PersonnePrevenir.get_uploaded_files(etudiant)
+        template_name = 'parent/uploaded_files.html'
+    elif action_type == 'uploaded_files':
+        data = PersonnePrevenir.get_uploaded_files()
+        template_name = 'parent/uploaded_files.html'
+    else:
+        raise Http404("Action non valide")
+
+    # Passer les données à un template pour affichage
+    return render(request, template_name, {'etudiant': etudiant, 'data': data })
+
+ 
+"""
+def dashboard_personne_prevenir(request):
+    # Vérifier si la personne à prévenir est connectée
+    personne_prevenir = PersonnePrevenir.get_etudiant_from_session(request)
+    if not personne_prevenir:
+        return redirect('connexion_personne_prevenir')  # Rediriger si non connecté
+
+    # Récupérer les notes, emploi du temps et fichiers de l'étudiant associé
+    notes = PersonnePrevenir.get_notes(personne_prevenir)
+    emploi_du_temps = PersonnePrevenir.get_emploi_du_temps(personne_prevenir)
+    files = PersonnePrevenir.get_uploaded_files()
+
+    # Passer les données à la template
+    return render(request, 'parent/dashboard_personne_prevenir.html', {
+        'etudiant': personne_prevenir,
+        'notes': notes,
+        'emploi_du_temps': emploi_du_temps,
+        'files': files
+    })
+"""
+
 class CustomLogoutView(LogoutView):
     template_name = None
     success_url = reverse_lazy('home')
@@ -182,6 +273,8 @@ def inscription_etudiant(request):
                 'annee_academique_etudiant': etudiant_data['annee_academique_etudiant'],
                 'bourse_type': etudiant_data['bourse'].type_bourse,
                 'raw_password': raw_password,  # Passer le mot de passe brut à la session
+                "numero_personne_prevenir": etudiant_data["numero_personne_prevenir"],
+                "nom_personne_prevenir" : etudiant_data["nom_personne_prevenir"],
                 'photo_name': request.FILES['photo'].name if 'photo' in request.FILES else None  # Conserver le nom du fichier
                 
                  
@@ -265,7 +358,10 @@ def confirmer_inscription_etudiant(request):
             bourse=Boursier.objects.get(type_bourse=bourse_type),  # Récupérer l'objet Boursier basé sur le type 
             niveau_etudiant=etudiant_data['niveau_etudiant'],
             annee_academique_etudiant=etudiant_data['annee_academique_etudiant'],
-            mdp_etudiant=make_password(etudiant_data['raw_password']) # Hacher le mot de passe
+            mdp_etudiant=make_password(etudiant_data['raw_password']) ,# Hacher le mot de passe
+            numero_personne_prevenir=etudiant_data["numero_personne_prevenir"],
+            nom_personne_prevenir = etudiant_data["nom_personne_prevenir"]
+
         )
         etudiant.save()  # Enregistrer l'étudiant dans la base de données
            # Ajouter un message de succès
@@ -632,7 +728,7 @@ def upload_file(request):
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
-             # Lire le fichier Excel téléchargé avec toutes ses feuilles
+            # Lire le fichier Excel téléchargé avec toutes ses feuilles
             excel_file = pd.ExcelFile(uploaded_file)
             buffer = io.BytesIO()
             doc = SimpleDocTemplate(buffer, pagesize=letter)
@@ -1320,3 +1416,9 @@ def reinscription_etudiant(request):
         'niveaux': ['LICENCE1', 'LICENCE2', 'LICENCE3', 'MASTER1', 'MASTER2', 'DOCTORAT'],
     }
     return render(request, 'Administration/reinscription_etudiant.html', context)
+
+
+
+
+
+

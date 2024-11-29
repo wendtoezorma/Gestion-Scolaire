@@ -168,6 +168,10 @@ class Etudiant(models.Model):
     filiere = models.ForeignKey(Filiere, related_name='etudiants', on_delete=models.CASCADE, null=True)
     password_updated = models.BooleanField(default=False)
     bourse = models.ForeignKey(Boursier, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    nom_personne_prevenir = models.CharField(max_length=200, null=True, blank=True, default="Non specifie")
+    numero_personne_prevenir = models.CharField(max_length=15, null=True, blank=True, default="0000000000")
+
     Connecter = models.BooleanField(default=False, null=True)
     type_bac = models.CharField(
         max_length=25,
