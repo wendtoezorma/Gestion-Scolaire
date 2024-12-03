@@ -34,6 +34,7 @@ urlpatterns = [
     path('api_action/<str:action_type>/', PersonnePrevenirAction.as_view(), name='personne_prevenir_action'),
     path('parent_Infos/', ParentInfoApi.as_view(), name='ParentInfoApi'),
     path('parentScolarite/', ParentScolariteDetailView.as_view(), name='ParentScolarite'),
+   
 
 ]
 

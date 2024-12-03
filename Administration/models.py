@@ -526,3 +526,15 @@ class Tache(models.Model):
 
     def __str__(self):
         return self.titre
+    
+
+
+class Notifications(models.Model):
+    destinataire_admin = models.ForeignKey(Administration, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications_admin')
+    destinataire_prof = models.ForeignKey(professeurs, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications_prof')
+    message = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+    lu = models.BooleanField(default=False)  # Pour savoir si la notification a été lue
+
+    def __str__(self):
+        return f"Notification pour {self.destinataire_admin or self.destinataire_prof}: {self.message[:50]}"

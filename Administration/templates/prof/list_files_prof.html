@@ -1,7 +1,139 @@
-{%extends 'prof/baseprof.html'%}
-{% block title %} Fichiers Enregistrés{% endblock %}
+{% extends 'prof/baseprof.html' %}
+
+{% block title %} Fichiers Enregistrés {% endblock %}
+
 {% block profcontent %}
-    <h2>Liste des fichiers uploadés</h2>
+  <style>
+    /* Style général de la page */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0f4f8; /* Couleur de fond douce */
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Alignement en haut pour éviter le chevauchement */
+        height: 100%;
+        color: #4013e3;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 2.5em; /* Augmentation de la taille du titre */
+        color: #2c3e50; /* Couleur plus foncée pour le titre */
+        margin-bottom: 30px; /* Espacement plus important */
+    }
+
+    /* Styles pour la table */
+    table {
+        width: 90%; /* Largeur plus grande */
+        margin: 20px auto;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(26, 63, 212, 0.15); /* Ombre plus marquée */
+        background-color: white;
+        padding: 10px;
+        animation: fadeIn 1.5s ease-out; /* Animation augmentée */
+    }
+
+    thead {
+        background-color: #2980b9; /* Couleur d'en-tête plus foncée */
+        color: white;
+        animation: headerColorChange 3s infinite; /* Animation sur l'en-tête */
+    }
+
+    th, td {
+        padding: 20px 25px; /* Augmentation du padding */
+        text-align: left;
+        font-size: 1.2em; /* Taille de police augmentée */
+    }
+
+    th {
+        font-weight: bold;
+    }
+
+    td {
+        background-color: #ffffff;
+        border-bottom: 1px solid #ddd;
+        color: #555;
+    }
+
+    /* Animation des lignes de la table */
+    tr:nth-child(even) {
+        background-color: #f7f7f7;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #293ccb;
+    }
+
+    tr:hover {
+        background-color: #ecf0f1;
+        transform: scale(1.05); /* Effet de survol plus accentué */
+        transition: all 0.3s ease;
+    }
+
+    /* Liens dans la table */
+    a {
+        color: #2980b9;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    a:hover {
+        color: #1f618d;
+        text-decoration: underline;
+        transition: color 0.2s ease;
+    }
+
+    /* Animation du tableau au chargement */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Animation pour l'en-tête de la table */
+    @keyframes headerColorChange {
+        0% {
+            background-color: #2980b9;
+        }
+        50% {
+            background-color: #3498db;
+        }
+        100% {
+            background-color: #2980b9;
+        }
+    }
+
+    /* Style pour le message "Aucun fichier trouvé" */
+    tbody td[colspan="4"] {
+        text-align: center;
+        font-size: 1.4em; /* Taille de police augmentée */
+        color: #999;
+        padding: 20px;
+    }
+
+    /* Animation du bouton de suppression */
+    a:hover {
+        color: #e74c3c;
+        transform: translateY(-3px);
+        transition: all 0.2s ease;
+    }
+
+    /* Style pour le bouton de suppression */
+    a:active {
+        transform: translateY(1px);
+    }
+  </style>
+  
+  <h2>Liste des fichiers uploadés</h2>
   <table>
     <thead>
       <tr>
@@ -27,5 +159,4 @@
       {% endfor %}
     </tbody>
   </table>
-{% endblock profcontent %}
-  
+{% endblock %}

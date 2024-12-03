@@ -504,9 +504,59 @@ ul.navigation li a {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.nav-link {
+    position: relative;
+    }
+
+
+    a .notification-badge {
+    background-color: #ff0000 !important; /* Rouge vif */
+    color: white; /* Couleur du texte */
+    padding: 0.2rem 0.5rem; /* Taille */
+    border-radius: 50%; /* Forme circulaire */
+    font-size: 0.9rem; /* Taille du texte */
+    position: absolute; /* Pour positionner au-dessus */
+    top: 0; /* Ajuster */
+    right: 0; /* Ajuster */
+    display: inline-block; /* Toujours afficher */
+    visibility: visible; /* S'assurer qu'il est visible */
+}
+.spinner {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid var(--blue);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+#loader.active {
+  display: flex;
+}
+
+
+
 
       
-    </style>
+</style>
     {% endblock %}
     {% block extra_css %}
     {% if not block.super %}
@@ -517,6 +567,9 @@ ul.navigation li a {
 
 <body>
     
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
     
 
     <!-- =============== Navigation ================ -->
@@ -631,6 +684,16 @@ ul.navigation li a {
                     </a>
                 </li>  
                 <li>
+                    <a href="{% url 'recuperer_notifications' %}" data-url="{% url 'notifications_non_lues_count_admin' %}">
+                        <span class="icon">
+                            <ion-icon name="information-circle-outline"></ion-icon>
+                        </span>
+                        <span class="title">Notifications </span>
+                        <span class="notification-badge"></span>
+                    </a>
+                </li>
+                
+                <li>
                     <button type="button" class="menu-link" onclick="document.getElementById('logout-form').submit();">
                         <span class="icon">
                             <ion-icon name="log-out-outline"></ion-icon>
@@ -712,6 +775,55 @@ ul.navigation li a {
         setTimeout(function() {
         document.querySelector('.custom-alert-success').classList.add('fade-out');
         }, 3000); // L'alerte disparaît après 3 secondes
+        
+            function updateNotificationBadge() {
+            const badgeUrl = document.querySelector('a[data-url]').getAttribute('data-url');
+
+            fetch(badgeUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        const count = data.notifications_non_lues || 0;
+                        badge.textContent = count; // Affiche toujours le nombre, même 0
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des notifications non lues:', error);
+                });
+        }
+
+        // Exécuter la fonction lors du chargement de la page
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+        document.addEventListener('DOMContentLoaded', function () {
+  // Exemple d'affichage et de masquage du loader
+  showLoader(); // Affiche le loader
+  setTimeout(hideLoader, 250); // Masque le loader après 10 secondes
+
+  // Assurez-vous que cette fonction est définie avant l'appel
+  updateNotificationBadge();
+});
+
+function showLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.classList.add('active');
+  } else {
+    console.error("L'élément avec l'ID 'loader' est introuvable.");
+  }
+}
+
+function hideLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.classList.remove('active');
+  } else {
+    console.error("L'élément avec l'ID 'loader' est introuvable.");
+  }
+}
+
+
+
 
     </script>
 

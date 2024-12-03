@@ -198,17 +198,7 @@ def creer_note_prof(request):
         niveau = request.GET.get('niveau')
         module_id = request.GET.get('module_id')
         etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
-        module = Cours_Module.objects.get(Id_module=module_id)
-
-
         
-        context = {
-            'etudiants': etudiants,
-            'module': module,
-            'filiere_id': filiere_id,
-            'niveau': niveau
-        }
-         # Récupère le module
         try:
             module = Cours_Module.objects.get(Id_module=module_id)
         except Cours_Module.DoesNotExist:
@@ -219,15 +209,38 @@ def creer_note_prof(request):
         if module.professeur.Id_prof != request.session.get('professeur_id'):
             messages.error(request, "Vous ne pouvez pas ajouter de notes pour ce module car vous ne l'enseignez pas.")
             return redirect('Professeur_dashboard')
-        
+
+        context = {
+            'etudiants': etudiants,
+            'module': module,
+            'filiere_id': filiere_id,
+            'niveau': niveau
+        }
         return render(request, 'prof/add_note_prof.html', context)
+
     elif request.method == 'POST':
         module_id = request.POST.get('module_id')
         etudiants = request.POST.getlist('etudiant_id')
         notes1 = request.POST.getlist('note1')
         notes2 = request.POST.getlist('note2')
+
+        etudiants_modifies = []
+
+        try:
+            # Récupérer le module pour obtenir son nom
+            module = Cours_Module.objects.get(Id_module=module_id)
+            nom_module = module.nom_module
+            prof = module.professeur.nom_prof 
+            prof_prenom = module.professeur.prenom_prof  # Récupérer le nom du professeur
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('Professeur_dashboard')
         
+
+
         for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
+
+            Notes.objects.filter(etudiant_id=etudiant_id, matiere_module_id=module_id).delete()
             note = Notes(
                 etudiant_id=etudiant_id,
                 matiere_module_id=module_id,
@@ -235,9 +248,25 @@ def creer_note_prof(request):
                 Note2=float(note2)
             )
             note.save()
+            etudiant = Etudiant.objects.get(pk=etudiant_id)
+            etudiants_modifies.append(etudiant.nom_etudiant)
+
+        # Envoyer une notification unique aux administrateurs
+        administrateurs = Administration.objects.all()
+        message = (
+            f"Des notes ont été ajoutées ou modifiées par l'enseignant {prof} {prof_prenom} "
+            f"pour les étudiants suivants dans le module {nom_module} : {', '.join(etudiants_modifies)}."
+        )
+
+        for admin in administrateurs:
+            creer_notification(
+                destinataire_admin=admin,
+                message=message
+            )
+
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('Professeur_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée 
-    
+        return redirect('Professeur_dashboard')
+
 def voir_notes_prof(request, filiere_id, niveau):
     if request.method == 'GET':
         module_id = request.GET.get('module_id')
@@ -262,7 +291,7 @@ def voir_notes_prof(request, filiere_id, niveau):
         
         return render(request, 'prof/voir_notes_prof.html', context)
     else:
-        return redirect('admin_dashboard')
+        return redirect('Professeur_dashboard')
     
 def modifier_note_prof(request, note_id):
     note = get_object_or_404(Notes, Id_note=note_id)
@@ -275,6 +304,13 @@ def modifier_note_prof(request, note_id):
             note.Note1 = float(note1_str.replace(',', '.'))
             note.Note2 = float(note2_str.replace(',', '.'))
             note.save()
+            administrateurs = Administration.objects.all()
+            # Envoyer des notifications aux administrateurs
+            for admin in administrateurs:
+                creer_notification(
+                    destinataire_admin=admin,
+                    message=f"Nouvelle note créée pour l'étudiant {note.etudiant}."
+                )
             messages.success(request, 'La note a été modifiée avec succès.')
             return redirect('Professeur_dashboard')
         except ValueError:
@@ -393,3 +429,73 @@ def get_taches(request):
     ]
 
     return JsonResponse({'taches': taches_data})
+
+from Administration.views import creer_notification
+
+def action_professeur(request, prof_id):
+    professeur = get_object_or_404(professeurs, pk=prof_id)
+
+    # Exemple d'une action : validation d'un devoir
+    if request.method == 'POST':
+        # Logique de validation
+        creer_notification(
+            destinataire_admin=None,  # Pas d'administrateur
+            destinataire_prof=professeur,  # Destinataire : professeur
+            evenement="Validation de devoir"
+        )
+        # Redirige après l'action
+        return redirect('dashboard_professeur')
+from Administration.models import Notifications
+
+def notifications_professeur(request):
+     # Récupérer l'ID du professeur à partir de la session
+    professeur_id = request.session.get('professeur_id')
+
+    if professeur_id:
+        try:
+            # Récupérer l'instance du professeur à partir de l'ID
+            professeur = professeurs.objects.get(Id_prof=professeur_id)  # Ou le modèle qui correspond au professeur
+        except Administration.DoesNotExist:
+            messages.error(request, "Professeur non trouvé.")
+            return redirect('Professeur_dashboard')  # Redirige vers une page d'accueil ou une page d'erreur
+    else:
+        messages.error(request, "Session invalide. Vous devez vous reconnecter.")
+        return redirect('Professeur_dashboard')  # Redirige vers la page de connexion
+
+    # Récupérer les notifications qui sont destinées au professeur
+    notifications = Notifications.objects.filter(destinataire_prof=professeur).order_by('-date')
+    notifications.filter(lu=False).update(lu=True)
+    # Marquer les notifications comme lues si nécessaire
+    #if 'mark_read' in request.GET:
+     #   notification_ids = request.GET.getlist('mark_read')
+     #   Notifications.objects.filter(id__in=notification_ids).update(lue=True)
+
+    context = {
+        'notifications': notifications,
+        'notifications_non_lues': notifications.filter(lu=False).count(),
+    }
+
+    return render(request, 'prof/notifications.html', context)
+
+
+def notifications_non_lues_count(request):
+    try:
+        # Récupérer l'ID du professeur dans la session
+        
+        professeur_id = request.session.get('professeur_id')
+        
+        # Vérifier si l'ID existe dans la session
+        if not professeur_id:
+            return JsonResponse({'error': 'ID professeur introuvable dans la session'}, status=400)
+
+        # Vérifier que l'ID est valide
+        notifications_non_lues = Notifications.objects.filter(
+            destinataire_prof=professeur_id, lu=False
+        ).count()
+
+        # Retourner la réponse JSON avec le nombre de notifications non lues
+        return JsonResponse({'notifications_non_lues': notifications_non_lues})
+
+    except Exception as e:
+        # Capturer toute erreur et retourner un message d'erreur
+        return JsonResponse({'error': str(e)}, status=500)

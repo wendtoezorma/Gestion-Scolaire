@@ -7,115 +7,223 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            background: none !important;
         }
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .background .bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            animation: bubbleAnimation 15s infinite;
+        }
+
+        @keyframes bubbleAnimation {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(-100%, 100%); }
+            100% { transform: translate(0, 0); }
+        }
+
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 20px auto;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+            animation: fadeInContainer 1.5s ease-in-out;
         }
+
+        @keyframes fadeInContainer {
+            0% { opacity: 0; transform: translateY(-50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
         h1 {
             color: #007BFF;
+            text-align: center;
+            animation: slideUp 1s ease-out;
         }
+
+        @keyframes slideUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
         .alert {
             padding: 15px;
             background-color: #dff0d8;
             border: 1px solid #d6e9c6;
             border-radius: 5px;
             margin-bottom: 20px;
+            animation: fadeIn 1s ease-in-out;
         }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
         ul {
             list-style-type: none;
             padding: 0;
         }
+
         li {
             background: #f9f9f9;
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 15px;
             padding: 15px;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.3s;
+            animation: slideIn 0.5s ease-out;
         }
+
+        @keyframes slideIn {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
         li:hover {
             background: #f1f1f1;
+            transform: translateX(10px);
         }
+
         hr {
             border: none;
             border-top: 1px solid #eee;
         }
+
         a {
             text-decoration: none;
             color: #007BFF;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .text-center {
-    text-align: center;
+            transition: color 0.3s ease;
+            animation: fadeInText 1.5s ease-in-out;
         }
 
+        @keyframes fadeInText {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            animation: fadeInButton 1s ease-in-out;
+        }
+
+        @keyframes fadeInButton {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        button:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
-    
-{% if messages %}
-<div id="message-container">
-    {% for message in messages %}
+    <div class="background">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    {% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
         <div class="alert">
             {{ message }}
         </div>
-    {% endfor %}
-</div>
-{% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
-<div class="container">
-    <h1>Informations Enregistrées</h1>
-    
-    {% if infos %}
+    <div class="container">
+        <h1>Informations Enregistrées</h1>
+
+        {% if infos %}
         <h2>Messages Récents</h2>
         <ul>
             {% for info in infos %}
-                <li>
-                    <strong>Titre:</strong> {{ info.titre }}<br>
-                    <strong>Message:</strong> {{ info.message }}<br>
-                    {% if info.contenu %}
-                        <strong>Fichier:</strong> <a href="{{ info.contenu.url }}" target="_blank">Voir le fichier</a><br>
-                    {% endif %}
-                    <div class="text-center">
-                        <strong>Date de création:</strong> {{ info.date_creation }}<br>
-                    </div>
-                    <form action="{% url 'voir_infos' %}" method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="id_infos" value="{{ info.id_infos }}">
-                        <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce message ?');">Supprimer</button>
-                    </form>
-                </li>
-                <hr>
+            <li>
+                <strong>Titre:</strong> {{ info.titre }}<br>
+                <strong>Message:</strong> {{ info.message }}<br>
+                {% if info.contenu %}
+                    <strong>Fichier:</strong> <a href="{{ info.contenu.url }}" target="_blank">Voir le fichier</a><br>
+                {% endif %}
+                <div class="text-center">
+                    <strong>Date de création:</strong> {{ info.date_creation }}<br>
+                </div>
+                <form action="{% url 'voir_infos' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_infos" value="{{ info.id_infos }}">
+                    <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce message ?');">Supprimer</button>
+                </form>
+            </li>
+            <hr>
             {% endfor %}
         </ul>
-    {% else %}
+        {% else %}
         <p>Aucune information enregistrée.</p>
-    {% endif %}
-     <!-- Formulaire de suppression -->
-     
-    
-    <a href="{% url 'infos' %}">Retour au formulaire</a>
-</div>
+        {% endif %}
 
-<script>
-    // Masquer le message après 4 secondes (4000 ms)
-    setTimeout(function() {
-        var messageContainer = document.getElementById('message-container');
-        if (messageContainer) {
-            messageContainer.style.display = 'none';
-        }
-    }, 4000); // 4000 millisecondes = 4 secondes
-</script>
+        <a href="{% url 'infos' %}">Retour au formulaire</a>
+    </div>
+
+    <script>
+        // Masquer le message après 4 secondes (4000 ms)
+        setTimeout(function() {
+            var messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+            }
+        }, 4000); // 4000 millisecondes = 4 secondes
+    </script>
 </body>
 </html>

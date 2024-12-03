@@ -22,5 +22,7 @@ urlpatterns = [
     path('modifier_tache/<int:id>/', modifier_tache, name='modifier_tache'),
     path('supprimer_tache/<int:id>/', supprimer_tache, name='supprimer_tache'),
     path('api/get_taches/', get_taches, name='get_taches'),
+    path('notifications_prof/',notifications_professeur, name='recuperer_notifications_prof'),
+    path('notifications_non_lues_count/', notifications_non_lues_count, name='notifications_non_lues_count'),
    
 ]

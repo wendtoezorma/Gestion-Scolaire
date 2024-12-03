@@ -199,6 +199,23 @@
     opacity: 0;
 }
 
+.nav-link {
+    position: relative;
+    }
+
+
+    a .notification-badge {
+    background-color: #ff0000 !important; /* Rouge vif */
+    color: white; /* Couleur du texte */
+    padding: 0.2rem 0.5rem; /* Taille */
+    border-radius: 50%; /* Forme circulaire */
+    font-size: 0.9rem; /* Taille du texte */
+    position: absolute; /* Pour positionner au-dessus */
+    top: 0; /* Ajuster */
+    right: 0; /* Ajuster */
+    display: inline-block; /* Toujours afficher */
+    visibility: visible; /* S'assurer qu'il est visible */
+}
 </style>
 {% endblock %}
 {% block content %}

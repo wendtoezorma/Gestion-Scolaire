@@ -187,26 +187,6 @@ def personne_prevenir_action(request, action_type):
     return render(request, template_name, {'etudiant': etudiant, 'data': data })
 
  
-"""
-def dashboard_personne_prevenir(request):
-    # Vérifier si la personne à prévenir est connectée
-    personne_prevenir = PersonnePrevenir.get_etudiant_from_session(request)
-    if not personne_prevenir:
-        return redirect('connexion_personne_prevenir')  # Rediriger si non connecté
-
-    # Récupérer les notes, emploi du temps et fichiers de l'étudiant associé
-    notes = PersonnePrevenir.get_notes(personne_prevenir)
-    emploi_du_temps = PersonnePrevenir.get_emploi_du_temps(personne_prevenir)
-    files = PersonnePrevenir.get_uploaded_files()
-
-    # Passer les données à la template
-    return render(request, 'parent/dashboard_personne_prevenir.html', {
-        'etudiant': personne_prevenir,
-        'notes': notes,
-        'emploi_du_temps': emploi_du_temps,
-        'files': files
-    })
-"""
 
 class CustomLogoutView(LogoutView):
     template_name = None
@@ -519,7 +499,14 @@ def creer_note(request):
         etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
         module = Cours_Module.objects.get(Id_module=module_id)
 
-        # Récupérer les notes existantes pour les étudiants
+
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('admin_dashboard')
+
+        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
         notes_existantes = {note.etudiant_id: note for note in Notes.objects.filter(matiere_module_id=module_id)}
 
         context = {
@@ -527,7 +514,7 @@ def creer_note(request):
             'module': module,
             'filiere_id': filiere_id,
             'niveau': niveau,
-            'notes_existantes': notes_existantes,  # Ajout des notes existantes au contexte
+            'notes_existantes': notes_existantes,
         }
 
         return render(request, 'Administration/add_note.html', context)
@@ -538,19 +525,43 @@ def creer_note(request):
         notes1 = request.POST.getlist('note1')
         notes2 = request.POST.getlist('note2')
 
+        etudiants_modifies = []
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+            nom_module = module.nom_module
+            filiere = module.filiere
+
+            professeur = module.professeur  # Professeur responsable du module
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('admin_dashboard')
+
         for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
-            # Traiter les valeurs vides pour les notes
             note1 = float(note1) if note1 else 0.0
             note2 = float(note2) if note2 else 0.0
+
+            Notes.objects.filter(etudiant_id=etudiant_id, matiere_module_id=module_id).delete()
 
             note, created = Notes.objects.update_or_create(
                 etudiant_id=etudiant_id,
                 matiere_module_id=module_id,
                 defaults={'Note1': note1, 'Note2': note2}
             )
-        
+            etudiant = Etudiant.objects.get(pk=etudiant_id)
+            etudiants_modifies.append(etudiant.nom_etudiant)
+
+        # Notification au professeur
+        message = (
+            f"Des notes ont été ajoutées ou modifiées par l'administration pour les étudiants suivants dans votre module {nom_module} en {filiere} : "
+            f"{', '.join(etudiants_modifies)}."
+        )
+        creer_notification(
+            destinataire_prof=professeur,
+            message=message
+        )
+
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('admin_dashboard')  # Rediriger vers une page de succès ou une autre page appropriée 
+        return redirect('admin_dashboard')
 
 
 @login_required(login_url='login')
@@ -717,17 +728,20 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Paragraph, Spacer, SimpleDocTemplate, Table
 
 def upload_file(request):
+    # ======================= SECTION POST - Traitement du formulaire =======================
     if request.method == 'POST':
+        # Création du formulaire avec les données du POST et des fichiers
         form = UploadFileForm(request.POST, request.FILES)
+        
+        # Vérification si le formulaire est valide
         if form.is_valid():
-
-           
-
+            # ======================= SECTION SAUVEGARDE DU FICHIER DANS LE MODÈLE =======================
             # Sauvegarder le fichier dans le modèle UploadedFile
             uploaded_file = form.cleaned_data['file']
             uploaded_file_instance = UploadedFile(file=uploaded_file)
             uploaded_file_instance.save()
 
+            # ======================= SECTION TRAITEMENT DU FICHIER EXCEL =======================
             # Lire le fichier Excel téléchargé avec toutes ses feuilles
             excel_file = pd.ExcelFile(uploaded_file)
             buffer = io.BytesIO()
@@ -736,6 +750,7 @@ def upload_file(request):
             # Créer une liste pour les éléments du PDF
             elements = []
 
+            # ======================= SECTION TRAITEMENT DES FEUILLES EXCEL =======================
             for sheet_name in excel_file.sheet_names:
                 # Lire chaque feuille dans un DataFrame
                 df = excel_file.parse(sheet_name)
@@ -773,14 +788,15 @@ def upload_file(request):
                 elements.append(table)
                 elements.append(Spacer(1, 12))  # Ajouter un espace entre les feuilles
 
+            # ======================= SECTION GÉNÉRATION DU PDF =======================
             # Construire le PDF
             doc.build(elements)
 
-
+            # ======================= SECTION SAUVEGARDE DU PDF =======================
             # Créer un chemin pour sauvegarder le PDF
             pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
 
-              # Créer un fichier temporaire pour sauvegarder le PDF dans le système
+            # Créer un fichier temporaire pour sauvegarder le PDF dans le système
             pdf_file_name = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
             pdf_file_path = os.path.join(settings.MEDIA_ROOT, pdf_file_name)
 
@@ -788,29 +804,33 @@ def upload_file(request):
             with open(pdf_file_path, 'wb') as f:
                 f.write(buffer.getvalue())
 
-            # Sauvegarder le contenu PDF dans le fichier
-            with open(pdf_file_path, 'wb') as f:
-                f.write(buffer.getvalue())
-           
-
             # Créer une nouvelle instance de UploadedFile pour le PDF
             pdf_uploaded_file_instance = UploadedFile(file=pdf_file_path)
             pdf_uploaded_file_instance.save()
 
+            # ======================= SECTION NOTIFICATION =======================
+            # Création de la notification
+            message = f"Un nouveau emploi du temps a été uploader : {uploaded_file.name}."
+            # Récupérer tous les professeurs
+            professeurs_list = professeurs.objects.all()
+            for prof in professeurs_list:
+                # Créer une notification pour chaque professeur
+                notification = Notifications(
+                    destinataire_prof=prof,
+                    message=message
+                )
+                notification.save()
 
+            # ======================= SECTION MESSAGE DE SUCCÈS =======================
             messages.success(request, "Le fichier PDF a été téléchargé avec succès.")
             # Optionnel : rediriger vers une page de succès ou afficher un message
             return redirect('list_uploaded_files')  # Remplacez par le nom de votre vue
-            # Sauvegarder le fichier directement dans le modèle UploadedFile
             
-
-            messages.success(request, "Le fichier PDF a été téléchargé avec succès.")
-            return redirect('list_uploaded_files')  # Redirigez vers une page listant les fichiers
+    # ======================= SECTION FORMULAIRE PAR DÉFAUT =======================
     else:
         form = UploadFileForm()
 
     return render(request, 'Administration/upload.html', {'form': form})
-
 
 @login_required(login_url='login')
 def list_uploaded_files(request):
@@ -949,18 +969,6 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ScolariteForm,FiltreForm
 
-"""def gestion_scolarite(request):
-    if request.method == 'POST':
-        form = ScolariteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Scolarité mise à jour avec succès.')
-            return redirect('gestion_scolarite')
-    else:
-        form = ScolariteForm()
-    
-    return render(request, 'Administration/scolarite.html', {'form': form})
-"""
 #pour qu'un etudiant puissent voir ses note
 from .models import Etudiant, Notes, Cours_Module
 
@@ -1367,7 +1375,12 @@ def reinscription_etudiant(request):
                 }
                 
                 # Enregistrer les anciennes données dans un fichier JSON
-                with open(f"ancienne_scolarite_{etudiant.matricule}.json", "w") as json_file:
+                #with open(f"ancienne_scolarite_{etudiant.matricule}.json", "w") as json_file:
+                 #   json.dump(ancienne_data, json_file)
+                 # Enregistrer les anciennes données dans un fichier JSON dans le répertoire media/js_scolarite/
+                js_scolarite_dir = os.path.join(settings.MEDIA_ROOT, 'js_scolarite')
+                file_path = os.path.join(js_scolarite_dir, f"ancienne_scolarite_{etudiant.matricule}.json")
+                with open(file_path, "w") as json_file:
                     json.dump(ancienne_data, json_file)
 
                 # Mettre à jour les informations de l'étudiant
@@ -1418,7 +1431,50 @@ def reinscription_etudiant(request):
     return render(request, 'Administration/reinscription_etudiant.html', context)
 
 
+def recuperer_notifications(request):
+    # Récupère l'administrateur connecté
+    administrateur = request.user
+    
+    # Filtre les notifications pour cet administrateur
+    notifications = Notifications.objects.filter(destinataire_admin=administrateur).order_by('-date')
+    notifications.filter(lu=False).update(lu=True)
+
+    context = {
+        'notifications': notifications
+    }
+
+    return render(request, 'administration/notifications.html', context)
 
 
 
 
+
+def creer_notification(destinataire_admin=None, destinataire_prof=None, message=""):
+    if not destinataire_admin and not destinataire_prof:
+        raise ValueError("Un destinataire doit être spécifié.")
+
+    # Génération automatique du message basé sur l'événement
+    messages = f"Nouvelle notification liée à l'événement : {message}"
+
+    Notifications.objects.create(
+        destinataire_admin=destinataire_admin,
+        destinataire_prof=destinataire_prof,
+        message=messages
+    )
+
+
+
+def notifications_non_lues_count_admin(request):
+    """
+    Retourne le nombre de notifications non lues pour l'utilisateur connecté.
+    """
+    user = request.user  # Utilisateur actuellement connecté
+    
+    # Récupérer les notifications non lues
+    notifications_non_lues = Notifications.objects.filter(destinataire_admin=user, lu=False)
+    
+    # Créer une liste des messages non lus
+    messages_non_lus = [notification.message for notification in notifications_non_lues]
+    
+    # Retourner le nombre et les messages non lus dans un JsonResponse
+    return JsonResponse({'notifications_non_lues': len(messages_non_lus), 'messages_non_lus': messages_non_lus})

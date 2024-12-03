@@ -788,3 +788,5 @@ class ParentScolariteDetailView(APIView):
         
         # Si aucune scolarité n'est trouvée pour cet étudiant
         return Response({"message": "Aucune donnée de scolarité trouvée"}, status=404)
+    
+

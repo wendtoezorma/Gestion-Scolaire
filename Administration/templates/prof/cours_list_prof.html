@@ -1,208 +1,272 @@
-{%extends 'prof/baseprof.html'%}
+{% extends 'prof/baseprof.html' %}
 {% block title %}Liste Cours{% endblock %}
 
- 
 {% block profcontent %}
 <style>
-
-.cours-list-container {
-    margin: 20px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Style de la table */
 .cours-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    transition: transform 0.3s ease;
 }
 
+/* Style des cellules de la table avec texte plus visible */
 .cours-table th, .cours-table td {
-    padding: 12px;
+    padding: 15px;
     text-align: center;
     border: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+    font-size: 16px; /* Augmenter la taille de la police */
+    color: #333; /* Couleur de texte plus sombre */
 }
 
+/* Style des en-têtes de la table */
 .cours-table th {
-    background-color: #1e73be; /* Couleur bleue pour les en-têtes */
+    background-color: #1e73be; /* Bleu foncé */
     color: white;
     font-weight: bold;
+    text-transform: uppercase;
 }
 
+/* Style des cellules de la table */
 .cours-table td {
-    background-color: #fafafa;
+    background-color: #f7f7f7;
+    color: #333; /* Assurer une couleur de texte sombre pour la lisibilité */
 }
 
+/* Effet de survol des lignes paires */
 .cours-table tr:nth-child(even) td {
-    background-color: #e7f1fc; /* Couleur bleue claire pour les lignes paires */
+    background-color: #e0f7fa; /* Bleu clair */
 }
 
+/* Effet de survol des lignes impaires */
 .cours-table tr:nth-child(odd) td {
-    background-color: #ffffff; /* Couleur blanche pour les lignes impaires */
+    background-color: #ffffff;
 }
 
+/* Effet de survol pour les lignes de la table */
+.cours-table tr:hover {
+    transform: translateY(-5px);
+    background-color: #e3f2fd; /* Couleur de survol */
+    color: #333; /* Assurer que la couleur du texte soit toujours visible au survol */
+}
+
+/* Style des liens dans la table */
 .cours-table td a {
     color: #1e73be;
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .cours-table td a:hover {
+    color: #003366; /* Bleu foncé au survol */
     text-decoration: underline;
 }
-
-#filter-modules, #filter-type_fichier, #filter-niveau, #filter-enseignant, #filter-filiere, #filter-annee_academique {
-    padding: 8px;
-    margin: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: #fff;
+/* Style du loader */
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Cacher par défaut */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
-#filter-modules:focus, #filter-type_fichier:focus, #filter-niveau:focus, #filter-enseignant:focus, #filter-filiere:focus, #filter-annee_academique:focus {
-    outline: none;
-    border-color: #1e73be; /* Bordure bleue sur focus */
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
 }
 
-</style> 
-<br>
-    <br>
-    <br>
-    <h1>Liste des Cours </h1>
-        <a href="{% url 'upload_cours_prof' %} " id="add"> 
-            <i class="fas fa-plus-circle btn btn-success add-file" > </i>
-        </a>
-    <br>
-    <br>
-    <div class="cours-list-container">
-        <table class="cours-table">
-            <thead>
-                <tr>
-                    <th>Module
-                        <select id="filter-modules">
-                            <option value="">Tous</option>
-                            {% for cour in cours_fichiers %}
-                            <option value="{{ cour.module.Id_module }}">{{ cour.module.nom_module }}</option>
-                            {% endfor %}
-                        </select>
-                    </th>
-                    <th>Type Fichier
-                        <select id="filter-type_fichier">
-                            <option value="">Tous</option>
-                            <option value="Cours">Cours</option>
-                            <option value="TD">TD</option>
-                            <option value="Devoir 1">Devoir 1</option>
-                            <option value="Devoir 2">Devoir 2</option>
-                            <option value="Devoir Session">Devoir Session</option>
-                        </select>
-                    </th>
-                    <th>Niveau
-                        <select id="filter-niveau">
-                            <option value="">Tous</option>
-                            <option value="LICENCE1">LICENCE1</option>
-                            <option value="LICENCE2">LICENCE2</option>
-                            <option value="LICENCE3">LICENCE3</option>
-                            <option value="MASTER1">MASTER1</option>
-                            <option value="MASTER2">MASTER2</option>
-                            <option value="DOCTORAT">DOCTORAT</option>
-                        </select>
-                    </th>
-                    <th>Enseignant
-                        <select id="filter-enseignant">
-                            <option value="">Tous</option>
-                            {% for cour in cours_fichiers %}
-                            <option value="{{ cour.professeur.Id_prof }}">{{ cour.professeur.nom_prof }}</option>
-                            {% endfor %}
-                        </select>
-                    </th>
-                    <th>Filière
-                        <select id="filter-filiere">
-                            <option value="">Toutes</option>
-                            {% for cour in cours_fichiers %}
-                            <option value="{{ cour.filiere.Id_filiere }}">{{ cour.filiere.nom_filiere }}</option>
-                            {% endfor %}
-                        </select>
-                    </th>
-                    <th>Année Académique
-                        <select id="filter-annee_academique">
-                            <option value="">Tous</option>
-                            <option value="2022/2023">2022/2023</option>
-                            <option value="2023/2024">2023/2024</option>
-                            <option value="2024/2025">2024/2025</option>
-                            <option value="2025/2026">2025/2026</option>
-                            <option value="2026/2027">2026/2027</option>
-                            <option value="2027/2028">2027/2028</option>
-                            <option value="2028/2029">2028/2029</option>
-                        </select>
-                    </th>
-                    <th>PDF</th>
-                    <th>Date D'ajout</th>
-                </tr>
-            </thead>
-            <tbody id="cours-table-body">
-                {% for cour in cours_fichiers %}
-                <tr data-module="{{ cour.module.Id_module }}" data-type_fichier="{{ cour.type_fichier }}" data-niveau="{{ cour.niveau }}" data-enseignant="{{ cour.professeur.Id_prof }}" data-filiere="{{ cour.filiere.Id_filiere }}" data-annee_academique="{{ cour.annee_academique_cour }}" id="taill">
-                    <td>{{ cour.module.nom_module }}</td>
-                    <td>{{ cour.type_fichier }}</td>
-                    <td>{{ cour.niveau }}</td>
-                    <td>{{ cour.professeur.nom_prof }}</td>
-                    <td>{{ cour.filiere.nom_filiere }}</td>
-                    <td>{{ cour.annee_academique_cour }}</td>
-                    <td>
-                        <a href="{{ cour.fichier.url }}" download>
-                            {{ cour.nom_fichier }} <i class="fas fa-download"></i>
-                        </a>
-                    </td>
-                    
-                    <td>{{ cour.date_ajout }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-    $(document).ready(function() {
-        $('#filter-filiere, #filter-niveau, #filter-annee_academique, #filter-modules, #filter-enseignant, #filter-type_fichier').on('change', function() {
-            var filiere = $('#filter-filiere').val();
-            var niveau = $('#filter-niveau').val();
-            var module = $('#filter-modules').val();
-            var enseignant = $('#filter-enseignant').val();
-            var type_fichier = $('#filter-type_fichier').val();
-            var annee_academique = $('#filter-annee_academique').val();
-    
-            $('#cours-table-body tr').each(function() {
-                var show = true;
-    
-                if (filiere && $(this).data('filiere') != filiere) {
-                    show = false;
-                }
-                if (niveau && $(this).data('niveau') != niveau) {
-                    show = false;
-                }
-                if (module && $(this).data('module') != module) {
-                    show = false;
-                }
-                if (enseignant && $(this).data('enseignant') != enseignant) {
-                    show = false;
-                }
-                if (annee_academique && $(this).data('annee_academique') != annee_academique) {
-                    show = false;
-                }
-                if (type_fichier && $(this).data('type_fichier') != type_fichier) {
-                    show = false;
-                }
-    
-                if (show) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+</style>
+
+<br><br><br>
+<h1>Liste des Cours</h1>
+
+<div id="loader" class="loader-container">
+    <div class="loader"></div>
+</div>
+
+<a href="{% url 'upload_cours_prof' %}" id="add">
+    <i class="fas fa-plus-circle btn btn-success add-file"></i>
+</a>
+<br><br>
+
+<div class="cours-list-container">
+    <table class="cours-table">
+        <thead>
+            <tr>
+                <th>Module
+                    <select id="filter-modules">
+                        <option value="">Tous</option>
+                        {% for cour in cours_fichiers %}
+                        <option value="{{ cour.module.Id_module }}">{{ cour.module.nom_module }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>Type Fichier
+                    <select id="filter-type_fichier">
+                        <option value="">Tous</option>
+                        <option value="Cours">Cours</option>
+                        <option value="TD">TD</option>
+                        <option value="Devoir 1">Devoir 1</option>
+                        <option value="Devoir 2">Devoir 2</option>
+                        <option value="Devoir Session">Devoir Session</option>
+                    </select>
+                </th>
+                <th>Niveau
+                    <select id="filter-niveau">
+                        <option value="">Tous</option>
+                        <option value="LICENCE1">LICENCE1</option>
+                        <option value="LICENCE2">LICENCE2</option>
+                        <option value="LICENCE3">LICENCE3</option>
+                        <option value="MASTER1">MASTER1</option>
+                        <option value="MASTER2">MASTER2</option>
+                        <option value="DOCTORAT">DOCTORAT</option>
+                    </select>
+                </th>
+                <th>Enseignant
+                    <select id="filter-enseignant">
+                        <option value="">Tous</option>
+                        {% for cour in cours_fichiers %}
+                        <option value="{{ cour.professeur.Id_prof }}">{{ cour.professeur.nom_prof }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>Filière
+                    <select id="filter-filiere">
+                        <option value="">Toutes</option>
+                        {% for cour in cours_fichiers %}
+                        <option value="{{ cour.filiere.Id_filiere }}">{{ cour.filiere.nom_filiere }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>Année Académique
+                    <select id="filter-annee_academique">
+                        <option value="">Tous</option>
+                        <option value="2022/2023">2022/2023</option>
+                        <option value="2023/2024">2023/2024</option>
+                        <option value="2024/2025">2024/2025</option>
+                        <option value="2025/2026">2025/2026</option>
+                        <option value="2026/2027">2026/2027</option>
+                        <option value="2027/2028">2027/2028</option>
+                        <option value="2028/2029">2028/2029</option>
+                    </select>
+                </th>
+                <th>PDF</th>
+                <th>Date D'ajout</th>
+            </tr>
+        </thead>
+        <tbody id="cours-table-body">
+            {% for cour in cours_fichiers %}
+            <tr data-module="{{ cour.module.Id_module }}" data-type_fichier="{{ cour.type_fichier }}" data-niveau="{{ cour.niveau }}" data-enseignant="{{ cour.professeur.Id_prof }}" data-filiere="{{ cour.filiere.Id_filiere }}" data-annee_academique="{{ cour.annee_academique_cour }}">
+                <td>{{ cour.module.nom_module }}</td>
+                <td>{{ cour.type_fichier }}</td>
+                <td>{{ cour.niveau }}</td>
+                <td>{{ cour.professeur.nom_prof }}</td>
+                <td>{{ cour.filiere.nom_filiere }}</td>
+                <td>{{ cour.annee_academique_cour }}</td>
+                <td>
+                    <a href="{{ cour.fichier.url }}" download>
+                        {{ cour.nom_fichier }} <i class="fas fa-download"></i>
+                    </a>
+                </td>
+                <td>{{ cour.date_ajout }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#filter-filiere, #filter-niveau, #filter-annee_academique, #filter-modules, #filter-enseignant, #filter-type_fichier').on('change', function() {
+        var moduleValue = $('#filter-modules').val().toLowerCase();
+        var typeFichierValue = $('#filter-type_fichier').val().toLowerCase();
+        var niveauValue = $('#filter-niveau').val().toLowerCase();
+        var enseignantValue = $('#filter-enseignant').val().toLowerCase();
+        var filiereValue = $('#filter-filiere').val().toLowerCase();
+        var anneeAcademiqueValue = $('#filter-annee_academique').val().toLowerCase();
+
+        $('#cours-table-body tr').each(function() {
+            var rowModule = $(this).data('module').toString().toLowerCase();
+            var rowTypeFichier = $(this).data('type_fichier').toString().toLowerCase();
+            var rowNiveau = $(this).data('niveau').toString().toLowerCase();
+            var rowEnseignant = $(this).data('enseignant').toString().toLowerCase();
+            var rowFiliere = $(this).data('filiere').toString().toLowerCase();
+            var rowAnneeAcademique = $(this).data('annee_academique').toString().toLowerCase();
+
+            if (
+                (moduleValue === '' || rowModule.indexOf(moduleValue) !== -1) &&
+                (typeFichierValue === '' || rowTypeFichier.indexOf(typeFichierValue) !== -1) &&
+                (niveauValue === '' || rowNiveau.indexOf(niveauValue) !== -1) &&
+                (enseignantValue === '' || rowEnseignant.indexOf(enseignantValue) !== -1) &&
+                (filiereValue === '' || rowFiliere.indexOf(filiereValue) !== -1) &&
+                (anneeAcademiqueValue === '' || rowAnneeAcademique.indexOf(anneeAcademiqueValue) !== -1)
+            ) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
         });
     });
-    </script>
+});
+$(document).ready(function() {
+    $('#filter-filiere, #filter-niveau, #filter-annee_academique, #filter-modules, #filter-enseignant, #filter-type_fichier').on('change', function() {
+        // Afficher le loader
+        $('#loader').show();
 
-{% endblock profcontent %}
-    
+        var moduleValue = $('#filter-modules').val().toLowerCase();
+        var typeFichierValue = $('#filter-type_fichier').val().toLowerCase();
+        var niveauValue = $('#filter-niveau').val().toLowerCase();
+        var enseignantValue = $('#filter-enseignant').val().toLowerCase();
+        var filiereValue = $('#filter-filiere').val().toLowerCase();
+        var anneeAcademiqueValue = $('#filter-annee_academique').val().toLowerCase();
+
+        $('#cours-table-body tr').each(function() {
+            var rowModule = $(this).data('module').toString().toLowerCase();
+            var rowTypeFichier = $(this).data('type_fichier').toString().toLowerCase();
+            var rowNiveau = $(this).data('niveau').toString().toLowerCase();
+            var rowEnseignant = $(this).data('enseignant').toString().toLowerCase();
+            var rowFiliere = $(this).data('filiere').toString().toLowerCase();
+            var rowAnneeAcademique = $(this).data('annee_academique').toString().toLowerCase();
+
+            if (
+                (moduleValue === '' || rowModule.indexOf(moduleValue) !== -1) &&
+                (typeFichierValue === '' || rowTypeFichier.indexOf(typeFichierValue) !== -1) &&
+                (niveauValue === '' || rowNiveau.indexOf(niveauValue) !== -1) &&
+                (enseignantValue === '' || rowEnseignant.indexOf(enseignantValue) !== -1) &&
+                (filiereValue === '' || rowFiliere.indexOf(filiereValue) !== -1) &&
+                (anneeAcademiqueValue === '' || rowAnneeAcademique.indexOf(anneeAcademiqueValue) !== -1)
+            ) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        // Cacher le loader après un délai pour permettre à la page de se charger
+        setTimeout(function() {
+            $('#loader').hide();
+        }, 500); // Le délai peut être ajusté selon le temps de filtrage
+    });
+});
+
+</script>
+
+{% endblock %}

@@ -7,15 +7,19 @@
     .student-list-container {
     width: 100%;
     overflow-x: auto; /* Ajoute la barre de défilement horizontale */
-   /* Empêche l'élément enfant de se diviser en plusieurs lignes */
+    -webkit-overflow-scrolling: touch; /* Pour les appareils tactiles */
 
     }
 
     .student-table {
-    min-width: 1200px; /* Assurez-vous que le tableau dépasse la largeur du conteneur pour activer le défilement */
-    width: 100%;
+    /* Assurez-vous que le tableau dépasse la largeur du conteneur pour activer le défilement */
+    width: 120%; /* Augmente la largeur pour que la barre de défilement soit nécessaire */
+    min-width: 800px; /* Assurez-vous que le tableau dépasse la largeur du conteneur */
     border-collapse: collapse;
+    
+    
     }
+    
 
     body {
     overflow-y: auto !important;

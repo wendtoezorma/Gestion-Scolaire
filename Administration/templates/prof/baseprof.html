@@ -29,28 +29,7 @@
     <style>
         
         /* Loader styles */
-        .loader-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-        }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -66,6 +45,11 @@
             background-color: #fff; /* Fond blanc pour l'en-tête */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+        .fade-out {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
 
         /* Espacer le contenu sous l'en-tête */
         .app-main {
@@ -111,6 +95,61 @@
         color: #856404;
         border: 1px solid #ffeeba;
     }
+    .nav-link {
+    position: relative;
+    }
+    .notification-badge {
+    background-color: #ff0000;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+ /* Loader styles */
+ .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fixer l'en-tête */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-main {
+            margin-top: 70px;
+        }
     </style>
 </head>
 
@@ -126,11 +165,7 @@
             <header class="app-header top-bar">
                 <nav class="navbar navbar-expand-md">
                     <div class="navbar-header">
-                        <!-- <a class="navbar-brand" href="index.html">
-                            <img src="{% static 'Administration/prof/assetsPROF/img/logo.png' %}" class="img-fluid logo-desktop" alt="logo" />
-                            <img src="{% static 'Administration/prof/assetsPROF/img/logo-icon.png' %}" class="img-fluid logo-mobile" alt="logo" />
-                        </a>
-                         Bouton hamburger -->
+                        
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
@@ -138,10 +173,11 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ml-auto">
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Notifications</a>
+                                <a class="nav-link" href="{% url 'recuperer_notifications_prof' %}" data-url="{% url 'recuperer_notifications_prof' %}">Notifications  <!-- Badge de notifications -->
+                                    <span class="notification-badge"></span></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Messages</a>
+                                <a class="nav-link" href="{}">Messages</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -252,8 +288,32 @@
             }, 1000 * (index + 1)); // Décalage de 3 secondes entre chaque message (si plusieurs messages)
             });
         });
+            // Fonction pour mettre à jour le badge
+    function updateNotificationBadge() {
+    fetch("{% url 'notifications_non_lues_count' %}")
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('.notification-badge');
+            
+            if (badge) {
+                // Toujours afficher le badge même si le nombre est 0
+                badge.textContent = data.notifications_non_lues || 0;
+            } else {
+                // Créer un badge si il n'existe pas
+                const newBadge = document.createElement('span');
+                newBadge.classList.add('notification-badge');
+                newBadge.textContent = data.notifications_non_lues || 0;  // Afficher 0 si aucune notification
+                document.querySelector('a[data-url]').appendChild(newBadge);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur AJAX:', error);
+        });
+}
 
+window.onload = updateNotificationBadge;
 
+    
     </script>
 </body>
 
