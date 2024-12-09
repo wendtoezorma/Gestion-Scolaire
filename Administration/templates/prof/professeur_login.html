@@ -19,34 +19,125 @@
     <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/style.css' %}" />
     <style>
         .input-container {
-    display: flex;
-    align-items: center;
-    background: #f0f0f0;
-    border-radius: 25px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-.icon {
-    margin-right: 10px;
-    color: #808080;
-}
-input {
-    border: none;
-    background: none;
-    flex: 1;
-    outline: none;
-}
-.btn-login {
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    padding: 10px;
-    width: 100%;
-    cursor: pointer;
-}
+            display: flex;
+            align-items: center;
+            background: #f0f0f0;
+            border-radius: 25px;
+            padding: 15px; /* Augmenté pour plus de confort */
+            margin-bottom: 20px;
+        }
+        .icon {
+            margin-right: 15px;
+            color: #808080;
+            font-size: 1.5rem; /* Taille augmentée des icônes */
+        }
+        input {
+            border: none;
+            background: none;
+            flex: 1;
+            outline: none;
+            font-size: 1.2rem; /* Taille augmentée du texte */
+        }
+        
+        button[type="submit"] {
+            background: linear-gradient(90deg, #161616, #133a42); /* Dégradé de vert */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 20px; /* Taille augmentée pour plus de confort */
+            font-size: 1.2rem; /* Taille du texte */
+            font-weight: bold;
+            text-transform: uppercase; /* Texte en majuscules */
+            cursor: pointer;
+            transition: all 0.3s ease-in-out; /* Transition douce */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile */
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background: linear-gradient(90deg, #f9fefb, #1e7e34); /* Changement de couleur au survol */
+            transform: scale(1.05); /* Légère mise en valeur */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Ombre accentuée */
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.98); /* Effet de clic */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Réduction de l'ombre */
+        }
+
+
+        h1 {
+            font-size: 2rem; /* Augmenté pour un titre plus visible */
+        }
+
+    
+    /* Animation fade-in pour la section de connexion */
+    .login {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Bulles flottantes en arrière-plan */
+    .bg-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 60%);
+        animation: moveBubbles 20s linear infinite;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .bg-gradient::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 70%);
+        animation: moveBubbles 25s linear infinite reverse;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    @keyframes moveBubbles {
+        0% {
+            transform: translateY(0) translateX(0);
+        }
+        50% {
+            transform: translateY(-20px) translateX(-10px);
+        }
+        100% {
+            transform: translateY(0) translateX(0);
+        }
+    }
+
+    /* Assurez-vous que le contenu reste au-dessus des bulles */
+    .bg-gradient {
+        position: relative;
+        z-index: 2;
+        overflow: hidden;
+    }
+
+    .login {
+        z-index: 3; /* Priorité pour que le formulaire reste visible */
+    }
+
 
     </style>
+    
 </head>
 
 <body class="bg-white">

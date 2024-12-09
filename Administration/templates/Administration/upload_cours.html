@@ -188,37 +188,88 @@
         font-size: 18px;
         color: #333;
     }
+    .progress-bar-container {
+        width: 100%;
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        margin-top: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #007bff;
+        transition: width 0.3s ease;
+    }
 
 
 </style>
-{% endblock %}
 
+{% endblock %}
 {% block content %}
 
 <div class="contenu">
-    
-<div id="loader" style="display: none;">
-    <div class="spinner"></div>
-    <p>Veuillez patienter pendant le téléchargement...</p>
-</div>
-    <form method="post" enctype="multipart/form-data">
+    <div id="loader" style="display: none;">
+        <div class="spinner"></div>
+        <p>Veuillez patienter pendant le téléchargement...</p>
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+    </div>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
         <h2>Upload fichier</h2>
         <br>
         {% csrf_token %}
-         <!-- Affiche les champs sous forme de paragraphes -->
-          
+        <!-- Affiche les champs sous forme de paragraphes -->
         {{ form.as_p }}
-        
-            <button type="submit" class="btn btn-success">Upload</button>
-            <div class="add-file">
-                <a href="{% url 'cours_list' %}" class="custom-btn">Voir cours, TD ou Exercices Enregistrés</a>
-            </div>
-        
+        <button type="submit" class="btn btn-success">Upload</button>
+        <div class="add-file">
+            <a href="{% url 'cours_list' %}" class="custom-btn">Voir cours, TD ou Exercices Enregistrés</a>
+        </div>
     </form>
 </div>
+
 <script>
-    document.getElementById('infoForm').addEventListener('submit', function () {
+    document.getElementById('uploadForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Empêche l'envoi par défaut du formulaire
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const xhr = new XMLHttpRequest();
+
+        // Affiche le loader
         document.getElementById('loader').style.display = 'flex';
+
+        // Configure la requête
+        xhr.open('POST', form.action, true);
+
+        // Met à jour la barre de progression
+        xhr.upload.addEventListener('progress', function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                const progressBar = document.getElementById('progress-bar');
+                progressBar.style.width = percentComplete + '%';
+            }
+        });
+
+        // Réinitialise après le téléchargement
+        xhr.addEventListener('load', function () {
+            document.getElementById('loader').style.display = 'none';
+            if (xhr.status === 200) {
+                alert('Fichier téléchargé avec succès!');
+                window.location.reload();
+            } else {
+                alert('Erreur lors du téléchargement.');
+            }
+        });
+
+        // Envoie les données
+        xhr.send(formData);
     });
 </script>
+
+
 {% endblock %}

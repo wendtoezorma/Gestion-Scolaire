@@ -2,7 +2,6 @@
 
 {% block content %}
 
-
 {% if messages %}
     <div id="message-container">
         {% for message in messages %}
@@ -12,34 +11,35 @@
         {% endfor %}
     </div>
 {% endif %}
-  <h2>Liste des fichiers uploadés</h2>
-  <table>
+
+<h2>Liste des fichiers uploadés</h2>
+
+<table class="file-table">
     <thead>
-      <tr>
-        <th>#</th>
-        <th>Nom du fichier</th>
-        <th>Date d'upload</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+            <th>#</th>
+            <th>Nom du fichier</th>
+            <th>Date d'upload</th>
+            <th>Actions</th>
+        </tr>
     </thead>
     <tbody>
-      {% for file in files %}
-        <tr>
-          <td>{{ forloop.counter }}</td>
-          <td><a href="{{ file.file.url }}">{{ file.file.name }}</a></td>
-          <td>{{ file.uploaded_at }}</td>
-          <td>
-            <a href="{% url 'delete_file' file.id %}">Supprimer</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="4">Aucun fichier trouvé.</td>
-        </tr>
-      {% endfor %}
+        {% for file in files %}
+            <tr class="table-row">
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{{ file.file.url }}">{{ file.file.name }}</a></td>
+                <td>{{ file.uploaded_at }}</td>
+                <td>
+                    <a href="{% url 'delete_file' file.id %}" class="delete-link">Supprimer</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4">Aucun fichier trouvé.</td>
+            </tr>
+        {% endfor %}
     </tbody>
-  </table>
-  
+</table>
 
 <script>
   // Masquer le message après 5 secondes (5000 ms)
@@ -50,4 +50,59 @@
       }
   }, 4000); // 5000 millisecondes = 5 secondes
 </script>
+
+{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    /* Table styling */
+    table.file-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    table.file-table th, table.file-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table.file-table th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    table.file-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    table.file-table tr:hover {
+        background-color: #ddd;
+        transition: background-color 0.3s ease;
+    }
+
+    .delete-link {
+        color: #e74c3c;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .delete-link:hover {
+        color: #c0392b;
+        text-decoration: underline;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
 {% endblock %}

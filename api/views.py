@@ -132,12 +132,14 @@ class EtudiantNotesList(APIView):
           # Organiser les notes en un dictionnaire
         notes_dict = {}
         for note_data in note_serializer.data:
-            module_name = note_data['matiere_module']['nom_module']
+            module_name = note_data['nom_module']
+            
             
             notes_dict[module_name] = {
                 'Note1': note_data['Note1'],
                 'Note2': note_data['Note2'],
                 'moyenne': note_data['moyenne'],
+                'professeur_nom': note_data['professeur_nom'],
                 
             }
 
@@ -834,7 +836,7 @@ from django.http import JsonResponse
 
 class ModulesByEtudiantAPI(APIView):
     def get(self, request, *args, **kwargs):
-        # Récupérer le matricule de l'étudiant depuis la session
+        # Récupérer le wmatricule de l'étudiant depuis la session
         #matricule = request.session.get('matricule')
         matricule = request.session.get('etudiant_id')  # Utiliser 'etudiant_id' pour accéder à la session
 

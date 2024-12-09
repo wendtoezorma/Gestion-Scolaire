@@ -23,13 +23,19 @@ class EtudiantLoginSerializer(serializers.Serializer):
 
 class UpdatePasswordSerializer(serializers.Serializer):
     nouveau_mot_de_passe = serializers.CharField(write_only=True)
-
+'''
+class NotesSerializer(serializers.ModelSerializer):
+    
+    matiere_module = CoursModuleSerializer()
+    class Meta:
+        model = Notes
+        fields = ['Note1', 'Note2', 'moyenne','nom_professeur']
+'''
 class NotesSerializer(serializers.ModelSerializer):
     matiere_module = CoursModuleSerializer()
     class Meta:
         model = Notes
         fields = ['matiere_module', 'Note1', 'Note2', 'moyenne']
-
 
 
 
@@ -114,13 +120,19 @@ class InfosSerializer(serializers.ModelSerializer):
 
 class NotesSerializer(serializers.ModelSerializer):
     nom_module = serializers.SerializerMethodField()
+    professeur_nom = serializers.SerializerMethodField()  # Nouveau champ pour récupérer le nom du professeur
+
     class Meta:
         model = Notes
-        fields = ['nom_module', 'Note1', 'Note2', 'moyenne']  # Ajoutez d'autres champs si nécessaire
+        fields = ['nom_module', 'Note1', 'Note2', 'moyenne','professeur_nom']  # Ajoutez d'autres champs si nécessaire
 
     def get_nom_module(self, obj):
         # Récupérer le nom du module à partir de la relation (ForeignKey)
         return obj.matiere_module.nom_module
+    
+    def get_professeur_nom(self, obj):
+        # Récupérer le nom complet du professeur lié au module
+        return obj.matiere_module.professeur.get_nom_prof()  # Utiliser la méthode pour obtenir le nom complet du professeur
 
 class UploadedFileSerializer(serializers.ModelSerializer):
     class Meta:

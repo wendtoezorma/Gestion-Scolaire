@@ -188,7 +188,7 @@ class Etudiant(models.Model):
     )
 
     # Nouveau champ pour la photo de l'étudiant
-    photo = models.ImageField(upload_to='photos/', null=True, blank=True)
+    photo = models.ImageField(upload_to='photos/', null=True, blank=True,)
 
     # Nouveau champ pour indiquer si l'étudiant est chef de classe
     chef_de_classe = models.BooleanField(default=False)

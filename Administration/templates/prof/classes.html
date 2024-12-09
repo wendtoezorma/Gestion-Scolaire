@@ -1,91 +1,116 @@
-{%extends 'prof/baseprof.html'%}
+{% extends 'prof/baseprof.html' %}
 {% block title %}Classe{% endblock %}
- 
+
 {% block profcontent %}
-    
-    <style>
-        .btn-primary {
-            width: 30%;
-            padding: 10px;
-            background-color: #40d67a;
-            color: #fff;
-            border: none;
-            padding: 12px 12px;
-            font-size: 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
 
-        form label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
 
-        .form-control {
-            margin: 30px;
-            width: 60%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ced4da;
-            border-radius: 20px;
-            transition: background-color 0.3s ease;
-            background-color: #ffffff;
-            font-style: bold;
-        }
-    </style>
+<style>
+    /* Héritage des styles principaux */
+    body {
+        font-family: inherit; /* Utilise la police définie dans baseprof.html */
+        background: linear-gradient(120deg, #1f2e3d, #8e8d8d); /* Animation conservée */
+        background-size: 300% 300%;
+        animation: gradientAnimation 10s ease infinite;
+        color: inherit; /* Couleur du texte héritée */
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
 
-    {% if error_message %}
-        <p>{{ error_message }}</p>
-    {% else %}
-        <h1>Liste des étudiants</h1><br>
-        <h2>Filière: {{ filiere_id }} et {{ nom_filiere }} - Niveau: {{ niveau }}</h2><br>
-        <table border="1"><br>
-            <thead>
+    @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    table {
+        width: 90%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: var(--table-shadow, 0 4px 6px rgba(0, 0, 0, 0.1)); /* Utilise une variable CSS si définie */
+    }
+
+    table th, table td {
+        padding: 12px;
+        border: 1px solid var(--table-border-color, #ddd); /* Hérite ou utilise une valeur par défaut */
+        text-align: left;
+        background: var(--table-bg, rgba(250, 250, 250, 0.9));
+        color: var(--text-color, #444);
+    }
+
+    table th {
+        background: var(--table-header-bg, #34495e);
+        color: var(--table-header-color, #fff);
+    }
+
+    .btn-primary {
+        width: auto;
+        padding: 10px 20px;
+        background-color: var(--primary-color, #2ecc71);
+        color: var(--button-text-color, #fff);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover-color, #27ae60);
+        transform: translateY(-3px);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.95);
+    }
+
+    .button-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+</style>
+
+
+{% if error_message %}
+    <p>{{ error_message }}</p>
+{% else %}
+    <h1>Liste des étudiants</h1><br>
+    <h2>Filière: {{ filiere_id }} et {{ nom_filiere }} - Niveau: {{ niveau }}</h2><br>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Sexe</th>
+                <th>Matricule</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for etudiant in etudiants %}
                 <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Sexe</th>
-                    <th>Matricule</th>
+                    <td>{{ etudiant.nom_etudiant }}</td>
+                    <td>{{ etudiant.prenom_etudiant }}</td>
+                    <td>{{ etudiant.sexe_etudiant }}</td>
+                    <td>{{ etudiant.matricule }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for etudiant in etudiants %}
-                    <tr>
-                        <td>{{ etudiant.nom_etudiant }}</td>
-                        <td>{{ etudiant.prenom_etudiant }}</td>
-                        <td>{{ etudiant.sexe_etudiant }}</td>
-                        <td>{{ etudiant.matricule }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="{% url 'select_module_pour_prof' filiere_id=filiere_id niveau=niveau %}">ajouter des notes </a>
-<br>
-        <a href="{% url 'voir_notes_pro' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
-    {% endif %}
-     <!--<form>
-        <select id="select_filiere" class="form-control">
-             Options pour les filières 
-        </select>
-        <select id="select_niveau" class="form-control">
-             Options pour les niveaux 
-        </select>
-        <input type="hidden" id="professeur_id" value="{{ professeur.Id_prof }}">
-        <button type="button" id="envoyer" class="btn-primary">Envoyer</button>
-    </form> -->
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="button-container">
+        <a href="{% url 'select_module_pour_prof' filiere_id=filiere_id niveau=niveau %}" class="btn-primary">Ajouter des notes</a>
+        <a href="{% url 'voir_notes_pro' filiere_id=filiere_id niveau=niveau %}" class="btn-primary">Voir les notes des étudiants</a>
+    </div>
+{% endif %}
 
-    <script>
-        document.getElementById("envoyer").addEventListener("click", function() {
-            var filiere_id = document.getElementById("select_filiere").value;
-            var niveau = document.getElementById("select_niveau").value;
-            var professeur_id = document.getElementById("professeur_id").value; // Assurez-vous d'avoir un champ pour le professeur_id
-            window.location.href = `/classe_pour_prof/${filiere_id}/${niveau}/${professeur_id}/`;
+<script>
+    document.getElementById("envoyer").addEventListener("click", function() {
+        var filiere_id = document.getElementById("select_filiere").value;
+        var niveau = document.getElementById("select_niveau").value;
+        var professeur_id = document.getElementById("professeur_id").value;
+        window.location.href = `/classe_pour_prof/${filiere_id}/${niveau}/${professeur_id}/`;
+    });
+</script>
 
-        });
-    </script>
-
-    
 {% endblock profcontent %}
-    

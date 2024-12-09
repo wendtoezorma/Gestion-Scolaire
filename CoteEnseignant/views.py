@@ -191,7 +191,6 @@ def display_table_prof(request, file_id):
     return render(request, 'prof/display_table_prof.html', {'table_html': table_html})
 
 from django.contrib import messages
-
 def creer_note_prof(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
@@ -223,6 +222,13 @@ def creer_note_prof(request):
         etudiants = request.POST.getlist('etudiant_id')
         notes1 = request.POST.getlist('note1')
         notes2 = request.POST.getlist('note2')
+        
+                # Utilisez une approche basée sur la structure dynamique des noms de champs
+        
+
+        
+
+
 
         etudiants_modifies = []
 
@@ -235,34 +241,54 @@ def creer_note_prof(request):
         except Cours_Module.DoesNotExist:
             messages.error(request, "Le module spécifié n'existe pas.")
             return redirect('Professeur_dashboard')
-        
-
 
         for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
+             # Vérification si les notes ne sont pas vides
+            try:
+                #note1 = float(note1) if note1 else None
+                #note2 = float(note2) if note2 else None
+                note1 = float(note1) if note1 else 0.0  # Convertir note1 en float, sinon mettre 0.0
+                note2 = float(note2) if note2 else 0.0  # Convertir note2 en float, sinon mettre 0.0
 
-            Notes.objects.filter(etudiant_id=etudiant_id, matiere_module_id=module_id).delete()
-            note = Notes(
-                etudiant_id=etudiant_id,
-                matiere_module_id=module_id,
-                Note1=float(note1),
-                Note2=float(note2)
-            )
-            note.save()
-            etudiant = Etudiant.objects.get(pk=etudiant_id)
-            etudiants_modifies.append(etudiant.nom_etudiant)
+                #print(f"Note1: {note1}, Note2: {note2}")
 
-        # Envoyer une notification unique aux administrateurs
-        administrateurs = Administration.objects.all()
-        message = (
-            f"Des notes ont été ajoutées ou modifiées par l'enseignant {prof} {prof_prenom} "
-            f"pour les étudiants suivants dans le module {nom_module} : {', '.join(etudiants_modifies)}."
+                if note1 is None and note2 is None:
+                    continue  # Skip this entry if both notes are empty
+
+                # Mise à jour ou création des notes
+                """
+                note, created = Notes.objects.update_or_create(
+                    etudiant_id=etudiant_id, 
+                    matiere_module_id=module_id, 
+                    defaults={'Note1': note1, 'Note2': note2}
+                )
+                """
+                note = Notes(
+                        etudiant_id=etudiant_id, 
+                        matiere_module_id=module_id, 
+                        Note1=note1, 
+                        Note2=note2
+                    )
+                    # Sauvegarde de la nouvelle note dans la base de données
+                note.save()
+
+                #print(f"Note créée ou mise à jour: {note}, créé: {created}")
+                
+
+
+                etudiant = Etudiant.objects.get(pk=etudiant_id)
+                etudiants_modifies.append(etudiant.nom_etudiant)
+
+            except ValueError:
+                # Si les valeurs ne sont pas des nombres valides, on les ignore
+                continue
+
+        # Message de notification pour le professeur
+        message = f"Des notes ont été ajoutées ou modifiées pour les étudiants suivants dans votre module {nom_module} : {', '.join(etudiants_modifies)}."
+        creer_notification(
+            destinataire_prof=module.professeur,
+            message=message
         )
-
-        for admin in administrateurs:
-            creer_notification(
-                destinataire_admin=admin,
-                message=message
-            )
 
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('Professeur_dashboard')

@@ -25,7 +25,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'nom_etudiant', 'prenom_etudiant', 'photo','email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere','bourse','type_bac','nom_personne_prevenir','numero_personne_prevenir','chef_de_classe']
+            'filiere','bourse','type_bac','nom_personne_prevenir','numero_personne_prevenir','chef_de_classe',]
         widgets = {
             #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
             'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
@@ -36,12 +36,15 @@ class EtudiantCreationForm(forms.ModelForm):
             'mot_de_passe': forms.PasswordInput(attrs={"placeholder": "Mot de passe"}),
             'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
             'type_bac': forms.Select(attrs={'class': 'form-control'}),
+            #'photo': forms.ClearableFileInput(attrs={'required': False}),
             'photo': forms.HiddenInput(),
             'Date_naiss_etudiant': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'jj/MM/AA'}),
-            'chef_de_classe': forms.Select(
-                choices=[(True, 'Oui'), (False, 'Non')],
-                attrs={'class': 'form-control'}
-            )
+            'chef_de_classe' : forms.Select(
+            choices=[(True, 'Oui'), (False, 'Non')],
+            attrs={'class': 'form-control'},
+              # Définir False comme valeur initiale
+        )
+            
             
         }
         
@@ -50,7 +53,8 @@ class EtudiantCreationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['photo'].required = False
-
+        self.fields['chef_de_classe'].initial = False
+        
     
 class EtudiantLoginForm(forms.Form):
     #email = forms.EmailField(label='Email')

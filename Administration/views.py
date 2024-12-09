@@ -583,15 +583,12 @@ def select_module(request, filiere_id, niveau):
 
 
 @login_required(login_url='login')
+
 def creer_note(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
         niveau = request.GET.get('niveau')
         module_id = request.GET.get('module_id')
-
-        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
-        module = Cours_Module.objects.get(Id_module=module_id)
-
 
         try:
             module = Cours_Module.objects.get(Id_module=module_id)
@@ -613,39 +610,39 @@ def creer_note(request):
         return render(request, 'Administration/add_note.html', context)
 
     elif request.method == 'POST':
+        etudiants = request.POST.getlist('etudiant_matricule')
         module_id = request.POST.get('module_id')
-        etudiants = request.POST.getlist('etudiant_id')
-        notes1 = request.POST.getlist('note1')
-        notes2 = request.POST.getlist('note2')
+        
+                # Utilisez une approche basée sur la structure dynamique des noms de champs
+        notes1 = [request.POST.get(f'note1_{matricule}') for matricule in etudiants]
+        notes2 = [request.POST.get(f'note2_{matricule}') for matricule in etudiants]
+
+    
+        
 
         etudiants_modifies = []
         try:
             module = Cours_Module.objects.get(Id_module=module_id)
             nom_module = module.nom_module
-            filiere = module.filiere
-
-            professeur = module.professeur  # Professeur responsable du module
+            #filiere = module.filiere
+            professeur = module.professeur
         except Cours_Module.DoesNotExist:
             messages.error(request, "Le module spécifié n'existe pas.")
             return redirect('admin_dashboard')
 
-        for etudiant_id, note1, note2 in zip(etudiants, notes1, notes2):
+        for etudiant_matricule, note1, note2 in zip(etudiants, notes1, notes2):
             note1 = float(note1) if note1 else 0.0
             note2 = float(note2) if note2 else 0.0
+            print(note1)
 
-            Notes.objects.filter(etudiant_id=etudiant_id, matiere_module_id=module_id).delete()
+            note = Notes(etudiant_id=etudiant_matricule, matiere_module_id=module_id, Note1=note1, Note2=note2)
+            note.save()
 
-            note, created = Notes.objects.update_or_create(
-                etudiant_id=etudiant_id,
-                matiere_module_id=module_id,
-                defaults={'Note1': note1, 'Note2': note2}
-            )
-            etudiant = Etudiant.objects.get(pk=etudiant_id)
+            etudiant = Etudiant.objects.get(pk=etudiant_matricule)
             etudiants_modifies.append(etudiant.nom_etudiant)
 
-        # Notification au professeur
         message = (
-            f"Des notes ont été ajoutées ou modifiées par l'administration pour les étudiants suivants dans votre module {nom_module} en {filiere} : "
+            f"Des notes ont été ajoutées ou modifiées pour les étudiants suivants dans votre module {nom_module} : "
             f"{', '.join(etudiants_modifies)}."
         )
         creer_notification(
@@ -656,6 +653,8 @@ def creer_note(request):
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('admin_dashboard')
 
+    
+    
 
 @login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
@@ -1536,7 +1535,7 @@ def recuperer_notifications(request):
         'notifications': notifications
     }
 
-    return render(request, 'administration/notifications.html', context)
+    return render(request, 'Administration/notifications.html', context)
 
 
 

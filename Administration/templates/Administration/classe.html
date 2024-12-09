@@ -64,6 +64,28 @@ a:hover {
     color: #0056b3; /* Couleur des liens au survol */
 }
 
+button {
+    background-color: #007bff; /* Couleur de fond des boutons */
+    color: white; /* Couleur du texte des boutons */
+    padding: 10px 20px; /* Espacement interne des boutons */
+    border: none;
+    border-radius: 5px; /* Coins arrondis */
+    cursor: pointer; /* Curseur pointer */
+    transition: background-color 0.3s ease; /* Transition pour le changement de couleur de fond */
+}
+
+button:hover {
+    background-color: #0056b3; /* Couleur du bouton au survol */
+}
+/* Ajouter un container pour centrer les boutons */
+.center-buttons {
+    display: flex;
+    gap: 45px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px; /* Ajouter un espace au-dessus des boutons */
+}
+
 </style>
 {% endblock %}
 
@@ -91,6 +113,11 @@ a:hover {
     </tbody>
 </table>
 
-<h2><a href="{% url 'select_module' filiere_id niveau %}">Ajouter des notes</a></h2><br>
-<a href="{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}">Voir les notes des étudiants</a><br>
+<!-- Boutons au lieu des liens -->
+<div class="center-buttons">
+    <button onclick="location.href='{% url 'select_module' filiere_id niveau %}'">Ajouter des notes</button>
+    
+    <button onclick="location.href='{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}'">Voir les notes des étudiants</button>
+</div>
+
 {% endblock %}
