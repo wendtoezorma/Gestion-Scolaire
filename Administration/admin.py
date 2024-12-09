@@ -38,6 +38,8 @@ class AdminScolarite(admin.ModelAdmin):
 class UploadedFileAdmin(admin.ModelAdmin):
     list_display = ('file', 'uploaded_at')  # Champs à afficher dans la liste
 
+
+
 # admin.py
 from django.contrib import admin
 from .models import Tache
@@ -111,6 +113,7 @@ admin.site.register(Administration, AdministrationAdmin)
 
 admin.site.register(UploadedFile,UploadedFileAdmin)
 admin.site.register(Etudiant,AdminEtudiant)
+#admin.site.register(CoursFichier,AdminCoursFichier)
 admin.site.register(Filiere,AdminFiliere)
 admin.site.register(Notes,AdminNote)
 admin.site.register(Cours_Module,Adminmodule)
