@@ -1,0 +1,65 @@
+<!--<h1>Mise à jour de l'avancement du cours</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Mettre à jour</button>
+</form>
+
+<h2>Avancements existants</h2>
+<table>
+    <tr>
+        <th>Module</th>
+        <th>Volume horaire total</th>
+        <th>Volume horaire réalisé</th>
+        <th>Pourcentage</th>
+    </tr>
+    {% for avancement in etudiant.avancements.all %}
+    <tr>
+        <td>{{ avancement.cours_module.nom_module }}</td>
+        <td>{{ avancement.volume_horaire_total }}</td>
+        <td>{{ avancement.volume_horaire_realise }}</td>
+        <td>{{ avancement.pourcentage_avancement }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+-->
+<form id="choisir-module-form" method="post">
+    <p>État de l'ID de l'étudiant: {{ etudiant.matricule }}</p>
+
+    {% csrf_token %}
+    <label for="cours_module">Choisir un module :</label>
+    <select name="cours_module" id="cours_module">
+      {% for module in modules %}
+        <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Continuer</button>
+  </form>
+  
+  <script>
+    document.getElementById('choisir-module-form').onsubmit = function(event) {
+      event.preventDefault();
+      const moduleId = document.getElementById('cours_module').value;
+      const etudiantId = "{{ etudiant.id }}"; 
+  
+      fetch("", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ cours_module: moduleId })
+      })
+      .then(response => {
+        if (!response.ok) {
+        throw new Error('Erreur dans la requête');
+        }
+        return response.json();
+    })
+      .then(data => {
+        //window.location.href = `/etudiant/{{ matricule }}/avancement/${data.module_id}/`;  Redirection vers l'étape 2
+        window.location.href = `/etudiant/${etudiantId}/avancement/${data.module_id}/`;
+      });
+    };
+  </script>
+  

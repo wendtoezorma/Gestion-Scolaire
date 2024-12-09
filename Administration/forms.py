@@ -25,7 +25,7 @@ class EtudiantCreationForm(forms.ModelForm):
             'nom_etudiant', 'prenom_etudiant', 'photo','email_etudiant', 'telephone_etudiant', 
             'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 
             'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 
-            'filiere','bourse','type_bac','nom_personne_prevenir','numero_personne_prevenir']
+            'filiere','bourse','type_bac','nom_personne_prevenir','numero_personne_prevenir','chef_de_classe']
         widgets = {
             #'nom_etudiant' : forms.Input(attrs={"placeholder": "Mot de passe"}),
             'sexe_etudiant': forms.Select(attrs={'class': 'form-control'}),
@@ -38,7 +38,10 @@ class EtudiantCreationForm(forms.ModelForm):
             'type_bac': forms.Select(attrs={'class': 'form-control'}),
             'photo': forms.HiddenInput(),
             'Date_naiss_etudiant': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'jj/MM/AA'}),
-            
+            'chef_de_classe': forms.Select(
+                choices=[(True, 'Oui'), (False, 'Non')],
+                attrs={'class': 'form-control'}
+            )
             
         }
         
@@ -116,10 +119,26 @@ from django import forms
 from .models import Administration
 
 # pour lauthentification
+from django import forms
+from .models import AvancementCours, Cours_Module
+
+class AvancementCoursForm(forms.ModelForm):
+    class Meta:
+        model = AvancementCours
+        fields = ['cours_module', 'volume_horaire_realise', 'volume_horaire_total']
+
+    # Surcharger le champ pour afficher les cours filtrés dans la vue
+    def __init__(self, *args, **kwargs):
+        cours_filtrés = kwargs.pop('cours_filtrés', [])
+        super().__init__(*args, **kwargs)
+        #self.fields['cours_module'].queryset = Cours_Module.objects.filter(id__in=[cours.Id_module for cours in cours_filtrés])
+        self.fields['cours_module'].queryset = Cours_Module.objects.filter(Id_module__in=[cours.Id_module for cours in cours_filtrés])
 
 
+    
 
-
+        # Placeholder pour description_avancement
+        
 #creer son cours
 class CoursModuleForm(forms.ModelForm):
     class Meta:

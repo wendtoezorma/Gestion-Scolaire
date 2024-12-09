@@ -190,6 +190,9 @@ class Etudiant(models.Model):
     # Nouveau champ pour la photo de l'étudiant
     photo = models.ImageField(upload_to='photos/', null=True, blank=True)
 
+    # Nouveau champ pour indiquer si l'étudiant est chef de classe
+    chef_de_classe = models.BooleanField(default=False)
+
 
     class Meta:
         ordering = ['nom_etudiant']
@@ -225,6 +228,7 @@ class Etudiant(models.Model):
         if self.filiere:
             return self.filiere.nom_filiere
         return "Non spécifié"
+
 
 
 class Cours_Module(models.Model):
@@ -274,7 +278,29 @@ class ProfesseurFiliere(models.Model):
 
     class Meta:
         unique_together = ('professeur', 'filiere')  # Assurer que la combinaison est unique
+from django.utils import timezone
 
+from django.db.models import Sum
+class AvancementCours(models.Model):
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name="avancements")
+    cours_module = models.ForeignKey(Cours_Module, on_delete=models.CASCADE, related_name="avancements")
+    volume_horaire_total = models.IntegerField(help_text="Volume horaire total du cours")
+    volume_horaire_realise = models.IntegerField(help_text="Volume horaire déjà réalisé")
+    volume_horaire_restant = models.IntegerField(default=0)
+    pourcentage_avancement = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    
+    date_op = models.DateTimeField(auto_now_add=True)
+    """
+    def save(self, *args, **kwargs):
+        # Calcul automatique du pourcentage d'avancement
+        if self.volume_horaire_total > 0:
+            self.pourcentage_avancement = (self.volume_horaire_realise / self.volume_horaire_total) * 100
+        super().save(*args, **kwargs)
+    """
+    
+    def __str__(self):
+        return f"{self.etudiant.nom_etudiant} - {self.cours_module.nom_module} : {self.pourcentage_avancement}%"
+    
 
 
 class Notes(models.Model):

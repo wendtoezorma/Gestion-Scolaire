@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin
 
     
 class AdminEtudiant(admin.ModelAdmin):
-    list_display=("matricule",'nom_etudiant','prenom_etudiant',"photo","niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout','password_updated','Connecter','type_bac','annee_academique_etudiant',"nom_personne_prevenir","numero_personne_prevenir")
+    list_display=("matricule",'nom_etudiant','prenom_etudiant',"photo","niveau_etudiant","filiere","email_etudiant","bourse","mdp_etudiant",'date_ajout','password_updated','Connecter','type_bac','annee_academique_etudiant',"nom_personne_prevenir","numero_personne_prevenir",'chef_de_classe')
 
 class AdminBoursier(admin.ModelAdmin):
     list_display=('type_bourse',"reduction")
@@ -18,7 +18,7 @@ class AdminNote(admin.ModelAdmin):
     list_display=("matiere_module","Note1","Note2","moyenne")
     
 class Adminmodule(admin.ModelAdmin):
-    list_display=("nom_module","credit_module","volume_horaire","date_ajout")
+    list_display=("nom_module","credit_module","volume_horaire","date_ajout",'niveau')
     
 class AdminProfesseur(admin.ModelAdmin):
     list_display=("nom_prof","prenom_prof","email_prof","niveau_prof","mdp_prof","numero_prof",'date_ajout')
@@ -49,6 +49,16 @@ class TacheAdmin(admin.ModelAdmin):
     search_fields = ('titre',)  # Ajoute un champ de recherche sur le titre
     
     professeur = ('professeur')
+
+
+class AvancementCoursAdmin(admin.ModelAdmin):
+    list_display = ('etudiant', 'cours_module', 'volume_horaire_total', 'volume_horaire_realise', 'pourcentage_avancement', 'date_op','volume_horaire_restant')
+    list_filter = ('etudiant', 'cours_module')
+    search_fields = ('etudiant__nom_etudiant', 'cours_module__nom_module')
+    ordering = ('-date_op',)
+    readonly_fields = ('pourcentage_avancement', 'date_op')
+
+admin.site.register(AvancementCours, AvancementCoursAdmin)
 
 
 from django.contrib import admin

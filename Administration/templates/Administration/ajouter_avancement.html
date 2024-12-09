@@ -1,0 +1,49 @@
+<form method="post">
+    {% csrf_token %}
+    <label for="cours_module">Module :</label>
+    <input type="text" id="cours_module" value="{{ module.nom_module }}" readonly>
+  
+    <label for="volume_horaire_total">Volume horaire total :</label>
+    <input type="text" id="volume_horaire_total" value="{{ form.volume_horaire_total.value }}" readonly>
+  
+    <label for="volume_horaire_realise">Volume horaire réalisé aujourd'hui :</label>
+    {{ form.volume_horaire_realise }}
+  
+    <button type="submit">Enregistrer</button>
+  </form>
+  
+
+  <h2>Récapitulatif des opérations pour {{ etudiant.nom }} dans le module {{ module.nom_module }}</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Module</th>
+            <th>Volume horaire total</th>
+            <th>Volume horaire REALISER</th>
+            <th>Volume horaire RESTANT</th>
+            <th>Date de l'opération</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for avancement in avancements %}
+        <tr>
+            <td>{{ avancement.cours_module.nom_module }}</td>
+            <td>{{ avancement.volume_horaire_total }}</td>
+
+            <td>{{ avancement.volume_horaire_realise }}</td>
+            
+            <td>{{ avancement.horaire_restants }}</td> 
+            
+            <td>{{ avancement.date_op }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">Aucune opération enregistrée.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Le reste de votre formulaire ici -->

@@ -676,17 +676,44 @@ def verifier_etudiants_connectes(request):
 
 from rest_framework.exceptions import NotFound
 
+
 class ConnexionPersonnePrevenir(APIView):
     def post(self, request):
+        # Récupérer les données de la requête
         numero = request.data.get('numero_personne_prevenir')
         nom = request.data.get('nom_personne_prevenir')
-        try:
-            etudiant = Etudiant.objects.get(nom_personne_prevenir=nom, numero_personne_prevenir=numero)
-            request.session['personne_prevenir_id'] = etudiant.matricule
-            return Response({"message": "Connexion réussie", "etudiant": EtudiantSerializer(etudiant).data})
-        except Etudiant.DoesNotExist:
-            raise NotFound("Nom ou numéro invalide.")
 
+        # Vérification des champs manquants
+        if not numero or not nom:
+            return Response(
+                {"error": "Les champs 'nom_personne_prevenir' et 'numero_personne_prevenir' sont requis."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Rechercher l'étudiant correspondant
+            etudiant = Etudiant.objects.get(nom_personne_prevenir=nom, numero_personne_prevenir=numero)
+            
+            # Stocker les informations dans la session
+            request.session['personne_prevenir_id'] = etudiant.matricule
+
+            # Retourner la réponse
+            return Response(
+                {
+                    "message": "Connexion réussie",
+                    "etudiant": EtudiantSerializer(etudiant).data
+                },
+                status=status.HTTP_200_OK
+            )
+        except Etudiant.DoesNotExist:
+            # Retourner une erreur si aucun étudiant n'est trouvé
+            return Response(
+                {"error": "Nom ou numéro invalide."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+
+        
 class DeconnexionPersonnePrevenir(APIView):
     def post(self, request):
         if 'personne_prevenir_id' in request.session:
@@ -790,3 +817,273 @@ class ParentScolariteDetailView(APIView):
         return Response({"message": "Aucune donnée de scolarité trouvée"}, status=404)
     
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from django.shortcuts import get_object_or_404
+
+from .serializers import CoursModuleSerializer, AvancementCoursSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+from .serializers import CoursModuleSerializer
+from django.contrib import messages
+from django.http import JsonResponse
+
+class ModulesByEtudiantAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        # Récupérer le matricule de l'étudiant depuis la session
+        #matricule = request.session.get('matricule')
+        matricule = request.session.get('etudiant_id')  # Utiliser 'etudiant_id' pour accéder à la session
+
+        
+        
+        if not matricule:
+            return Response({"error": "Matricule non trouvé dans la session."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Récupérer l'étudiant par son matricule
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+
+        # Vérification si l'étudiant est chef de classe
+        if not etudiant.chef_de_classe:
+            return JsonResponse({"error": "Seul un chef de classe peut accéder aux modules."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Récupérer les modules liés à la filière et au niveau de l'étudiant
+        modules = Cours_Module.objects.filter(filiere=etudiant.filiere, niveau=etudiant.niveau_etudiant)
+        
+        # Sérialiser les données des modules
+        serializer = CoursModuleSerializer(modules, many=True)
+
+        # Retourner les données sérialisées
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+from .serializers import AvancementCoursSerializer
+from django.http import JsonResponse
+"""
+class AjouterAvancementEtape2API(APIView):
+    def get(self, request, matricule, module_id, *args, **kwargs):
+        # Récupérer l'étudiant par son matricule
+        print("Données POST reçues :", request.data)
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+        module = get_object_or_404(Cours_Module, pk=module_id)
+
+        # Récupérer les avancements précédents pour ce module
+        avancements = AvancementCours.objects.filter(etudiant=etudiant, cours_module=module).order_by('-date_op')
+
+        # Calculer 'horaire_restants' pour chaque avancement
+        for avancement in avancements:
+            avancement.horaire_restants = avancement.volume_horaire_total - avancement.volume_horaire_realise
+
+        # Sérialiser les avancements
+        avancements_serializer = AvancementCoursSerializer(avancements, many=True)
+
+        return Response({
+            'etudiant': {
+                'matricule': etudiant.matricule,
+                'nom': etudiant.nom_etudiant,
+                'prenom': etudiant.prenom_etudiant,
+            },
+            'module': {
+                'id': module.Id_module,
+                'nom_module': module.nom_module,
+                'volume_horaire': module.volume_horaire,
+            },
+            'avancements': avancements_serializer.data
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request, matricule, module_id, *args, **kwargs):
+        # Récupérer l'étudiant et le module
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+        module = get_object_or_404(Cours_Module, pk=module_id)
+
+        # Vérifier et valider les données envoyées via le POST
+        serializer = AvancementCoursSerializer(data=request.data)
+        if serializer.is_valid():
+            avancement = serializer.save(etudiant=etudiant, cours_module=module)
+
+            # Calculer 'horaire_restants' après l'enregistrement de l'avancement
+            
+            avancement.save()
+
+            
+            return Response({
+                'message': 'Avancement ajouté avec succès',
+                'avancement': AvancementCoursSerializer(avancement).data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            # Afficher les erreurs de validation détaillées
+            print("Erreur de sérialisation :", serializer.errors)  # Log dans la console pour debug
+        return Response({
+            'message': 'Erreur lors de l\'ajout de l\'avancement',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+"""
+
+class ListeAvancementsAPI(APIView):
+    """
+    Vue pour récupérer les avancements d'un étudiant pour un module donné.
+    """
+    def get(self, request, matricule, module_id, *args, **kwargs):
+        # Récupérer l'étudiant par son matricule
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+        module = get_object_or_404(Cours_Module, pk=module_id)
+
+        # Récupérer les avancements pour ce module
+        avancements = AvancementCours.objects.filter(etudiant=etudiant, cours_module=module).order_by('-date_op')
+
+        # Calculer 'horaire_restants' pour chaque avancement
+        for avancement in avancements:
+            avancement.horaire_restants = avancement.volume_horaire_total - avancement.volume_horaire_realise
+
+        # Sérialiser les avancements
+        avancements_serializer = AvancementCoursSerializer(avancements, many=True)
+
+        return Response({
+            'etudiant': {
+                'matricule': etudiant.matricule,
+                'nom': etudiant.nom_etudiant,
+                'prenom': etudiant.prenom_etudiant,
+            },
+            'module': {
+                'id': module.Id_module,
+                'nom_module': module.nom_module,
+                'volume_horaire': module.volume_horaire,
+            },
+            'avancements': avancements_serializer.data
+        }, status=status.HTTP_200_OK)
+
+"""
+class AjouterAvancementAPI(APIView):
+    
+    #Vue pour ajouter un avancement pour un étudiant dans un module donné.
+    
+    def post(self, request, matricule, module_id, *args, **kwargs):
+        # Récupérer l'étudiant et le module
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+        module = get_object_or_404(Cours_Module, pk=module_id)
+        print(module)
+
+        # Vérifier et valider les données envoyées via le POST
+        serializer = AvancementCoursSerializer(data=request.data, context={
+        "etudiant": etudiant,
+        "cours_module": module})
+        
+        if serializer.is_valid():
+            print(f"Données validées : {serializer.validated_data}")
+            avancement = serializer.save(etudiant=etudiant, cours_module=module)
+            print("Avancement sauvegardé :", avancement)
+
+            # Calculer 'horaire_restants' après l'enregistrement de l'avancement
+            #avancement.horaire_restants = avancement.volume_horaire_total - avancement.volume_horaire_realise
+            avancement.save()
+
+            return Response({
+                'message': 'Avancement ajouté avec succès',
+                'avancement': AvancementCoursSerializer(avancement).data
+            }, status=status.HTTP_201_CREATED)
+
+        # Réponse en cas d'erreur de validation
+        return Response({
+            'message': 'Erreur lors de l\'ajout de l\'avancement',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+"""
+class AjouterAvancementAPI(APIView):
+    """
+    Vue API pour gérer l'avancement des étudiants dans un module.
+    """
+
+    def get(self, request, matricule, module_id, *args, **kwargs):
+        """
+        Récupère ou prépare les informations d'avancement pour un étudiant et un module.
+        """
+        # Récupérer l'étudiant et le module
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+        module = get_object_or_404(Cours_Module, pk=module_id)
+
+        # Chercher l'avancement existant
+       # Chercher les avancements existants
+        avancements = AvancementCours.objects.filter(etudiant=etudiant, cours_module=module).order_by('-date_op')
+
+        if avancements.exists():
+        # Récupérer le dernier avancement (celui avec la date la plus récente)
+            dernier_avancement = avancements.first()
+
+            if avancements.count() == 1:
+                # Premier enregistrement : calculer le volume_horaire_restant à partir du volume_horaire_total
+                nouveau_volume_horaire_restant = dernier_avancement.volume_horaire_total - dernier_avancement.volume_horaire_realise
+            else:
+                # Enregistrement suivant : calculer le volume_horaire_restant à partir de l'enregistrement précédent
+                avant_dernier_avancement = avancements[1]  # L'avant-dernier enregistrement
+                nouveau_volume_horaire_restant = avant_dernier_avancement.volume_horaire_restant - dernier_avancement.volume_horaire_realise
+
+            # Mettre à jour le volume_horaire_restant de l'enregistrement actuel
+            dernier_avancement.volume_horaire_restant = nouveau_volume_horaire_restant
+            dernier_avancement.save()
+
+            # Sérialiser les données des avancements existants
+            serializer = AvancementCoursSerializer(avancements, many=True)
+            return Response({
+                'message': 'Avancement existant récupéré.',
+                'data': serializer.data,
+                'nouveau_volume_horaire_restant': nouveau_volume_horaire_restant
+            }, status=status.HTTP_200_OK)
+
+
+        # Si aucun avancement n'est trouvé, préparer les données pour un nouvel avancement
+        return Response({
+            'message': 'Aucun avancement trouvé, prêt pour une création.',
+            'data': {
+                'etudiant': etudiant.nom_etudiant,  # Retourne le nom de l'étudiant au lieu de l'ID
+                'cours_module': module_id,
+                'volume_horaire_total': extract_volume_as_int(module.volume_horaire),
+                'volume_horaire_realise': 0,
+                'pourcentage_avancement': 0
+            }
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request, matricule, module_id, *args, **kwargs):
+        """
+        Ajoute ou met à jour un avancement pour un étudiant et un module.
+        """
+        # Récupérer l'étudiant et le module
+        etudiant = get_object_or_404(Etudiant, matricule=matricule)
+        module = get_object_or_404(Cours_Module, pk=module_id)
+
+        # Sérialiser les données envoyées
+        serializer = AvancementCoursSerializer(data=request.data, context={
+            'etudiant': etudiant,
+            'cours_module': module
+        })
+
+        if serializer.is_valid():
+            # Sauvegarder l'avancement
+            avancement = serializer.save()
+
+            # Chercher l'avancement précédent de l'étudiant pour ce module
+            avancement.volume_horaire_restant = AvancementCoursSerializer.calculate_volume_horaire_restant(
+                etudiant, module, avancement.volume_horaire_realise
+            )
+            print(avancement.volume_horaire_restant)
+            # Sauvegarder l'avancement avec le volume horaire restant mis à jour
+            #avancement.save(update_fields=['volume_horaire_restant'])
+
+            # Réponse avec l'avancement mis à jour
+            return Response({
+                'message': 'Avancement ajouté ou mis à jour avec succès.',
+                'data': AvancementCoursSerializer(avancement).data
+            }, status=status.HTTP_201_CREATED)
+
+        # Réponse en cas d'erreur
+        return Response({
+            'message': 'Erreur lors de l\'ajout ou de la mise à jour de l\'avancement.',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)

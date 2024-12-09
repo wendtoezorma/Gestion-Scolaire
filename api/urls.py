@@ -34,11 +34,15 @@ urlpatterns = [
     path('api_action/<str:action_type>/', PersonnePrevenirAction.as_view(), name='personne_prevenir_action'),
     path('parent_Infos/', ParentInfoApi.as_view(), name='ParentInfoApi'),
     path('parentScolarite/', ParentScolariteDetailView.as_view(), name='ParentScolarite'),
-   
+
+    path('moduleUpdate/', ModulesByEtudiantAPI.as_view(), name='modules_by_etudiant'),
+    #path('ajouter-avancement/<str:matricule>/<int:module_id>/', AjouterAvancementEtape2API.as_view(), name='ajouter_avancement_etape2'),
+    path('avancements/<str:matricule>/<int:module_id>/', ListeAvancementsAPI.as_view(), name='liste_avancements'),
+    path('ajout_avancement/<str:matricule>/<int:module_id>/', AjouterAvancementAPI.as_view(), name='ajouter_avancement'),
 
 ]
 
-########### pour les fichiers #########
+########### pour les fichiers #########W
 from django.conf import settings
 from django.conf.urls.static import static
 

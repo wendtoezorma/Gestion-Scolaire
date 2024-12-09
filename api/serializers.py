@@ -48,7 +48,7 @@ class CoursModuleSerializer(serializers.ModelSerializer):
     professeur = ProfesseurSerializer()
     class Meta:
         model = Cours_Module
-        fields = ['nom_module', 'credit_module', 'volume_horaire','filiere','professeur']
+        fields = ['Id_module','nom_module', 'credit_module', 'volume_horaire','filiere','professeur']
 
 class EtudiantSerializer(serializers.ModelSerializer):
     filiere = FiliereSerializer()
@@ -126,3 +126,111 @@ class UploadedFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UploadedFile
         fields = ['file', 'uploaded_at']  # Ajoutez d'autres champs si nécessaire
+
+from rest_framework import serializers
+
+from rest_framework import serializers
+
+"""
+class AvancementCoursSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AvancementCours
+        fields = ['id', 'cours_module', 'volume_horaire_realise', 'date_op']
+
+class AvancementCoursSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AvancementCours
+        fields = [
+            'id', 'etudiant', 'cours_module', 'volume_horaire_total',
+            'volume_horaire_realise', 'pourcentage_avancement', 'date_op'
+        ]
+        read_only_fields = ['pourcentage_avancement', 'date_op']
+
+    def create(self, validated_data):
+        etudiant = self.context.get("etudiant")
+        cours_module = self.context.get("cours_module")
+
+        # Inclure ces champs dans les données validées
+        validated_data['etudiant'] = etudiant
+        validated_data['cours_module'] = cours_module
+
+        return super().create(validated_data)
+
+
+"""
+def extract_volume_as_int(volume_horaire):
+    try:
+        return int(volume_horaire[:2])  # Extraire les 2 premiers caractères et convertir en entier
+    except (ValueError, TypeError):
+        return 0  # Valeur par défaut si la conversion échoue
+class AvancementCoursSerializer(serializers.ModelSerializer):
+    etudiant_nom = serializers.CharField(source='etudiant.nom_etudiant', read_only=True)
+    class Meta:
+        model = AvancementCours
+        fields = [
+            'id', 'etudiant_nom', 'cours_module', 'volume_horaire_total','volume_horaire_restant',
+            'volume_horaire_realise', 'pourcentage_avancement', 'date_op'
+        ]
+        read_only_fields = ['etudiant', 'cours_module', 'pourcentage_avancement', 'date_op', 'volume_horaire_total','volume_horaire_restant']
+    @staticmethod
+    def calculate_volume_horaire_restant(etudiant, cours_module, volume_horaire_realise):
+        """
+        Calcule le volume horaire restant pour un étudiant et un module donnés.
+        """
+        # Vérifier si c'est le premier enregistrement pour cet étudiant et ce module
+        if not AvancementCours.objects.filter(etudiant=etudiant, cours_module=cours_module).exists():
+            # Si c'est le premier enregistrement, initialiser volume_horaire_restant avec volume_horaire_total
+            return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
+
+        else:
+            # Chercher l'avancement précédent de l'étudiant pour ce module
+            avancement_precedent = AvancementCours.objects.filter(
+                etudiant=etudiant,
+                cours_module=cours_module
+            ).order_by('-date_op').first()  # Prendre le plus récent
+
+            if avancement_precedent:
+                # Calculer le volume horaire restant basé sur l'enregistrement précédent
+                return avancement_precedent.volume_horaire_restant - volume_horaire_realise
+            else:
+                # Si aucun avancement précédent, calculer à partir du volume horaire total du module
+                return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
+
+    def create(self, validated_data):
+        """
+        Méthode personnalisée pour créer un avancement.
+        """
+        etudiant = self.context.get('etudiant')
+        cours_module = self.context.get('cours_module')
+
+        if not etudiant or not cours_module:
+            raise serializers.ValidationError("Étudiant ou module manquant dans le contexte.")
+
+        # Injecter les données nécessaires
+        validated_data['etudiant'] = etudiant
+        validated_data['cours_module'] = cours_module
+        validated_data['volume_horaire_total'] = extract_volume_as_int(cours_module.volume_horaire)
+        validated_data['pourcentage_avancement'] = 0  # Initialisation à 0
+        # Initialiser volume_horaire_restant pour le premier enregistrement
+        #validated_data['volume_horaire_restant'] = validated_data['volume_horaire_total']
+         # Calculer volume_horaire_restant
+        validated_data['volume_horaire_restant'] = self.calculate_volume_horaire_restant(
+            etudiant, cours_module, validated_data['volume_horaire_realise']
+        )
+
+         # Calculer le pourcentage d'avancement
+        total_realise = AvancementCours.objects.filter(
+            etudiant=etudiant,
+            cours_module=cours_module
+        ).aggregate(Sum('volume_horaire_realise'))['volume_horaire_realise__sum'] or 0
+
+        # Ajouter le volume horaire réalisé actuellement en cours d'enregistrement
+        total_realise += validated_data['volume_horaire_realise']
+
+        # Calculer le pourcentage d'avancement
+        pourcentage_avancement = (total_realise / validated_data['volume_horaire_total']) * 100
+
+        # Enregistrer le pourcentage dans les données validées
+        validated_data['pourcentage_avancement'] = pourcentage_avancement
+        
+        return super().create(validated_data)

@@ -54,6 +54,11 @@ urlpatterns = [
     path('select_module/<int:filiere_id>/<str:niveau>/', select_module, name='select_module'),
     path('voir_notes/<int:filiere_id>/<str:niveau>/', voir_notes, name='voir_notes'),
     path('modifier_note/<int:note_id>/', modifier_note, name='modifier_note'),
+    path('etudiant/<int:matricule>/avancement/', mettre_a_jour_avancement, name='update_avancement'),
+    path('etudiant/<int:matricule>/avancement/<int:module_id>/', ajouter_avancement_etape2, name='update_avancement'),
+    path('creer_professeur/',creer_professeur,name ='creer_professeur'),
+    path('creer_note/',creer_note, name = 'creer_note'),
+    path('classe/<int:filiere_id>/<str:niveau>/', liste_etudiants_par_classe, name='liste_etudiants_par_classe'),
 
     # ======================= SECTION RÉCUPÉRATION DE MOT DE PASSE =======================
     path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),

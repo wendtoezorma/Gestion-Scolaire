@@ -444,6 +444,99 @@ def creer_cours(request):
     else:
         form = CoursModuleForm()
     return render(request, 'Administration/creer_cours.html', {'form': form})
+""""
+def mettre_a_jour_avancement(request, etudiant_id):
+    etudiant = get_object_or_404(Etudiant, pk=etudiant_id)
+
+     # Vérification si l'étudiant est chef de classe
+    if not etudiant.chef_de_classe:
+        messages.error(request, "Seul un chef de classe peut mettre à jour l'avancement.")
+        return redirect('admin_dashboard')  
+    cours_filtrés = Cours_Module.objects.filter(filiere=etudiant.filiere, niveau=etudiant.niveau_etudiant)
+    avancements = etudiant.avancements.all()
+    if request.method == "POST":
+        form = AvancementCoursForm(request.POST)
+        if form.is_valid():
+            avancement = form.save(commit=False)
+            avancement.etudiant = etudiant
+            avancement.volume_horaire_total = avancement.cours_module.volume_horaire
+            avancement.save()
+            #etudiant.etat_avancement = True
+            etudiant.save()
+    else:
+        form = AvancementCoursForm()
+    return render(request, 'Administration/update_avancement.html', {'form': form, 'etudiant': etudiant,  'cours_filtrés': cours_filtrés, 'avancements': avancements })
+
+"""
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+import json
+
+def mettre_a_jour_avancement(request, matricule):
+    etudiant = get_object_or_404(Etudiant, matricule=matricule)
+    
+    # Filtrer les modules en fonction du niveau et de la filière de l'étudiant
+    modules = Cours_Module.objects.filter(
+        niveau=etudiant.niveau_etudiant,
+        filiere=etudiant.filiere
+    )
+    print(etudiant) 
+    if request.method == 'POST':
+        # Récupérer les données envoyées par le JavaScript
+        try:
+            data = json.loads(request.body)
+            module_id = data.get('cours_module')
+
+            if not module_id:
+                return JsonResponse({'error': 'Module non spécifié'}, status=400)
+
+            module = get_object_or_404(Cours_Module, pk=module_id)
+            return JsonResponse({
+                'module_id': module.Id_module,
+                'nom_module': module.nom_module,
+                'volume_horaire': module.volume_horaire,
+                'etudiant': etudiant
+            }) 
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Données invalides'}, status=400)
+
+    return render(request, 'Administration/update_avancement.html', {'modules': modules})
+
+
+
+def ajouter_avancement_etape2(request, matricule, module_id):
+    etudiant = get_object_or_404(Etudiant, pk=matricule)
+    module = get_object_or_404(Cours_Module, pk=module_id)
+
+     # Récupérer les opérations précédentes de l'étudiant pour ce module
+    avancements = AvancementCours.objects.filter(etudiant=etudiant, cours_module=module).order_by('-date_op')
+
+     # Calculer 'horaire_restants' pour chaque avancement
+    for avancement in avancements:
+        avancement.horaire_restants = avancement.volume_horaire_total - avancement.volume_horaire_realise
+
+    if request.method == 'POST':
+        form = AvancementCoursForm(request.POST)
+        if form.is_valid():
+            avancement = form.save(commit=False)
+            avancement.etudiant = etudiant
+            avancement.cours_module = module
+            avancement.save()
+            return redirect('ajouter_avancement_etape2', matricule=matricule, module_id=module_id)
+    else:
+        form = AvancementCoursForm(initial={
+            'cours_module': module,
+            'volume_horaire_total': module.volume_horaire
+        })
+
+    return render(request, 'Administration/ajouter_avancement.html', {
+        'form': form,
+        'module': module,
+        'etudiant': etudiant,
+        'avancements': avancements
+    })
+
 
 
 
