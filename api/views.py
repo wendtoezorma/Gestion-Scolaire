@@ -1022,6 +1022,8 @@ class AjouterAvancementAPI(APIView):
             if avancements.count() == 1:
                 # Premier enregistrement : calculer le volume_horaire_restant à partir du volume_horaire_total
                 nouveau_volume_horaire_restant = dernier_avancement.volume_horaire_total - dernier_avancement.volume_horaire_realise
+                
+                
             else:
                 # Enregistrement suivant : calculer le volume_horaire_restant à partir de l'enregistrement précédent
                 avant_dernier_avancement = avancements[1]  # L'avant-dernier enregistrement
@@ -1071,10 +1073,12 @@ class AjouterAvancementAPI(APIView):
             avancement = serializer.save()
 
             # Chercher l'avancement précédent de l'étudiant pour ce module
+            '''
             avancement.volume_horaire_restant = AvancementCoursSerializer.calculate_volume_horaire_restant(
                 etudiant, module, avancement.volume_horaire_realise
             )
             print(avancement.volume_horaire_restant)
+            '''
             # Sauvegarder l'avancement avec le volume horaire restant mis à jour
             #avancement.save(update_fields=['volume_horaire_restant'])
 

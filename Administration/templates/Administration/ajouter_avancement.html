@@ -1,4 +1,4 @@
-<form method="post">
+<!--<form method="post">
     {% csrf_token %}
     <label for="cours_module">Module :</label>
     <input type="text" id="cours_module" value="{{ module.nom_module }}" readonly>
@@ -11,9 +11,21 @@
   
     <button type="submit">Enregistrer</button>
   </form>
+-->
+  <div>
+    <div class="info-bar">
+        <p><strong>Module :</strong> {{ module.nom_module }}</p>
+        <p><strong>Volume horaire total :</strong> {{ module.volume_horaire }}</p>
+        <p><strong>Nom du Professeur :</strong> {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</p>
+        <p><strong>Numéro du Professeur :</strong> {{ module.professeur.numero_prof }}</p>
+        <p><strong>Filière :</strong> {{ module.filiere.nom_filiere }}</p>  <!-- Assuming 'nom_filiere' is the field in the Filiere model -->
+        <p><strong>Niveau de la classe :</strong> {{ module.niveau }}</p>
+    </div>
+    
+  </div>
   
 
-  <h2>Récapitulatif des opérations pour {{ etudiant.nom }} dans le module {{ module.nom_module }}</h2>
+  <h2>Récapitulatif des opérations  le module {{ module.nom_module }}</h2>
 
 <table>
     <thead>
@@ -23,20 +35,22 @@
             <th>Volume horaire REALISER</th>
             <th>Volume horaire RESTANT</th>
             <th>Date de l'opération</th>
-            
+             
         </tr>
     </thead>
     <tbody>
-        {% for avancement in avancements %}
+        {% for avancements in avancements %}
         <tr>
-            <td>{{ avancement.cours_module.nom_module }}</td>
-            <td>{{ avancement.volume_horaire_total }}</td>
+            <td>{{ avancements.cours_module.nom_module }}</td>
+            <td>{{ avancements.volume_horaire_total }}</td>
 
-            <td>{{ avancement.volume_horaire_realise }}</td>
+            <td>{{ avancements.volume_horaire_realise }}</td>
             
-            <td>{{ avancement.horaire_restants }}</td> 
+            <td>{{ avancements.horaire_restants }}</td> 
             
-            <td>{{ avancement.date_op }}</td>
+            <td>{{ avancements.date_op }}</td>
+
+            
         </tr>
         {% empty %}
         <tr>
@@ -46,4 +60,315 @@
     </tbody>
 </table>
 
+{% if somme_pourcentage %}
+    <h2>Somme des pourcentages d'avancement : {{ somme_pourcentage|floatformat:2 }}% <br>
+        <div class="progress-bar-container">
+            <div class="progress-bar" data-progress="{{ somme_pourcentage|floatformat:2 }}"></div>
+        </div>
+    
+    </h2>
+{% else %}
+    <p>Aucun avancement enregistré.</p>
+{% endif %}
+
+
+
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+        // Sélectionner la barre de progression
+        var progressBar = document.querySelector(".progress-bar");
+        
+        // Vérifier si la valeur est bien récupérée
+        var progressValue = progressBar.getAttribute("data-progress");
+        
+        // Afficher un message de débogage pour vérifier la valeur
+        console.log("Valeur du pourcentage : " + progressValue);
+        
+        // Définir la largeur de la barre de progression en fonction de la valeur
+        // Vérifier si la valeur est correcte et mettre à jour la largeur
+        if (progressValue) {
+            // Vérifier que la valeur est un nombre valide
+            var percentage = parseFloat(progressValue);
+            if (!isNaN(percentage) && percentage >= 0 && percentage <= 100) {
+                // Appliquer la largeur de la barre de progression
+                progressBar.style.width = percentage + "%";
+            } else {
+                console.error("La valeur du pourcentage n'est pas valide.");
+            }
+        }
+    });
+</script>
+
+
+
 <!-- Le reste de votre formulaire ici -->
+<style>
+/* Conteneur de la barre de progression */
+.progress-bar-container {
+        width: 100%;
+        background-color: #e0e0e0;
+        height: 30px;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: #4CAF50; /* Couleur verte pour la progression */
+        width: 0%;  /* La largeur sera modifiée dynamiquement */
+        transition: width 0.5s ease-in-out;
+    }
+
+    .progress-bar::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: repeating-linear-gradient(45deg, green 0px, green 5px, transparent 5px, transparent 10px); /* Effet hachuré */
+        opacity: 0.3; /* Ajuster l'opacité pour que l'effet hachuré soit visible mais pas trop intense */
+        z-index: -1;
+    }
+
+    /* Style général */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* En-tête de page */
+h2 {
+    text-align: center;
+    color: #333;
+    margin: 30px 0;
+    font-size: 24px;
+}
+
+/* Style du tableau */
+table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Style des en-têtes de tableau */
+th {
+    background-color:  rgb(48, 15, 233);
+    color: #fff;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+/* Style des cellules du tableau */
+td {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Style des lignes alternées */
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Style des lignes au survol */
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Style de la ligne vide quand il n'y a pas d'avancements */
+tr.empty {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* Style des cellules vides */
+td[colspan="5"] {
+    text-align: center;
+    font-style: italic;
+}
+
+/* Style pour l'espacement autour du tableau */
+table {
+    margin-top: 40px;
+}
+
+/* Responsivité */
+@media (max-width: 768px) {
+    table {
+        width: 100%;
+    }
+    th, td {
+        padding: 10px;
+        font-size: 12px;
+    }
+    h2 {
+        font-size: 20px;
+    }
+}
+/* Style général du formulaire */
+form {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Titre du formulaire */
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Label des champs de formulaire */
+label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+/* Champ de texte (inputs) */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Champ de saisie en lecture seule */
+input[readonly] {
+    background-color: #f4f4f4;
+    cursor: not-allowed;
+}
+
+/* Style du bouton de soumission */
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color:  rgb(48, 15, 233);
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Changer la couleur du bouton au survol */
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Messages d'erreur */
+.errorlist {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Espacement entre les champs */
+input[type="text"]:not([readonly]),
+textarea,
+button[type="submit"] {
+    margin-top: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    form {
+        padding: 15px;
+        width: 90%;
+    }
+
+    button[type="submit"] {
+        font-size: 14px;
+    }
+}
+
+/* Style de la barre d'info */
+.info-bar {
+    width: 80%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #3498db; /* Bleu vif */
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    font-family: 'Arial', sans-serif;
+    animation: slideIn 1s ease-out;
+    transform: translateY(-20px);
+}
+
+/* Animation pour l'info-bar */
+@keyframes slideIn {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Style des paragraphes à l'intérieur de la barre d'info */
+.info-bar p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+/* Effet de survol sur les paragraphes */
+.info-bar p:hover {
+    color: #f39c12; /* Orangé sur survol */
+    cursor: pointer;
+    transform: scale(1.05);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Style du texte en gras dans la barre d'info */
+.info-bar strong {
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Design de la barre d'info sur petits écrans */
+@media (max-width: 768px) {
+    .info-bar {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .info-bar p {
+        font-size: 14px;
+    }
+}
+
+</style>

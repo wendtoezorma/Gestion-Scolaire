@@ -471,6 +471,11 @@ def mettre_a_jour_avancement(request, etudiant_id):
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 import json
+def select_classe(request):
+    filieres = Filiere.objects.all()
+    niveaux = Etudiant._meta.get_field('niveau_etudiant').choices  # Récupère les choix définis dans le modèle
+    return render(request, 'Administration/select_classe.html', {'filieres': filieres, 'niveaux': niveaux})
+
 
 def mettre_a_jour_avancement(request, matricule):
     etudiant = get_object_or_404(Etudiant, matricule=matricule)
@@ -480,30 +485,36 @@ def mettre_a_jour_avancement(request, matricule):
         niveau=etudiant.niveau_etudiant,
         filiere=etudiant.filiere
     )
-    print(etudiant) 
-    if request.method == 'POST':
+    #print(etudiant) 
+    #print(modules)
+    if request.method == 'POST': 
         # Récupérer les données envoyées par le JavaScript
         try:
-            data = json.loads(request.body)
-            module_id = data.get('cours_module')
+            #data = json.loads(request.body)
+            #module_id = data.get('cours_module')
+            module_id = request.POST.get('cours_module')
 
             if not module_id:
                 return JsonResponse({'error': 'Module non spécifié'}, status=400)
+            
 
             module = get_object_or_404(Cours_Module, pk=module_id)
+            
+            print(etudiant)
             return JsonResponse({
                 'module_id': module.Id_module,
                 'nom_module': module.nom_module,
                 'volume_horaire': module.volume_horaire,
-                'etudiant': etudiant
+                'etudiant': etudiant.matricule
             }) 
-
+            
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Données invalides'}, status=400)
+        
+        
+        
 
-    return render(request, 'Administration/update_avancement.html', {'modules': modules})
-
-
+    return render(request, 'Administration/update_avancement.html', {'modules': modules, 'etudiant': etudiant})
 
 def ajouter_avancement_etape2(request, matricule, module_id):
     etudiant = get_object_or_404(Etudiant, pk=matricule)
@@ -513,8 +524,18 @@ def ajouter_avancement_etape2(request, matricule, module_id):
     avancements = AvancementCours.objects.filter(etudiant=etudiant, cours_module=module).order_by('-date_op')
 
      # Calculer 'horaire_restants' pour chaque avancement
+    '''
     for avancement in avancements:
-        avancement.horaire_restants = avancement.volume_horaire_total - avancement.volume_horaire_realise
+        avancement.horaire_restants = avancement.volume_horaire_restant - avancement.volume_horaire_realise
+    '''
+    for avancement in avancements:
+        if not avancement.volume_horaire_restant or avancement.volume_horaire_restant == 0:
+            avancement.volume_horaire_restant = avancement.volume_horaire_total
+        avancement.horaire_restants = avancement.volume_horaire_restant - 0#avancement.volume_horaire_realise
+
+    #supprimer apres 
+    somme_pourcentage = avancements.aggregate(somme_pourcentage=Sum('pourcentage_avancement'))['somme_pourcentage'] or 0
+    
 
     if request.method == 'POST':
         form = AvancementCoursForm(request.POST)
@@ -524,6 +545,15 @@ def ajouter_avancement_etape2(request, matricule, module_id):
             avancement.cours_module = module
             avancement.save()
             return redirect('ajouter_avancement_etape2', matricule=matricule, module_id=module_id)
+        else:
+                # Afficher les erreurs du formulaire pour le débogage
+                print(form.errors)  # Affiche les erreurs dans les logs ou la console
+                return render(request, 'Administration/ajouter_avancement.html', {
+                    'form': form,
+                    'module': module,
+                    'etudiant': etudiant,
+                    'avancements': avancements
+                })
     else:
         form = AvancementCoursForm(initial={
             'cours_module': module,
@@ -534,9 +564,115 @@ def ajouter_avancement_etape2(request, matricule, module_id):
         'form': form,
         'module': module,
         'etudiant': etudiant,
-        'avancements': avancements
+        'avancements': avancements,
+        'somme_pourcentage': somme_pourcentage   # Psupprimer apres
+    })
+    
+
+def ajouter_avancement_etapeA(request, niveau, filiere, module_id):
+    # Récupérer les étudiants de ce niveau et de cette filière
+    etudiants = Etudiant.objects.filter(niveau_etudiant=niveau, filiere__Id_filiere=filiere)
+
+    # Récupérer le module correspondant
+    module = get_object_or_404(Cours_Module, pk=module_id)
+    module_id = request.POST.get('cours_module')
+
+    # Récupérer les avancements pour les étudiants de cette classe
+    avancements = AvancementCours.objects.filter(
+        etudiant__in=etudiants, cours_module=module
+    ).order_by('-date_op')
+
+    # Calculer 'horaire_restants' pour chaque avancement
+    for avancement in avancements:
+        if not avancement.volume_horaire_restant or avancement.volume_horaire_restant == 0:
+            avancement.volume_horaire_restant = avancement.volume_horaire_total
+        avancement.horaire_restants = avancement.volume_horaire_restant - 0
+
+    # Supprimer après
+    somme_pourcentage = avancements.aggregate(
+        somme_pourcentage=Sum('pourcentage_avancement')
+    )['somme_pourcentage'] or 0
+
+    if request.method == 'POST':
+        form = AvancementCoursForm(request.POST)
+        if form.is_valid():
+            avancement = form.save(commit=False)
+            # Associer un étudiant et un module au nouvel avancement
+            etudiant_id = request.POST.get('etudiant')
+            etudiant = get_object_or_404(Etudiant, pk=etudiant_id)
+            avancement.etudiant = etudiant
+            avancement.cours_module = module
+            avancement.save()
+            return redirect('update_avancement', niveau=niveau, filiere=filiere, module_id=module_id)
+        else:
+            # Afficher les erreurs du formulaire pour le débogage
+            print(form.errors)
+            return render(request, 'Administration/ajouter_avancement.html', {
+                'form': form,
+                'module': module,
+                'etudiants': etudiants,
+                'avancements': avancements,
+                'somme_pourcentage': somme_pourcentage,
+            })
+    else:
+        form = AvancementCoursForm(initial={
+            'cours_module': module,
+            'volume_horaire_total': module.volume_horaire,
+        })
+
+    return render(request, 'Administration/ajouter_avancement.html', {
+        'form': form,
+        'module': module,
+        'etudiants': etudiants,
+        'avancements': avancements,
+        'somme_pourcentage': somme_pourcentage,  # Supprimer après
     })
 
+
+
+
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from .models import Etudiant, Cours_Module
+
+def mettre_a_jour_avancementA(request, niveau, filiere):
+    # Filtrer les modules en fonction du niveau et de la filière
+    modules = Cours_Module.objects.filter(niveau=niveau, filiere=filiere)
+
+    
+    if request.method == 'POST':
+        try:
+            # Récupérer le module sélectionné
+            module_id = request.POST.get('cours_module')
+            if not module_id:
+                return JsonResponse({'error': 'Module non spécifié'}, status=400)
+
+            module = get_object_or_404(Cours_Module, pk=module_id)
+
+            # Renvoyer les détails du module et du niveau
+            return JsonResponse({
+                'module_id': module.Id_module,
+                'nom_module': module.nom_module,
+                'volume_horaire': module.volume_horaire,
+                'niveau': niveau,
+                'filiere': filiere,
+                
+            })
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    # Rendu du template avec les modules filtrés
+    return render(
+        request,
+        'Administration/update_avancement.html',
+        {'modules': modules, 'niveau': niveau, 'filiere': filiere,}
+    )
 
 
 

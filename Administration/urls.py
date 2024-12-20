@@ -54,8 +54,15 @@ urlpatterns = [
     path('select_module/<int:filiere_id>/<str:niveau>/', select_module, name='select_module'),
     path('voir_notes/<int:filiere_id>/<str:niveau>/', voir_notes, name='voir_notes'),
     path('modifier_note/<int:note_id>/', modifier_note, name='modifier_note'),
+    ###avancement cours#########
     path('etudiant/<int:matricule>/avancement/', mettre_a_jour_avancement, name='update_avancement'),
     path('etudiant/<int:matricule>/avancement/<int:module_id>/', ajouter_avancement_etape2, name='update_avancement'),
+    path('select_classe/', select_classe, name='select_classe'),
+    path('mettre_a_jour_avancement/<str:niveau>/<str:filiere>/', mettre_a_jour_avancementA, name='mettre_a_jour_avancementA'),
+    path('avancement/<str:niveau>/<int:filiere>/<int:module_id>/', ajouter_avancement_etapeA, name='update_avancement'),
+
+
+    #################################################
     path('creer_professeur/',creer_professeur,name ='creer_professeur'),
     path('creer_note/',creer_note, name = 'creer_note'),
     path('classe/<int:filiere_id>/<str:niveau>/', liste_etudiants_par_classe, name='liste_etudiants_par_classe'),

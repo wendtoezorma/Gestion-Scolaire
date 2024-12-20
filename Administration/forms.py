@@ -129,15 +129,26 @@ from .models import AvancementCours, Cours_Module
 class AvancementCoursForm(forms.ModelForm):
     class Meta:
         model = AvancementCours
-        fields = ['cours_module', 'volume_horaire_realise', 'volume_horaire_total']
+        fields = ['cours_module', 'volume_horaire_realise','volume_horaire_total']
 
     # Surcharger le champ pour afficher les cours filtrés dans la vue
+    """
     def __init__(self, *args, **kwargs):
         cours_filtrés = kwargs.pop('cours_filtrés', [])
         super().__init__(*args, **kwargs)
         #self.fields['cours_module'].queryset = Cours_Module.objects.filter(id__in=[cours.Id_module for cours in cours_filtrés])
         self.fields['cours_module'].queryset = Cours_Module.objects.filter(Id_module__in=[cours.Id_module for cours in cours_filtrés])
 
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Assurez-vous que 'cours_module' et 'volume_horaire_total' sont bien initialisés
+        if 'initial' in kwargs:
+            initial_data = kwargs['initial']
+            if 'cours_module' not in initial_data:
+                initial_data['cours_module'] = kwargs.get('instance', None).cours_module
+            if 'volume_horaire_total' not in initial_data:
+                initial_data['volume_horaire_total'] = kwargs.get('instance', None).volume_horaire_total
 
     
 

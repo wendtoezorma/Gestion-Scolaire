@@ -41,6 +41,49 @@
         align-items: center;
         margin-bottom: 20px;
     }
+    
+    /* Enlever les puces de la liste */
+.menu-items {
+    list-style-type: none;  /* Supprimer les puces */
+    padding: 0;  /* Enlever l'espacement interne */
+    margin: 0;  /* Enlever les marges externes */
+}
+    #loader.active {
+    display: flex;
+    }
+    /* Style du lien Avancement des Cours */
+    .menu-items li a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #92bef4;  /* Couleur claire pour le texte */
+        font-size: 18px;
+        font-weight: 500;
+        padding: 12px 20px;
+        border-radius: 8px;
+        background-color: transparent;  /* Pas de fond, fond transparent */
+        transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .menu-items li a:hover {
+        color: #3498db;  /* Bleu clair au survol */
+        transform: scale(1.05);  /* Légère augmentation de la taille pour l'effet de survol */
+    }
+
+    .menu-items li a .icon {
+        margin-right: 10px;  /* Espacement entre l'icône et le texte */
+        font-size: 20px;  /* Taille de l'icône */
+    }
+
+    .menu-items li a .title {
+        font-weight: 600;  /* Poids du texte pour le rendre plus distinct */
+    }
+
+    /* L'icône s'agrandit au survol */
+    .menu-items li a:hover .icon {
+        transform: scale(1.2);  /* Agrandissement de l'icône */
+        transition: transform 0.3s ease;
+    }
 
     .card .numbers {
         font-size: 2em;

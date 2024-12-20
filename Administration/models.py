@@ -251,7 +251,11 @@ class Cours_Module(models.Model):
         max_length=50,
         choices=[
             ('SEMESTRE 1', 'S1'),
-            ('SEMESTRE 2', 'S2')
+            ('SEMESTRE 2', 'S2'),
+            ('SEMESTRE 3', 'S3'),
+            ('SEMESTRE 4', 'S4'),
+            ('SEMESTRE 5', 'S5'),
+            ('SEMESTRE 6', 'S6'),
         ],
         default='SEMESTRE 1')
     unite_enseignement = models.CharField(
@@ -290,13 +294,14 @@ class AvancementCours(models.Model):
     pourcentage_avancement = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     
     date_op = models.DateTimeField(auto_now_add=True)
-    """
+    #a commenter apres si s passe chez gedeon
+    '''
     def save(self, *args, **kwargs):
         # Calcul automatique du pourcentage d'avancement
         if self.volume_horaire_total > 0:
             self.pourcentage_avancement = (self.volume_horaire_realise / self.volume_horaire_total) * 100
         super().save(*args, **kwargs)
-    """
+    '''
     
     def __str__(self):
         return f"{self.etudiant.nom_etudiant} - {self.cours_module.nom_module} : {self.pourcentage_avancement}%"

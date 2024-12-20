@@ -204,22 +204,74 @@
         background: #007bff;
         transition: width 0.3s ease;
     }
+        #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 5px solid rgba(0, 0, 0, 0.2);
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #007bff;
+        transition: width 0.3s ease;
+        text-align: center;
+        color: white;
+        line-height: 10px;
+        font-size: 12px;
+    }
 
 
 </style>
 
 {% endblock %}
 {% block content %}
-
 <div class="contenu">
-    <div id="loader" style="display: none;">
-        <div class="spinner"></div>
+    <!-- Loader avec spinner et barre de progression -->
+    <div id="loader" style="display: none; align-items: center; flex-direction: column;">
+        <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
         <p>Veuillez patienter pendant le téléchargement...</p>
-        <div class="progress-bar-container">
-            <div id="progress-bar" class="progress-bar"></div>
+        <div class="progress-bar-container" style="width: 100%; background-color: #f3f3f3; border-radius: 5px; margin-top: 10px;">
+            <div id="progress-bar" class="progress-bar" style="width: 0; height: 20px; background-color: #4caf50; border-radius: 5px; text-align: center; color: white; line-height: 20px;">0%</div>
         </div>
     </div>
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
+
+    <!-- Formulaire d'upload -->
+    <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'upload_cours' %}">
         <h2>Upload fichier</h2>
         <br>
         {% csrf_token %}
@@ -235,6 +287,8 @@
 <script>
     document.getElementById('uploadForm').addEventListener('submit', function (event) {
         event.preventDefault(); // Empêche l'envoi par défaut du formulaire
+        console.log("Début du téléchargement");
+
 
         const form = event.target;
         const formData = new FormData(form);
@@ -249,9 +303,14 @@
         // Met à jour la barre de progression
         xhr.upload.addEventListener('progress', function (e) {
             if (e.lengthComputable) {
-                const percentComplete = (e.loaded / e.total) * 100;
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
                 const progressBar = document.getElementById('progress-bar');
+                //progressBar.style.width = percentComplete + '%';
+                //progressBar.textContent = percentComplete + '%';
+                if (progressBar) {
                 progressBar.style.width = percentComplete + '%';
+                progressBar.textContent = percentComplete + '%';
+            }
             }
         });
 
@@ -260,7 +319,7 @@
             document.getElementById('loader').style.display = 'none';
             if (xhr.status === 200) {
                 alert('Fichier téléchargé avec succès!');
-                window.location.reload();
+                window.location.href = "{% url 'cours_list' %}"; // Redirection vers la liste des cours
             } else {
                 alert('Erreur lors du téléchargement.');
             }
@@ -270,6 +329,7 @@
         xhr.send(formData);
     });
 </script>
+
 
 
 {% endblock %}

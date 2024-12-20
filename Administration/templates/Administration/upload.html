@@ -101,6 +101,36 @@
     background-color: #ffffff; /* Fond blanc */
     overflow: hidden;
   }
+  /* Style pour l'icône de "Voir les emplois du temps envoyés" */
+.voir-emplois a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;  /* Taille de l'icône */
+  color: #007bff;  /* Couleur bleue */
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.voir-emplois a:hover {
+  color: #0056b3;  /* Couleur bleu plus foncée au survol */
+  transform: scale(1.1);  /* Légère augmentation de la taille */
+}
+
+/* Icône à l'intérieur de l'ancre */
+.voir-emplois ion-icon {
+  margin-right: 8px;  /* Espacement entre l'icône et le texte (si nécessaire) */
+}
+
+.text {
+  font-size: 20px;  /* Taille du texte */
+  font-family: 'Bradley Hand ITC', cursive;  /* Police manuscrite */
+  color: hsl(213, 83%, 41%);
+  font-weight: normal;  /* Poids de police */
+  font-weight: bold;  /* Mise en gras */
+  transition: transform 0.3s ease;
+
+}
 
 </style>
 
@@ -112,7 +142,15 @@
     <h2>Importer votre emploi du temps</h2>
     {{ form.as_p }}
     <button type="submit" id="envoyer">Générer</button>
-    <div><a href="{% url 'list_uploaded_files' %}">voir les emplois du temps envoyés</a></div>
+    
+    <!--<div><a href="{% url 'list_uploaded_files' %}">voir les emplois du temps envoyés</a></div>-->
+
+    <div class="voir-emplois">
+      <a href="{% url 'list_uploaded_files' %}" title="Voir les emplois du temps envoyés">
+        <span class="text">Voir les emplois du temps envoyés</span>
+        <ion-icon name="folder-open" style="color: #ff6347; font-size: 36px;"></ion-icon> <!-- Icône colorée -->
+      </a>
+    </div>
   </form>
 </div>
 

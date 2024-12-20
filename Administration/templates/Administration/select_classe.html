@@ -1,0 +1,154 @@
+{% extends 'Administration/base.html' %}
+
+{% block title %}Sélection de la classe{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.custom-form-container {
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 2;
+    margin: 40px 0;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    font-size: 16px;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+}
+
+select {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+select:focus {
+    border-color: #0056b3;
+    outline: none;
+}
+
+button {
+    width: 60%;
+    padding: 14px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    font-size: 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #007bff;
+}
+
+button:active {
+    background-color: #003d7a;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+
+
+
+    <div class="container">
+        <div class="custom-form-container">
+            <form>
+                <h1>Sélection de la classe</h1>
+                <div class="form-group">
+                    <label for="select_filiere">Filière :</label>
+                    <select id="select_filiere">
+                        <option value="" disabled selected>-- Sélectionner une filière --</option>
+                        {% for filiere in filieres %}
+                        <option value="{{ filiere.Id_filiere }}">{{ filiere.nom_filiere }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="select_niveau">Niveau :</label>
+                    <select id="select_niveau">
+                        <option value="" disabled selected>-- Sélectionner un niveau --</option>
+                        {% for value, display in niveaux %}
+                        <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <button type="button" id="envoyer">Envoyer</button>
+            </form>
+        </div>
+        
+    </div>
+
+<script>
+document.getElementById("envoyer").addEventListener("click", function() {
+    var filiere_id = document.getElementById("select_filiere").value;
+    var niveau = document.getElementById("select_niveau").value;
+
+    if (!filiere_id || !niveau) {
+        alert("Veuillez sélectionner une filière et un niveau.");
+        return;
+    }
+
+    // Redirection vers l'URL avec les paramètres filière et niveau
+    window.location.href = `/mettre_a_jour_avancement/${niveau}/${filiere_id}/`;
+});
+</script>
+
+{% endblock %}

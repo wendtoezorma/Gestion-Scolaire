@@ -1,65 +1,139 @@
-<!--<h1>Mise à jour de l'avancement du cours</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Mettre à jour</button>
-</form>
-
-<h2>Avancements existants</h2>
-<table>
-    <tr>
-        <th>Module</th>
-        <th>Volume horaire total</th>
-        <th>Volume horaire réalisé</th>
-        <th>Pourcentage</th>
-    </tr>
-    {% for avancement in etudiant.avancements.all %}
-    <tr>
-        <td>{{ avancement.cours_module.nom_module }}</td>
-        <td>{{ avancement.volume_horaire_total }}</td>
-        <td>{{ avancement.volume_horaire_realise }}</td>
-        <td>{{ avancement.pourcentage_avancement }}%</td>
-    </tr>
-    {% endfor %}
-</table>
--->
-<form id="choisir-module-form" method="post">
-    <p>État de l'ID de l'étudiant: {{ etudiant.matricule }}</p>
-
-    {% csrf_token %}
-    <label for="cours_module">Choisir un module :</label>
-    <select name="cours_module" id="cours_module">
-      {% for module in modules %}
-        <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Continuer</button>
-  </form>
-  
-  <script>
-    document.getElementById('choisir-module-form').onsubmit = function(event) {
-      event.preventDefault();
-      const moduleId = document.getElementById('cours_module').value;
-      const etudiantId = "{{ etudiant.id }}"; 
-  
-      fetch("", {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": "{{ csrf_token }}",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ cours_module: moduleId })
-      })
-      .then(response => {
-        if (!response.ok) {
-        throw new Error('Erreur dans la requête');
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choisir un Module</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #6a11cb, #2575fc);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        return response.json();
-    })
-      .then(data => {
-        //window.location.href = `/etudiant/{{ matricule }}/avancement/${data.module_id}/`;  Redirection vers l'étape 2
-        window.location.href = `/etudiant/${etudiantId}/avancement/${data.module_id}/`;
-      });
-    };
-  </script>
-  
+
+        #choisir-module-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #choisir-module-form p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        #choisir-module-form label {
+            font-size: 1em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #choisir-module-form select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #choisir-module-form button {
+            background: #ff6600;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        #choisir-module-form button:hover {
+            background: #ff4500;
+        }
+
+        #choisir-module-form button:active {
+            background: #e63900;
+        }
+
+        #choisir-module-form select:focus {
+            box-shadow: 0 0 8px rgba(0, 0, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            #choisir-module-form {
+                padding: 15px 20px;
+            }
+
+            #choisir-module-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <form id="choisir-module-form" method="post">
+        
+        <p>Niveau : {{ niveau }} | Filière : {{ filiere }}</p>
+
+        {% csrf_token %}
+        <label for="cours_module">Choisir un module :</label>
+        <select name="cours_module" id="cours_module">
+            {% for module in modules %}
+                <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Continuer</button>
+    </form>
+
+    <script>
+        document.getElementById('choisir-module-form').onsubmit = function(event) {
+            event.preventDefault();
+
+            const form = new FormData(event.target);  // Créer l'objet FormData à partir du formulaire
+            const etudiantId = "{{ module.matricule }}";
+            const niveau = "{{ niveau }}";  // Ajouter niveau
+            const filiere = "{{ filiere }}";  // Ajouter filiere
+
+            fetch(window.location.href, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: form  // Envoyer le formulaire sous forme de form-data
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur dans la requête');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.module_id) {
+                    //window.location.href = `/etudiant/${etudiantId}/avancement/${data.module_id}/`;
+                    window.location.href = `/avancement/${niveau}/${filiere}/${data.module_id}/`;
+                } else {
+                    alert("Module ID introuvable !");
+                }
+            })
+            .catch(error => {
+                console.error('Erreur détectée :', error);
+                alert('Une erreur est survenue. Vérifiez les logs pour plus d\'informations.');
+            });
+        };
+    </script>
+</body>
+</html>
