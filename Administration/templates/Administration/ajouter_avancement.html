@@ -11,19 +11,52 @@
   
     <button type="submit">Enregistrer</button>
   </form>
--->
   <div>
     <div class="info-bar">
         <p><strong>Module :</strong> {{ module.nom_module }}</p>
         <p><strong>Volume horaire total :</strong> {{ module.volume_horaire }}</p>
         <p><strong>Nom du Professeur :</strong> {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</p>
         <p><strong>Numéro du Professeur :</strong> {{ module.professeur.numero_prof }}</p>
-        <p><strong>Filière :</strong> {{ module.filiere.nom_filiere }}</p>  <!-- Assuming 'nom_filiere' is the field in the Filiere model -->
+        <p><strong>Filière :</strong> {{ module.filiere.nom_filiere }}</p>  
         <p><strong>Niveau de la classe :</strong> {{ module.niveau }}</p>
     </div>
     
   </div>
-  
+-->
+  <head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+  </head>
+    
+    <div class="info-bar-container">
+        <div class="info-bar">
+            <div class="info-item">
+                <img src="https://img.icons8.com/ios/50/000000/module.png" alt="Module" class="info-icon">
+                <p><strong>Module :</strong> {{ module.nom_module }}</p>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/ios/50/000000/time.png" alt="Volume horaire" class="info-icon">
+                <p><strong>Volume horaire total :</strong> {{ module.volume_horaire }} heures</p>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/ios/50/000000/teacher.png" alt="Professeur" class="info-icon">
+                <p><strong>Nom du Professeur :</strong> {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</p>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/ios/50/000000/phone.png" alt="Numéro Professeur" class="info-icon">
+                <p><strong>Numéro du Professeur :</strong> {{ module.professeur.numero_prof }}</p>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/ios/50/000000/department.png" alt="Filière" class="info-icon">
+                <p><strong>Filière :</strong> {{ module.filiere.nom_filiere }}</p>
+            </div>
+            <div class="info-item">
+                <img src="https://img.icons8.com/ios/50/000000/school.png" alt="Niveau" class="info-icon">
+                <p><strong>Niveau de la classe :</strong> {{ module.niveau }}</p>
+            </div>
+        </div>
+    </div>
+
 
   <h2>Récapitulatif des opérations  le module {{ module.nom_module }}</h2>
 
@@ -312,12 +345,12 @@ button[type="submit"] {
     }
 }
 
-/* Style de la barre d'info */
+/* Style de la barre d'info 
 .info-bar {
     width: 80%;
     margin: 30px auto;
     padding: 20px;
-    background-color: #3498db; /* Bleu vif */
+    background-color: #3498db; 
     color: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -325,7 +358,7 @@ button[type="submit"] {
     font-family: 'Arial', sans-serif;
     animation: slideIn 1s ease-out;
     transform: translateY(-20px);
-}
+}*/
 
 /* Animation pour l'info-bar */
 @keyframes slideIn {
@@ -368,6 +401,74 @@ button[type="submit"] {
 
     .info-bar p {
         font-size: 14px;
+    }
+}
+        /* Conteneur général pour la section des informations */
+.info-bar-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+/* Style de la barre d'informations */
+.info-bar {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 800px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f7f7f7, #e1e1e1);
+}
+
+/* Style des éléments d'information */
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Icône avant chaque information */
+.info-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 15px;
+}
+
+/* Style du texte dans chaque item */
+.info-item p {
+    font-size: 1.1em;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* Pour les titres */
+.info-item p strong {
+    color: #2980b9;
+    font-weight: bold;
+}
+
+/* Effet hover sur chaque ligne */
+.info-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Pour les petits écrans, ajuster la taille */
+@media screen and (max-width: 768px) {
+    .info-bar {
+        padding: 15px;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .info-icon {
+        margin-bottom: 10px;
     }
 }
 

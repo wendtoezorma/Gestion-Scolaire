@@ -1,206 +1,132 @@
 {% extends "Administration/base.html" %}
 {% load custom_filters %}
 
-{% block title %}Ajouter des notes{% endblock %}
-
 {% block styles %}
 {{ block.super }}
-
 <style>
-/* Styles spécifiques au template enfant */
-body {
-    overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    min-height: 100vh !important;
-    background: none !important; /* Supprime l'arrière-plan par défaut */
-}
-
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    background-image: linear-gradient(120deg, #1e3c72, #2a69ac); /* Dégradé de bleu */
-    animation: gradientAnimation 10s ease infinite;
-}
-
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.custom-form-container form {
-    padding: 40px;
+.custom-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-    max-width: 800px;
-    width: 100%; /* Permet au formulaire de s'ajuster à la taille de l'écran */
-    text-align: center;
-    margin: 20px auto; /* Centre le formulaire horizontalement */
-    background-color: rgba(255, 255, 255, 0.9);
-    position: relative;
-    z-index: 2;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
 }
-
-form h1, form h2 {
-    margin-bottom: 20px;
-    color: #101010;
-    font-family: 'Arial', sans-serif;
-    
+.custom-form-container form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px;
 }
-
 form table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
-
 form table th, form table td {
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
 }
-
 form table th {
-    background-color: #f0f8ff;
-    text-align: center;
+    background: #007bff;
+    color: white;
     font-weight: bold;
-    color: #007bff;
 }
-
-form table td {
-    text-align: center;
-}
-
 form input[type="number"] {
-    width: 80%;
-    padding: 5px;
+    width: 90%;
+    padding: 8px;
     border: 1px solid #007bff;
     border-radius: 5px;
     font-size: 16px;
-    transition: border-color 0.3s ease;
+    text-align: center;
 }
-
-form input[type="number"]:focus {
-    border-color: #0056b3;
-    outline: none;
-}
-
 form button {
-    background-color: #007bff;
-    color: #fff;
+    background: #007bff;
+    color: white;
     border: none;
     padding: 12px 20px;
     font-size: 16px;
-    border-radius: 25px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background 0.3s ease;
+    margin: 10px 5px;
 }
-
 form button:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
+    background: #0056b3;
 }
-
-form button:active {
-    transform: scale(0.95);
-}
-.h1 {
-    font-family: 'Arial', sans-serif; /* Choisissez une police moderne */
-    color: #2c3e50; /* Couleur de texte sombre pour un bon contraste */
-    text-align: center; /* Centre le texte */
-    margin-bottom: 20px; /* Espace sous l'élément */
-    font-weight: bold; /* Gras pour plus d'impact */
-}
-
-.h1:nth-of-type(1) {
-    font-size: 1em; /* Taille de police plus grande pour le titre principal */
-    text-transform: uppercase; /* Transforme le texte en majuscules pour le titre principal */
-}
-
-.h1:nth-of-type(2) {
-    font-size: 1.5em; /* Taille de police plus petite pour le sous-titre */
-    color: #34495e; /* Couleur légèrement plus claire pour le sous-titre */
-}
-
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="background">
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-</div>
-
 <h1 class="h1">Ajouter des notes pour le module {{ module.nom_module }}</h1>
 <h2 class="h1">Module: {{ module.nom_module }} <br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
 <div class="custom-form-container">
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="module_id" value="{{ module.Id_module }}">
-        <table>
+
+        <table id="notes-table">
             <thead>
                 <tr>
                     <th>Nom</th>
                     <th>Prénom</th>
-                    <th>Note 1</th>
-                    <th>Note 2</th>
+                    {% for i in range_list %}
+                        <th>Note {{ i }}</th>
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
                 {% for etudiant in etudiants %}
-                    <tr>
-                        <td>{{ etudiant.nom_etudiant }}</td>
-                        <td>{{ etudiant.prenom_etudiant }}</td>
+                <tr>
+                    <td> <p>Matricule: {{ etudiant.matricule }} - Nom: {{ etudiant.nom_etudiant }}</p></td>
+                    <td>{{ etudiant.prenom_etudiant }}</td>
+                    {% for i in range_list %}
                         <td>
-                            <input type="hidden" name="etudiant_matricule" value="{{ etudiant.matricule }}">
-                            
-                            <input type="number" name="note1_{{ etudiant.matricule }}" step="0.01"   max="20"
-                                   value="{% with notes_existantes|get_item:etudiant.matricule as note %}
-                                            {% if note %}
-                                                {{ note.Note1 }}
-                                            {% else %}
-                                                ''
-                                            {% endif %}
-                                        {% endwith %}">
+                            <input type="hidden" name="etudiant_matricules_{{ etudiant.matricule }}" value="{{ etudiant.matricule }}">
+                            <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20"
+                                placeholder="Entrez la note" >
                         </td>
-                        
-                        <td>
-                            <input type="number" name="note2_{{ etudiant.matricule }}" step="0.01" max="20"
-                            value="{% with notes_existantes|get_item:etudiant.matricule as note %}
-                                        {% if note %}
-                                            {{ note.Note2 }}
-                                        {% else %}
-                                            ''
-                                        {% endif %}
-                                    {% endwith %}">
-
-                        </td>
-                    </tr>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-
             </tbody>
         </table>
-                    {% if form.errors %}
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                        <li>{{ field }}: {{ errors }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
 
-        <button type="submit">Enregistrer les notes</button>
+        <div>
+            <button type="button" id="add-note-btn">Ajouter une autre note</button>
+            <button type="submit">Enregistrer les notes</button>
+        </div>
     </form>
 </div>
 
+<script>
+    document.getElementById('add-note-btn').addEventListener('click', function() {
+        const table = document.getElementById('notes-table');
+        const rows = table.getElementsByTagName('tr');
+        const newNoteIndex = rows[0].cells.length - 2 + 1;
+
+        const th = document.createElement('th');
+        th.textContent = 'Note ' + newNoteIndex;
+        rows[0].appendChild(th);
+
+        for (let i = 1; i < rows.length; i++) {
+            const td = document.createElement('td');
+            const noteInput = document.createElement('input');
+            noteInput.type = 'number';
+            noteInput.name = `note_${rows[i].cells[0].textContent.trim()}_${newNoteIndex}`;
+            noteInput.step = '0.01';
+            noteInput.max = '20';
+            noteInput.placeholder = 'Entrez la note';
+            noteInput.required = false;
+
+            td.appendChild(noteInput);
+            rows[i].appendChild(td);
+        }
+    });
+</script>
 {% endblock %}

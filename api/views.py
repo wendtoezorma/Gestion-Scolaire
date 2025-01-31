@@ -136,15 +136,15 @@ class EtudiantNotesList(APIView):
             
             
             notes_dict[module_name] = {
-                'Note1': note_data['Note1'],
-                'Note2': note_data['Note2'],
+                
                 'moyenne': note_data['moyenne'],
                 'professeur_nom': note_data['professeur_nom'],
+                'notes_details': note_data['notes_details']
                 
             }
-
+        etudiant_data = etudiant_serializer.data
         return Response({
-            'etudiant': etudiant_serializer.data,
+            'etudiant': etudiant_data ,# etudiant_serializer.data,
             'notes': notes_dict
         }, status=status.HTTP_200_OK)
         

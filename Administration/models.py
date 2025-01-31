@@ -111,6 +111,8 @@ class Boursier(models.Model):
 
     def __str__(self):
         return self.type_bourse
+    
+    
 from django.core.validators import MinLengthValidator
 import re
 from .gestion_scolarite import calculate_total
@@ -295,40 +297,47 @@ class AvancementCours(models.Model):
     
     date_op = models.DateTimeField(auto_now_add=True)
     #a commenter apres si s passe chez gedeon
-    '''
-    def save(self, *args, **kwargs):
-        # Calcul automatique du pourcentage d'avancement
-        if self.volume_horaire_total > 0:
-            self.pourcentage_avancement = (self.volume_horaire_realise / self.volume_horaire_total) * 100
-        super().save(*args, **kwargs)
-    '''
+
     
     def __str__(self):
         return f"{self.etudiant.nom_etudiant} - {self.cours_module.nom_module} : {self.pourcentage_avancement}%"
     
 
 
+from django.db import models
+
 class Notes(models.Model):
-    Id_note = models.AutoField(primary_key=True)
-    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='notes', null=True)
-    matiere_module = models.ForeignKey(Cours_Module, on_delete=models.CASCADE, related_name='modules', null=True)
-    Note1 = models.FloatField(default=0)
-    Note2 = models.FloatField(default=0)
+    id = models.AutoField(primary_key=True)
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='notes', default=1)
+    matiere_module = models.ForeignKey(Cours_Module, on_delete=models.CASCADE, related_name='notes',default=1)
+    index = models.IntegerField(default=1) 
+    notes = models.JSONField(default=list)  # JSONField pour stocker une liste de notes
     moyenne = models.FloatField(editable=False, default=0.0)
-    #Concerne= Etudiant.nom_etudiant
+
     class Meta:
         ordering = ['matiere_module']
         verbose_name = "Note"
         verbose_name_plural = "Notes"
+        indexes = [
+            models.Index(fields=['etudiant']),
+            models.Index(fields=['matiere_module']),
+        ]
 
     def save(self, *args, **kwargs):
-        self.moyenne = (self.Note1 + self.Note2) / 2
+        # Calcul de la moyenne des notes
+        if self.notes:
+            self.moyenne = sum(self.notes) / len(self.notes)
+        else:
+            self.moyenne = 0.0
         super(Notes, self).save(*args, **kwargs)
-
 
     def __str__(self):
         return f"{self.etudiant.nom_etudiant} - {self.matiere_module.nom_module} - Moyenne: {self.moyenne}"
-# La classe étudiant à présent
+
+
+
+
+
 from django.contrib.auth.models import AbstractUser
 
 from django.contrib.auth.models import BaseUserManager
@@ -414,15 +423,15 @@ class Enseignement(models.Model):
 
     def __str__(self):
         return self.professeur.nom_prof
+from .gestion_scolarite import calculate_total
 
 ######### La table pour la gestion de scolarité #########
 class Scolarite(models.Model):
     Id_scolarite = models.AutoField(primary_key=True)
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='scolarite', null=True)
     annee_academique = models.CharField(max_length=20, default='2023/2024')
-    tranche_1 = models.FloatField(default=0)
-    tranche_2 = models.FloatField(default=0)
-    tranche_3 = models.FloatField(default=0)
+
+    tranches = models.JSONField(default=list)
     total = models.FloatField(default=0, editable=False)
     Montant_restant = models.FloatField(editable=False, default=0.0)
     montant_total_verse = models.FloatField(editable=False, default=0.0)
@@ -436,10 +445,23 @@ class Scolarite(models.Model):
 
     #####Importons la bibliothèque qui gère la scolarité en fonction de la filiere et du niveau d'étude
 
-    from .gestion_scolarite import calculate_total
+    
     def save(self, *args, **kwargs):
-        self.total = self.calculate_total()
-        self.montant_total_verse=(self.tranche_1 + self.tranche_2 + self.tranche_3)
+
+        # Calculer la somme des tranches si nécessaire
+        if not self.tranches:
+            print('erreur ici')
+            self.tranches = [0, 0, 0]  # Valeur par défaut pour les tranches si vide
+        
+        # Calcul du montant total versé et restant
+        self.montant_total_verse = sum(self.tranches)
+        self.Montant_restant = self.total - self.montant_total_verse
+        #super(Scolarite, self).save(*args, **kwargs)
+
+
+        #self.total = self.calculate_total()
+        self.total = calculate_total(self)
+        #self.montant_total_verse=(self.tranche_1 + self.tranche_2 + self.tranche_3)
         self.Montant_restant = self.total - self.montant_total_verse
         super(Scolarite, self).save(*args, **kwargs)
 
@@ -519,6 +541,7 @@ class CoursFichier(models.Model):
 
     def __str__(self):
         return self.nom_fichier
+
 
 #################### POUR LES INFORMATIONS A AFFICHER DANS L'APP MOBILE ####
 

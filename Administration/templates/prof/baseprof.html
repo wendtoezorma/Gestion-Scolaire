@@ -149,7 +149,37 @@
 
         .app-main {
             margin-top: 70px;
+            
         }
+        /* Sidebar ajustée pour petits écrans */
+.app-navbar {
+    width: 250px; /* Largeur de la sidebar sur les grands écrans */
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+    .app-navbar {
+        width: 200px; /* Réduire la largeur sur les petits écrans */
+    }
+}
+
+@media (max-width: 767px) {
+    /* Réduire encore plus sur les écrans très petits */
+    .app-navbar {
+        width: 180px;
+    }
+
+    /* Empêcher le contenu de se chevaucher avec la sidebar sur les petits écrans */
+    .app-main {
+        margin-left: 0;
+    }
+}
+
+/* Empêcher que le menu hamburger soit masqué */
+.navbar-toggler-icon {
+    background-color: #000;
+}
+
     </style>
 </head>
 
@@ -177,17 +207,9 @@
                                     <span class="notification-badge"></span></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{}">Messages</a>
+                                <a class="nav-link" href="{% url 'profil' %}">Profil</a>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="ti-user"></i> Profil
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="#">Paramètres</a>
-                                    <a class="dropdown-item" href="#">Déconnexion</a>
-                                </div>
-                            </li>
+                           
                         </ul>
                     </div>
                 </nav>

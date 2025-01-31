@@ -2,23 +2,78 @@
 {% block styles %}
 {{ block.super }}
 
-
 <style>
-    .student-list-container {
+
+
+/* Conteneur principal du tableau */
+.student-list-container {
     width: 100%;
-    overflow-x: auto; /* Ajoute la barre de défilement horizontale */
-    -webkit-overflow-scrolling: touch; /* Pour les appareils tactiles */
+    max-width: 100vw;
+    overflow-x: auto ;
+    -webkit-overflow-scrolling: touch;
+    background: var(--light-gray);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    }
-
-    .student-table {
-    /* Assurez-vous que le tableau dépasse la largeur du conteneur pour activer le défilement */
-    width: 120%; /* Augmente la largeur pour que la barre de défilement soit nécessaire */
-    min-width: 800px; /* Assurez-vous que le tableau dépasse la largeur du conteneur */
+/* Style du tableau */
+.student-list-container table {
+    width: 100%;
+    min-width: 900px; /* Évite que les colonnes se compressent */
     border-collapse: collapse;
-    
-    
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* En-tête du tableau */
+.student-list-container th {
+    background: var(--blue);
+    color: var(--white);
+    padding: 12px;
+    text-align: left;
+    border-bottom: 3px solid var(--dark-gray);
+}
+
+/* Contenu du tableau */
+.student-list-container td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+/* Effet de survol */
+.student-list-container tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    transition: 0.3s ease-in-out;
+}
+
+/* Champs de recherche */
+#search-nom, #search-prenom {
+    width: 200px;
+    border-radius: 30px;
+    border: 2px solid var(--blue);
+    font-size: 16px;
+    padding: 8px 15px;
+    outline: none;
+    transition: 0.3s ease-in-out;
+}
+
+/* Effet focus sur les champs */
+#search-nom:focus, #search-prenom:focus {
+    border-color: var(--dark-gray);
+    background: var(--light-gray);
+}
+
+/* Ajustement responsive */
+@media screen and (max-width: 768px) {
+    #search-nom, #search-prenom {
+        width: 100%;
+        margin-bottom: 10px;
     }
+}
+
     
 
     body {
@@ -206,21 +261,52 @@ form input[type="submit"] {
     text-align: center;
 
   }
-  #search-nom , #search-prenom{
-    width: 150px;
-    border-radius: 30px;
-    color: var(--blue);
-    font-size: 15px;
-    padding: 0px;
-    
-  }
+  
   .cardBox{
 
     left: 150px;
   }
 
+  #ajouter-tranche {
+    display: flex;
+    align-items: center;
+    background-color: #ebf4f6; /* Couleur de fond personnalisée */
+    color: #333; /* Texte plus foncé pour un meilleur contraste */
+    font-size: 18px; /* Augmenter la taille de la police */
+    padding: 15px 30px; /* Espacement interne plus large */
+    border: none; /* Enlever la bordure par défaut */
+    border-radius: 8px; /* Bords arrondis avec un rayon plus grand */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Effet de transition */
+    text-align: center;
+    width: auto; /* S'adapte au contenu */
+    
+}
+
+#ajouter-tranche:hover {
+    background-color: #1991cd; /* Couleur au survol */
+    transform: scale(1.05); /* Légère agrandissement au survol */
+}
+
+#ajouter-tranche:focus {
+    outline: none; /* Supprimer le contour au focus */
+}
+
+.icone-ajouter {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    transition: transform 0.3s; /* Effet de transition pour l'icône */
+}
+
+#ajouter-tranche:hover .icone-ajouter {
+    transform: rotate(15deg); /* Rotation légère de l'icône au survol */
+}
+
+
 </style>
 {% endblock %}
+{% load static %}
 
 {% block content %}
 
@@ -234,6 +320,14 @@ form input[type="submit"] {
     </div>
 {% endif %}
 <div class="container">
+    {% load static %}
+    <!-- Chargement des fichiers CSS et JS nécessaires pour select2 -->
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+   
+
+
     
 
         <div class="cardBox" id="money">
@@ -286,19 +380,266 @@ form input[type="submit"] {
                     <h1>Gestion de la Scolarité</h1>
                     <br>
                     <br>
-                    <!-- Ajouter un champ de recherche pour les étudiants 
-                    <label for="search-etudiant">Rechercher un étudiant (Nom ou Prénom)</label>
-                    <input type="text" id="search-etudiant" name="search-etudiant" class="form-control" placeholder="Rechercher...">-->
-                    <br>
+                    
+                    
                     {% csrf_token %}
-                    {{ scolarite_form.as_p }}
-                    <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant_id.value }}">
+                    <!--{{ scolarite_form.as_p }}
+
+                      Dynamically created input fields for tranches -->
+                     <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant.value }}">
+                     <div class="form-group">
+                        <label for="id_etudiant">Sélectionner un étudiant</label>
+                        <select id="id_etudiant" name="etudiant" class="form-control">
+                            <option value="">Sélectionnez un etudiant</option>
+                            <!-- Les options seront ajoutées par Select2 -->
+                        </select>
+                    </div>
                     <br>
-                    <button type="submit" class="btn btn-success">Enregistrer</button>
+    
+
+                 
+
+                    <div class="form-group">
+                        <label for="tranche_1">Tranche 1</label>
+                        <input type="number" id="tranche_1" name="tranche_1" class="form-control" value="{{ scolarite_form.tranche_1.value }}">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="tranche_2">Tranche 2</label>
+                        <input type="number" id="tranche_2" name="tranche_2" class="form-control" value="{{ scolarite_form.tranche_2.value }}">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="tranche_3">Tranche 3</label>
+                        <input type="number" id="tranche_3" name="tranche_3" class="form-control" value="{{ scolarite_form.tranche_3.value }}">
+                    </div>
+                    
+                    
+                    
+                    <div id="tranches-container"></div> <!-- Conteneur pour les tranches supplémentaires -->
+                    
+                   
+
+            
+                    
+                    <div class="form-groupicone">
+                        <button type="button" id="ajouter-tranche" class="btn btn-info">
+                            
+                            <img src="{% static 'Administration/images/icons8-ajouter-48.png' %}" alt="Ajouter" style="width: 20px; height: 20px; margin-right: 8px;">
+
+                        </button>
+                    </div>
+                    
+                    <br>
+            
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Enregistrer</button>
+                    </div>
                 </form>
+
+                
             
             <div>
-        </div>
+                <script>
+                                        // Remplir les valeurs des tranches initiales dans un objet
+                        
+                </script>
+          
+                 <!-- Initialisation de Select2 pour le champ d'autocomplétion -->
+                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+                 
+<script>
+        $(document).ready(function() {
+    var $etudiantSelect = $("#id_etudiant");
+
+    if ($etudiantSelect.length) {
+        $etudiantSelect.select2({
+            ajax: {
+                url: "/etudiant-autocomplete/",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results };
+                },
+                cache: true
+            },
+            placeholder: "Rechercher un étudiant...",
+            allowClear: true
+        });
+
+        // Écouteur d'événement pour récupérer les tranches lors de la sélection d'un étudiant
+        
+        $etudiantSelect.on("change", function() {
+            var matricule = $(this).val();  // Récupère le matricule sélectionné
+            console.log("Matricule sélectionné :", matricule); // Debugging
+
+            if (matricule) {
+                $.ajax({
+                    url: "/get-scolarite/",  // URL de get_scolarite2
+                    data: { etudiant_id: matricule },
+                    dataType: "json",
+                    success: function(data) {
+                        console.log("Données récupérées :", data); // Afficher les données dans la console
+                        trancheValues = {
+                        tranche_1: data.tranche_1 || "",
+                        tranche_2: data.tranche_2 || "",
+                        tranche_3: data.tranche_3 || "",
+                        tranche_4: data.tranche_4 || "",
+                        tranche_5: data.tranche_5 || "",
+                        tranche_6: data.tranche_6 || "",
+                        tranche_7: data.tranche_7 || "",
+                        tranche_8: data.tranche_8 || "",
+                        tranche_9: data.tranche_9 || "",
+                        tranche_10: data.tranche_10 || ""
+                    };
+
+                        
+                        let trancheCount = 0; // Compteur de tranches supérieures à 0
+                        // Mise à jour des valeurs de trancheValues avec les données récupérées
+                        
+
+                        
+
+
+                        if (data.tranche_1 !== undefined) { 
+                            
+                            if (data.tranche_1 > 0) {
+                                $("#tranche_1").val(data.tranche_1);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_2 > 0) {
+                                $("#tranche_2").val(data.tranche_2);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_3 > 0) {
+                                $("#tranche_3").val(data.tranche_3);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_4 > 0) {
+                                $("#tranche_4").val(data.tranche_4);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_5 > 0) {
+                                $("#tranche_5").val(data.tranche_5);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_6 > 0) {
+                                $("#tranche_6").val(data.tranche_6);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_7 > 0) {
+                                $("#tranche_7").val(data.tranche_7);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_8 > 0) {
+                                $("#tranche_8").val(data.tranche_8);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_9 > 0) {
+                                $("#tranche_9").val(data.tranche_9);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+                            if (data.tranche_10 > 0) {
+                                $("#tranche_10").val(data.tranche_10);
+                                trancheCount++;  // Incrémenter trancheCount
+                            }
+
+
+                            // Construire l'alerte
+                            let message = "";
+
+                            // Ajouter uniquement les tranches supérieures à 0 dans l'alerte
+                            if (data.tranche_1 > 0) message += "Tranche 1: " + data.tranche_1 + "\n";
+                            if (data.tranche_2 > 0) message += "Tranche 2: " + data.tranche_2 + "\n";
+                            if (data.tranche_3 > 0) message += "Tranche 3: " + data.tranche_3 + "\n";
+                            if (data.tranche_4 > 0) message += "Tranche 4: " + data.tranche_4 + "\n";
+                            if (data.tranche_5 > 0) message += "Tranche 5: " + data.tranche_5 + "\n";
+                            if (data.tranche_6 > 0) message += "Tranche 6: " + data.tranche_6 + "\n";
+                            if (data.tranche_7 > 0) message += "Tranche 7: " + data.tranche_7 + "\n";
+                            if (data.tranche_8 > 0) message += "Tranche 8: " + data.tranche_8 + "\n";
+                            if (data.tranche_9 > 0) message += "Tranche 9: " + data.tranche_9 + "\n";
+                            if (data.tranche_10 > 0) message += "Tranche 10: " + data.tranche_10 + "\n";
+
+
+                            // Ajouter le total à l'alerte
+                            message += "Total: " + data.total;
+                            // Calculer combien de fois le bouton doit être cliqué
+                            
+                            let clicksRequired = trancheCount - 3;
+                             // Cliquer automatiquement le bouton n - 3 fois
+                            for (let i = 0; i < clicksRequired; i++) {
+                                document.getElementById("ajouter-tranche").click(); // Cliquer sur le bouton
+                            }
+                            // Afficher l'alerte
+                            alert(message);   
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log("Erreur AJAX :", xhr.responseText); // Debugging
+                        alert("Erreur AJAX: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+    }
+                        var trancheValues = {
+                            tranche_1: "{{ scolarite_form.tranche_1.value }}",
+                            tranche_2: "{{ scolarite_form.tranche_2.value }}",
+                            tranche_3: "{{ scolarite_form.tranche_3.value }}",
+                            tranche_4: "{{ scolarite_form.tranche_4.value }}",
+                            tranche_5: "{{ scolarite_form.tranche_5.value }}",
+                            tranche_6: "{{ scolarite_form.tranche_6.value }}",
+                            tranche_7: "{{ scolarite_form.tranche_7.value }}",
+                            tranche_8: "{{ scolarite_form.tranche_8.value }}",
+                            tranche_9: "{{ scolarite_form.tranche_9.value }}",
+                            tranche_10: "{{ scolarite_form.tranche_10.value }}"
+                            
+
+                        };
+                                                
+                        // Compteur de tranches
+                        var trancheCount = 3; // Commencer à 3 car les tranches 1, 2, 3 existent déjà
+                        // Incrémenter le compteur de tranches
+                        trancheCount++;
+
+                    document.getElementById("ajouter-tranche").addEventListener("click", function() {
+                        var lastTrancheIndex = document.querySelectorAll("[id^='tranche_']").length + 1;
+                   
+                          // Récupérer la valeur de la tranche correspondante ou une valeur vide
+                     var trancheValue = trancheValues[`tranche_${lastTrancheIndex}`] || '0'; // valeur par défaut vide si pas de donnée
+
+                    
+                    var newTranche = document.createElement('div');
+                    newTranche.classList.add('form-group');
+                    
+                    newTranche.innerHTML = `
+                        <label for="tranche_${lastTrancheIndex}">Tranche ${lastTrancheIndex}</label>
+                        <input type="number" id="tranche_${lastTrancheIndex}" name="tranche_${lastTrancheIndex}" class="form-control" step="0.01" value="${trancheValue}">
+                    `;
+                    
+                    document.getElementById("tranches-container").appendChild(newTranche);
+                    // Affiche les valeurs dans la console pour vérifier
+});
+
+});
+
+    </script>
+        
+                
+        
         
     </div>
         
@@ -347,9 +688,7 @@ form input[type="submit"] {
                             <option value="2030/2031">2030/2031</option>
                         </select>
                     </th>
-                    <th>1re Tranche</th>
-                    <th>2e Tranche</th>
-                    <th>3e Tranche</th>
+                    
                     <th>Montant Total Versé</th>
                     <th>Scolarite</th>
                     <th>Montant Restant</th>
@@ -377,9 +716,6 @@ form input[type="submit"] {
                     <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
                     <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
                     <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
-                    <td>{{ scolarite.tranche_1 }}</td>
-                    <td>{{ scolarite.tranche_2 }}</td>
-                    <td>{{ scolarite.tranche_3 }}</td>
                     <td>{{ scolarite.montant_total_verse }}</td>
                     <td>{{ scolarite.total }}</td>
                     <td>{{ scolarite.Montant_restant }}</td>
@@ -399,11 +735,13 @@ form input[type="submit"] {
         </table>
     </div>
     </div>
+    
 </div>
 
 <!-- Ajouter jQuery pour la gestion des événements -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
+
 
 document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('search-etudiant');
@@ -495,10 +833,44 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
 
+    $(document).ready(function() {
+    // Activer l'autocomplétion sur le champ de recherche
+    $("#search-etudiant").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: "{% url 'recherche_etudiants_pour_solarite' %}",  // URL pour récupérer les données des étudiants
+                dataType: "json",
+                data: {
+                    term: request.term  // Terme que l'utilisateur tape
+                },
+                success: function(data) {
+                    // Retourner les résultats sous forme de tableau avec label (nom et prénom) et value (ID de l'étudiant)
+                    response($.map(data, function(item) {
+                        return {
+                            label: item.nom + " " + item.prenom,  // Affichage du nom et prénom de l'étudiant
+                            value: item.id  // Valeur utilisée dans le champ (ID de l'étudiant)
+                        };
+                    }));
+                }
+            });
+        },
+        minLength: 2,  // L'autocomplétion commence après 2 caractères
+        select: function(event, ui) {
+            // Remplir le champ avec le nom sélectionné (label) et stocker l'ID dans un champ caché
+            $("#search-etudiant").val(ui.item.label);  // Mettre à jour le champ de recherche avec le nom complet
+            $("input[name='etudiant-id']").val(ui.item.value);  // Stocker l'ID dans un champ caché si nécessaire
+            return false;  // Empêcher l'auto-remplissage du champ
+        },
+        autoFocus: true,  // Assurer que le premier résultat est mis en surbrillance
+        delay: 300,  // Délai avant l'activation de l'autocomplétion (300 ms)
+        minLength: 2  // La recherche démarre après que l'utilisateur ait tapé 2 caractères
+    });
+});
+
     
     $(document).ready(function() {
         // Appel AJAX pour l'autocomplétion
-        $("#search-etudiant").autocomplete({
+        $("#search-nom").autocomplete({
             source: function(request, response) {
                 $.ajax({
                     url: "{% url 'recherche_etudiants_pour_solarite' %}", // La vue Django qui renvoie la liste d'étudiants
@@ -543,8 +915,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
    
-    // Lorsqu'un étudiant est sélectionné, effectuer une requête AJAX pour obtenir ses données de scolarité
-    $('#id_etudiant').change(function() {
+     // Lorsqu'un étudiant est sélectionné, effectuer une requête AJAX pour obtenir ses données de scolarité
+     $('#id_etudiant').change(function() {
         var etudiant_id = $(this).val();  // Récupérer l'ID de l'étudiant sélectionné
         if (etudiant_id) {
             $.ajax({

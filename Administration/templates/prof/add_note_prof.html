@@ -1,110 +1,231 @@
+
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>liste de note</title>
 </head>
 <body>
-   
 
 <style>
 /* Styles spécifiques au template enfant */
-body {
-    overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    min-height: 100vh !important;
-    background: none !important; /* Supprime l'arrière-plan par défaut */
-}
+        /* Héritage des styles principaux */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(120deg, #1f2e3d, #8e8d8d); /* Animation conservée */
+            background-size: 300% 300%;
+            animation: gradientAnimation 10s ease infinite;
+            color: #333; /* Couleur du texte héritée */
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
 
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
-    animation: gradientAnimation 10s ease infinite;
-}
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
+            animation: gradientAnimation 10s ease infinite;
+        }
 
-.background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-}
+        /* Conteneur du formulaire */
+        .custom-form-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.85);
+            position: relative;
+            z-index: 2;
+        }
 
-@keyframes bubbleAnimation {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(-100%, 100%); }
-    100% { transform: translate(0, 0); }
-}
+        form h1, form h2 {
+            margin-bottom: 20px;
+            color: #34495e;
+            font-size: 24px;
+        }
 
-form {
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    text-align: center;
-    margin-top: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    position: relative;
-    z-index: 2;
-}
+        form table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
 
-form h1, form h2 {
-    margin-bottom: 20px;
-    color: #333;
-}
+        form table th, form table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
 
-form table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
+        form table th {
+            background-color: #34495e;
+            color: #fff;
+        }
 
-form table th, form table td {
-    padding: 10px;
-    border: 1px solid #ccc;
-}
+        form table td {
+            background-color: #f9f9f9;
+        }
 
-form table th {
-    background-color: #f2f2f2;
-    text-align: center;
-}
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 4px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
 
-form table td {
-    text-align: center;
-}
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
 
-form button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+        button:hover {
+            background-color: #0056b3;
+        }
 
-form button:hover {
-    background-color: #0056b3;
-}
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+     /* Pour une meilleure responsivité */
+     @media (max-width: 768px) {
+        form {
+            padding: 20px;
+            width: 95%;  /* Réduit la largeur sur les petits écrans */
+        }
+
+        table th, table td {
+            font-size: 14px;
+            padding: 8px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h1, h2 {
+            font-size: 18px; /* Réduit la taille des titres */
+        }
+
+        table th, table td {
+            font-size: 12px;
+            padding: 6px;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+    }
+
+    
 </style>
 
+<h1 class="h1">Ajouter des notes pour le module {{ module.nom_module }}</h1>
+<h2 class="h1"><br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
+
+<div class="custom-form-container">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="module_id" value="{{ module.Id_module }}">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    {% for i in range_list %}
+                        <th>Note {{ i }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for etudiant in etudiants %}
+                <tr>
+                    <td>{{ etudiant.nom_etudiant }}</td>
+                    <td>{{ etudiant.prenom_etudiant }}</td>
+                    {% for i in range_list %}
+                        <td>
+                            <input type="hidden" name="etudiant_matricules_{{ etudiant.matricule }}" value="{{ etudiant.matricule }}">
+                            <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20" placeholder="Entrez la note" >
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <button type="button" id="add-note-btn">Ajouter une autre note</button>
+            <button type="submit">Enregistrer les notes</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('add-note-btn').addEventListener('click', function() {
+        const table = document.getElementById('notes-table');
+        const rows = table.getElementsByTagName('tr');
+        const newNoteIndex = rows[0].cells.length - 2 + 1;
+
+        const th = document.createElement('th');
+        th.textContent = 'Note ' + newNoteIndex;
+        rows[0].appendChild(th);
+
+        for (let i = 1; i < rows.length; i++) {
+            const td = document.createElement('td');
+            const noteInput = document.createElement('input');
+            noteInput.type = 'number';
+            noteInput.name = `note_${rows[i].cells[0].textContent.trim()}_${newNoteIndex}`;
+            noteInput.step = '0.01';
+            noteInput.max = '20';
+            noteInput.placeholder = 'Entrez la note';
+            noteInput.required = false;
+
+            td.appendChild(noteInput);
+            rows[i].appendChild(td);
+        }
+    });
+</script>
+
+
+
+</body>
+</html>
+   
+<!--
 <h1 class="h1">Ajouter des notes pour le module {{ module.nom_module }}</h1>
 <h2 class="h1">Module: {{ module.nom_module }} <br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
 
@@ -146,3 +267,4 @@ form button:hover {
 
 </body>
 </html>
+-->

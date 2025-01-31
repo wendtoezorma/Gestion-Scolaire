@@ -16,7 +16,7 @@ urlpatterns = [
     path('display_table_prof/<int:file_id>/', display_table_prof, name='display'),
     path('creer_note_prof/', creer_note_prof, name='creer_note_prof'),
     path('voir_notes_pro/<int:filiere_id>/<str:niveau>/', voir_notes_prof, name='voir_notes_pro'),
-    path('modifier_note_prof/<int:note_id>/', modifier_note_prof, name='modifie_note_prof'),
+    path('modifier_note_prof/<int:note_id>/', modifier_note_prof, name='modifier_note_prof'),
     path('logout_prof', logout_prof, name='logout_prof'),
     path('ajouter/', ajouter_tache, name='ajouter_tache'),
     path('modifier_tache/<int:id>/', modifier_tache, name='modifier_tache'),
@@ -24,5 +24,6 @@ urlpatterns = [
     path('api/get_taches/', get_taches, name='get_taches'),
     path('notifications_prof/',notifications_professeur, name='recuperer_notifications_prof'),
     path('notifications_non_lues_count/', notifications_non_lues_count, name='notifications_non_lues_count'),
+    path('profil/', profil , name= "profil" )
    
 ]
