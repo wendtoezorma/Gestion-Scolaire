@@ -121,10 +121,11 @@ class InfosSerializer(serializers.ModelSerializer):
 class NotesSerializer(serializers.ModelSerializer):
     nom_module = serializers.SerializerMethodField()
     professeur_nom = serializers.SerializerMethodField()  # Nouveau champ pour récupérer le nom du professeur
+    notes_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Notes
-        fields = ['nom_module', 'Note1', 'Note2', 'moyenne','professeur_nom']  # Ajoutez d'autres champs si nécessaire
+        fields = ['nom_module',  'moyenne','professeur_nom','notes_details']  # Ajoutez d'autres champs si nécessaire
 
     def get_nom_module(self, obj):
         # Récupérer le nom du module à partir de la relation (ForeignKey)
@@ -133,6 +134,16 @@ class NotesSerializer(serializers.ModelSerializer):
     def get_professeur_nom(self, obj):
         # Récupérer le nom complet du professeur lié au module
         return obj.matiere_module.professeur.get_nom_prof()  # Utiliser la méthode pour obtenir le nom complet du professeur
+    
+    def get_notes_details(self, obj):
+        # Ici, vous retournez les notes détaillées, si vous le souhaitez
+        notes_details = {}
+        for i, note in enumerate(obj.notes):
+            note_key = f"Note{i + 1}"  # Note1, Note2, Note3, ...
+            notes_details[note_key] = note
+        return notes_details
+          # Vous pouvez ajuster la logique ici si nécessaire
+
 
 class UploadedFileSerializer(serializers.ModelSerializer):
     class Meta:

@@ -7,6 +7,8 @@ from .models import *
 
 def calculate_total(self):
     montant = 0.0
+    print(f"Calcul pour {self.etudiant.nom_etudiant}, niveau: {self.etudiant.niveau_etudiant}, filière: {self.etudiant.filiere.nom_filiere}")
+    #filiere_etudiant = self.etudiant.filiere.nom_filiere.strip().upper()
 
     # Définir les frais de scolarité de base en fonction du niveau et de la filière
     if self.etudiant.niveau_etudiant == 'LICENCE1':
@@ -56,6 +58,8 @@ def calculate_total(self):
             montant = 45000.00  # Exemple de frais d'inscription
         else:
             montant *= (self.etudiant.bourse.reduction)
+    print(f"Montant calculé: {montant}")
+    
 
     return montant 
 

@@ -177,12 +177,13 @@ class CoursModuleForm(forms.ModelForm):
 
 
 #pour enregistrer des notes
+from django_select2.forms import Select2Widget
 
 class NotesForm(forms.ModelForm):
     
     class Meta:
         model = Notes
-        fields = ['etudiant', 'matiere_module', 'Note1', 'Note2']
+        fields = ['id','etudiant', 'matiere_module', 'notes']#, 'Note2'
 
     def __init__(self, *args, **kwargs):
         super(NotesForm, self).__init__(*args, **kwargs)
@@ -281,6 +282,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.hashers import make_password
 from .models import Administration
+from django_select2.forms import Select2Widget
 
 class AdministrationAdminForm(forms.ModelForm):
     class Meta:
@@ -298,7 +300,7 @@ class AdministrationAdminForm(forms.ModelForm):
 
 from django import forms
 from .models import Scolarite
-
+"""
 class ScolariteForm(forms.ModelForm):
     class Meta:
         model = Scolarite
@@ -323,7 +325,82 @@ class ScolariteForm(forms.ModelForm):
             self.fields['tranche_3'].initial = self.instance.tranche_3
         
         self.fields['etudiant_id'] = forms.CharField(widget=forms.HiddenInput(), required=False)
+"""
+import json
+from django import forms
+from .models import Scolarite
+from dal import autocomplete
+from django_select2.forms import ModelSelect2Widget
+from django_select2.forms import Select2TagWidget
 
+class ScolariteForm(forms.ModelForm):
+   
+    
+    class Meta:
+        model = Scolarite
+        fields = ['etudiant', ]  # Le champ 'tranches' qui sera une liste JSON
+        widgets = {
+            'etudiant': autocomplete.ModelSelect2(
+                url='etudiant-autocomplete',  # Correspond à l'URL de la vue d'autocomplétion
+                attrs={
+                    'data-placeholder': 'Rechercher un étudiant...',
+                    'style': 'width: 100%;',
+                }
+            )
+        }
+    #tranches = forms.JSONField(required=False,widget=forms.HiddenInput())  # Ajoutez un champ caché si nécessaire pour gérer les tranches
+    """
+    def __init__(self, *args, **kwargs):
+        super(ScolariteForm, self).__init__(*args, **kwargs)
+        
+        if self.instance and self.instance.pk:
+            # Si une instance existe, charger les tranches existantes
+            tranches = self.instance.tranches  # Obtenez la liste des tranches existantes
+            for i in range(3):
+                # Créez dynamiquement les champs tranche_1, tranche_2, tranche_3
+                self.fields[f'tranche_{i+1}'] = forms.FloatField(
+                    initial=tranches[i] if len(tranches) > i else 0,  # Remplir avec les valeurs existantes ou 0
+                    required=False,
+                    widget=forms.NumberInput(attrs={'class': 'form-control'})
+                )
+
+    def clean_tranches(self):
+        tranches = []
+        for i in range(3):
+            tranche_value = self.cleaned_data.get(f"tranche_{i+1}")
+            if tranche_value is None:  # Si la valeur est None, on la remplace par 0
+                tranche_value = 0
+            try:
+                tranches.append(float(tranche_value))
+            except ValueError:
+                raise forms.ValidationError(f"Tranche {i+1} doit être un nombre valide.")
+        return tranches
+    """
+    def __init__(self, *args, **kwargs):
+        super(ScolariteForm, self).__init__(*args, **kwargs)
+        
+        
+        # Tranches par défaut (3 tranches)
+        for i in range(0):  # 3 tranches par défaut
+            self.fields[f'tranche_{i+1}'] = forms.FloatField(
+                initial=0,  # Valeur par défaut
+                required=False,
+                widget=forms.NumberInput(attrs={'class': 'form-control'})
+            )
+
+    def clean_tranches(self):
+        tranches = []
+        # Adapté au nombre dynamique de tranches
+        max_tranches = len(self.fields)  # Nombre de tranches dans le formulaire
+        for i in range(max_tranches):
+            tranche_value = self.cleaned_data.get(f"tranche_{i+1}")
+            if tranche_value is None:  # Si la valeur est None, on la remplace par 0
+                tranche_value = 0
+            try:
+                tranches.append(float(tranche_value))
+            except ValueError:
+                raise forms.ValidationError(f"Tranche {i+1} doit être un nombre valide.")
+        return tranches
 ######################### La liste des etudiants pour la scolarité ###################
 
 from .models import Filiere, Etudiant

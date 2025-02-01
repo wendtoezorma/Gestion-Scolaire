@@ -24,5 +24,6 @@ urlpatterns = [
     path('api/get_taches/', get_taches, name='get_taches'),
     path('notifications_prof/',notifications_professeur, name='recuperer_notifications_prof'),
     path('notifications_non_lues_count/', notifications_non_lues_count, name='notifications_non_lues_count'),
+    path('profil/', profil , name= "profil" )
    
 ]

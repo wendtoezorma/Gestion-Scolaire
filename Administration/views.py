@@ -98,6 +98,10 @@ from .forms import ScolariteForm
 from .models import Etudiant, Filiere, Scolarite
 from .apperu import apercu_caisse, nombre_etudiants_connecter
 from datetime import datetime
+
+from django.shortcuts import render, redirect
+from django.http import Http404
+from .services import PersonnePrevenir
 def administration_login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -155,10 +159,7 @@ def dashboard_personne_prevenir(request):
     except Etudiant.DoesNotExist:
         return HttpResponseForbidden("Aucune donnée trouvée.")
 
-# views.py
-from django.shortcuts import render, redirect
-from django.http import Http404
-from .services import PersonnePrevenir
+
 
 def personne_prevenir_action(request, action_type):
     # Récupérer l'étudiant de la session
@@ -717,7 +718,7 @@ def select_module(request, filiere_id, niveau):
     }
     return render(request, 'Administration/select_module.html', context)
 
-
+"""
 @login_required(login_url='login')
 
 def creer_note(request):
@@ -788,9 +789,114 @@ def creer_note(request):
 
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('admin_dashboard')
+"""
 
-    
-    
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Notes, Cours_Module, Etudiant
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Cours_Module, Notes, Etudiant
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Cours_Module, Notes, Etudiant
+
+def creer_note(request):
+    if request.method == 'POST':
+        etudiants = []
+        notes_data = {}
+
+        # Récupérer les matricules des étudiants
+        for key in request.POST:
+            if key.startswith('etudiant_matricules_'):
+                matricule = request.POST.get(key)
+                etudiants.append(matricule)
+
+        print("Etudiants récupérés:", etudiants)
+
+        # Récupérer les notes pour chaque étudiant
+        for etudiant in etudiants:
+            notes_data[etudiant] = []
+            for key in request.POST:
+                if key.startswith(f'note_{etudiant}_'):
+                    note_value = request.POST.get(key)
+                    try:
+                        notes_data[etudiant].append(float(note_value))
+                    except ValueError:
+                        print(f"Erreur de conversion pour la note de l'étudiant {etudiant} : {note_value}")
+                        pass  # Ignorer si la valeur n'est pas une note valide
+
+        print("Notes Data:", notes_data)
+
+           # Trouver le nombre maximal de notes pour un étudiant
+        max_notes_count = max(len(notes) for notes in notes_data.values())
+
+        # Remplir les notes manquantes avec 0
+        for etudiant, notes in notes_data.items():
+            while len(notes) < max_notes_count:
+                notes.append(0)
+
+        # Récupérer l'ID du module
+        module_id = request.POST.get('module_id')
+
+        # Traitez les données comme vous le faisiez dans votre code
+        etudiants_modifies = []
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+            nom_module = module.nom_module
+            professeur = module.professeur
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('admin_dashboard')
+
+        # Ajouter ou modifier les notes pour chaque étudiant
+        for etudiant_matricule, notes in notes_data.items():
+            note, created = Notes.objects.get_or_create(
+                etudiant_id=etudiant_matricule,
+                matiere_module_id=module_id,
+                defaults={'notes': notes}
+            )
+
+            if not created:
+                print(f"Mise à jour des notes pour l'étudiant {etudiant_matricule}")
+                note.notes = notes  # Mettre à jour les notes si elles existent déjà
+                note.save()
+
+            etudiant = Etudiant.objects.get(pk=etudiant_matricule)
+            etudiants_modifies.append(etudiant.nom_etudiant)
+
+        message = (
+            f"Des notes ont été ajoutées ou modifiées pour les étudiants suivants dans votre module {nom_module} : "
+            f"{', '.join(etudiants_modifies)}."
+        )
+        creer_notification(
+            destinataire_prof=professeur,
+            message=message
+        )
+
+        messages.success(request, 'Les notes ont été enregistrées avec succès.')
+        return redirect('admin_dashboard')
+
+    # Si c'est une requête GET, afficher le formulaire pour ajouter les notes
+    if request.method == 'GET':
+        module_id = request.GET.get('module_id')
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+            etudiants = Etudiant.objects.filter(filiere=module.filiere)  # Récupérer les étudiants par filière
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('admin_dashboard')
+
+        context = {
+            'module': module,
+            'etudiants': etudiants,
+            'range_list': range(1, 6)  # Exemple de la gamme de notes
+        }
+        return render(request, 'Administration/add_note.html', context)
+
+    # Retourner une erreur si la méthode n'est ni GET ni POST
+    return redirect('admin_dashboard')
+
 
 @login_required(login_url='login')
 def liste_etudiants_par_classe(request, filiere_id, niveau):
@@ -921,23 +1027,73 @@ def voir_notes(request, filiere_id, niveau):
         # Récupérer tous les modules pour cette filière
         modules = Cours_Module.objects.filter(filiere_id=filiere_id)
         
-        # Récupérer le module sélectionné
+        # Initialiser les variables
         module_selected = None
         notes = None
-        
+        max_notes = 0  # Le nombre maximum de notes
+        note_range = range(1, 1)  # Plage vide par défaut (ajustée plus tard)
+
         if module_id:
             module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
-            notes = Notes.objects.filter(matiere_module_id=module_id).select_related('etudiant')
-        
+            notes_queryset = Notes.objects.filter(matiere_module=module_selected)
+            
+            # Désérialiser les notes si elles sont stockées en JSON
+            notes = []
+            for note in notes_queryset:
+                note_data = {
+                    'etudiant': note.etudiant,
+                    'notes': json.loads(note.notes) if isinstance(note.notes, str) else note.notes,
+                    'moyenne': note.moyenne,
+                }
+                notes.append(note_data)
+                # Mettre à jour le nombre maximum de notes
+                max_notes = max(max_notes, len(note_data['notes']))
+            
+            # Définir la plage de notes en fonction de max_notes
+            note_range = range(1, max_notes + 1)
+
         context = {
             'modules': modules,
             'module_selected': module_selected,
             'notes': notes,
+            'max_notes': max_notes,
+            'note_range': note_range,
         }
-        
+
         return render(request, 'Administration/voir_notes.html', context)
     else:
         return redirect('admin_dashboard')
+
+
+"""
+def voir_notes(request, filiere_id, niveau):
+    if request.method == 'GET':
+        module_id = request.GET.get('module_id')
+        filiere_id = int(filiere_id)
+
+        # Récupérer tous les modules de la filière et du niveau
+        modules = Cours_Module.objects.filter(filiere_id=filiere_id, niveau=niveau)
+
+        # Initialiser les variables pour le module sélectionné et les notes
+        module_selected = None
+        notes = None
+
+        if module_id:
+            module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
+            notes = Notes.objects.filter(matiere_module_id=module_id).select_related('etudiant')
+
+        context = {
+            'modules': modules,
+            'module_selected': module_selected,
+            'notes': notes,
+            'niveau': niveau,
+            'filiere_id': filiere_id,
+        }
+
+        return render(request, 'Administration/voir_notes.html', context)
+    else:
+        return redirect('admin_dashboard')
+"""
 
 from io import BytesIO  # Importer BytesIO du module io
 
@@ -1234,6 +1390,55 @@ def student_profile(request):
     return render(request, 'etudiant_profile.html', {'etudiant': etudiant})
 
 
+#autocompletition pour la recherche de l etudiant dans la scolarité
+
+def etudiant_autocomplete(request):
+    if 'q' in request.GET:
+        query = request.GET['q']
+        students = Etudiant.objects.filter(nom__icontains=query)[:10]  # Limitez à 10 résultats
+        results = [{'id': s.id, 'text': s.nom} for s in students]
+        return JsonResponse({'results': results})
+    return JsonResponse({'results': []})
+
+from .models import Etudiant
+from dal import autocomplete 
+
+class EtudiantAutocompleteView(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+        
+        
+
+        qs = Etudiant.objects.all()
+
+        # Appliquer un filtre basé sur l'entrée utilisateur
+        if self.q:
+            qs = qs.filter(nom_etudiant__icontains=self.q)
+             # Récupérer et stocker la valeur du champ 'tranches' de la scolarité de chaque étudiant
+            
+
+        
+
+        return qs
+    def get_result_label(self, item):
+        """ Affiche nom + matricule dans la liste déroulante """
+        return f"{item.nom_etudiant} ({item.matricule})"
+
+    def get_result_value(self, item):
+        """ Retourne l'ID de l'étudiant (ou matricule) """
+        return item.matricule
+
+    def render_to_response(self, context):
+        """ Format JSON personnalisé avec nom et matricule """
+        results = [
+            {"id": etudiant.matricule, "text": f"{etudiant.nom_etudiant} II {etudiant.prenom_etudiant} II {etudiant.filiere.nom_filiere} "} 
+            for etudiant in context["object_list"]
+        ]
+        return JsonResponse({"results": results})
+    
+    
+
+
 
 def gestion_scolarite(request):
     filieres = Filiere.objects.all()
@@ -1253,24 +1458,52 @@ def gestion_scolarite(request):
          # Créer un formulaire de scolarité
         scolarite_form = ScolariteForm(request.POST, instance=scolarite)
         
-        #form = ScolariteForm(request.POST)
-
+  
+        
         if scolarite_form.is_valid():
             new_scolarite = scolarite_form.save(commit=False)
              # Mettre à jour les valeurs spécifiques sans écraser # Assurez-vous que ce champ existe
+             #tranches = new_scolarite.tranches
+             # Initialiser une liste vide pour les tranches
+            tranches = []
+            
+           
+            for i in range(10):  # Maximum de 10 tranches, ajustable
+                tranche_value = request.POST.get(f'tranche_{i+1}', '')
+                if tranche_value == '':  # Si la valeur est vide, on remplace par 0
+                    tranche_value = 0
+                try:
+                    tranches.append(float(tranche_value))  # Ajouter la tranche à la liste
+                except ValueError:
+                    tranches.append(0)  # Remplacer par 0 en cas d'erreur de conversion
+
+           
+            new_scolarite.tranches = tranches
+            new_scolarite.total = sum(tranches)  # Calculer le total basé sur les tranches
+            new_scolarite.montant_total_verse = sum(tranches)
+            new_scolarite.Montant_restant = new_scolarite.total - new_scolarite.montant_total_verse
+            
+            print(new_scolarite.total, new_scolarite.montant_total_verse , new_scolarite.Montant_restant )
+             # Cela devrait afficher les tranches stockées dans la BD
+
+            
             new_scolarite.save()
             
          # Après la sauvegarde, nous préparons les données pour le reçu
-        context = {
-                'q': etudiant_id,  # Si vous avez besoin du matricule
-                'scolarites': scolarite,
-                'date_paiement': date_paiement,
-                'heure_paiement': heure_paiement,
-            }
-        
-            # Générer le reçu
-        return render(request, 'Administration/recu_paiement.html',context)
-            #return redirect('gestion_scolarite')
+            context = {
+                    'q': etudiant_id,  # Si vous avez besoin du matricule
+                    'scolarites': scolarite,
+                    'date_paiement': date_paiement,
+                    'heure_paiement': heure_paiement,
+                }
+            
+                # Générer le 
+              
+            print(f'la scolarité stocker : {tranches}')
+    
+            
+            return render(request, 'Administration/recu_paiement.html',context)
+                #return redirect('gestion_scolarite')
         
     else:
         scolarite_form = ScolariteForm()
@@ -1289,6 +1522,43 @@ def gestion_scolarite(request):
     return render(request, 'Administration/scolarite.html', context)
 
 from django.http import JsonResponse
+from django.http import JsonResponse
+from .models import Scolarite, Etudiant
+
+def get_scolarite2(request):
+    etudiant_id = request.GET.get('etudiant_id')
+    
+    if not etudiant_id:
+        return JsonResponse({'error': 'Paramètre etudiant_id manquant'}, status=400)
+
+    try:
+        scolarite = Scolarite.objects.get(etudiant__matricule=etudiant_id)
+        tranches = scolarite.tranches  # Supposé être un JSONField sous forme de liste
+
+        return JsonResponse({
+            'tranche_1': tranches[0] if len(tranches) > 0 else 0,
+            'tranche_2': tranches[1] if len(tranches) > 1 else 0,
+            'tranche_3': tranches[2] if len(tranches) > 2 else 0,
+            'total': scolarite.total
+        })
+    except Scolarite.DoesNotExist:
+        return JsonResponse({'error': 'Aucune scolarité trouvée pour cet étudiant.'}, status=404)
+    
+
+def get_scolarite(request, etudiant_id):
+    
+    scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
+    
+    if scolarite:
+        raw_password = scolarite.mdp_etudiant
+        return JsonResponse({
+            'tranche_1': scolarite.tranche_1,
+            'tranche_2': scolarite.tranche_2,
+            'tranche_3': scolarite.tranche_3,
+            'mot_de_passe': raw_password,
+        })
+    return JsonResponse({'tranche_1': 0, 'tranche_2': 0, 'tranche_3': 0,'mot_de_passe': None})
+
 
 def obtenir_informations_etudiant(request):
     if request.method == 'GET':
@@ -1303,20 +1573,6 @@ def obtenir_informations_etudiant(request):
             return JsonResponse(data)
         except Scolarite.DoesNotExist:
             return JsonResponse({'error': 'Scolarité non trouvée'}, status=404)
-
-def get_scolarite(request, etudiant_id):
-    scolarite = Scolarite.objects.filter(etudiant_id=etudiant_id).first()
-    
-    if scolarite:
-        raw_password = scolarite.mdp_etudiant
-        return JsonResponse({
-            'tranche_1': scolarite.tranche_1,
-            'tranche_2': scolarite.tranche_2,
-            'tranche_3': scolarite.tranche_3,
-            'mot_de_passe': raw_password,
-        })
-    return JsonResponse({'tranche_1': 0, 'tranche_2': 0, 'tranche_3': 0,'mot_de_passe': None})
-
 
 
 ################ Lister les fichiers disponibles pour les etudiants ##########
@@ -1441,6 +1697,17 @@ def recherche_etudiant(request):
     return render(request, 'Administration/recherche_etudiant.html', {'form': form})
 
 
+from django.http import JsonResponse
+from .models import Etudiant
+
+def recherche_etudiant_scolarite(request):
+    term = request.GET.get('term', '')  # Récupérer le terme de recherche
+    if term:
+        etudiants = Etudiant.objects.filter(nom__icontains=term)  # Recherche des étudiants par nom
+        results = [{'id': etudiant.id, 'nom': etudiant.nom, 'prenom': etudiant.prenom} for etudiant in etudiants]
+    else:
+        results = []
+    return JsonResponse(results, safe=False)
 
 
 def  generer_bulletin(request, matricule, semestre):
@@ -1689,6 +1956,7 @@ def creer_notification(destinataire_admin=None, destinataire_prof=None, message=
         destinataire_prof=destinataire_prof,
         message=messages
     )
+    
 
 
 

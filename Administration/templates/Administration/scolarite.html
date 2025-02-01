@@ -3,6 +3,8 @@
 {{ block.super }}
 
 
+
+
 <style>
     .student-list-container {
     width: 100%;
@@ -219,8 +221,46 @@ form input[type="submit"] {
     left: 150px;
   }
 
+  #ajouter-tranche {
+    display: flex;
+    align-items: center;
+    background-color: #ebf4f6; /* Couleur de fond personnalisée */
+    color: #333; /* Texte plus foncé pour un meilleur contraste */
+    font-size: 18px; /* Augmenter la taille de la police */
+    padding: 15px 30px; /* Espacement interne plus large */
+    border: none; /* Enlever la bordure par défaut */
+    border-radius: 8px; /* Bords arrondis avec un rayon plus grand */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Effet de transition */
+    text-align: center;
+    width: auto; /* S'adapte au contenu */
+    
+}
+
+#ajouter-tranche:hover {
+    background-color: #1991cd; /* Couleur au survol */
+    transform: scale(1.05); /* Légère agrandissement au survol */
+}
+
+#ajouter-tranche:focus {
+    outline: none; /* Supprimer le contour au focus */
+}
+
+.icone-ajouter {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    transition: transform 0.3s; /* Effet de transition pour l'icône */
+}
+
+#ajouter-tranche:hover .icone-ajouter {
+    transform: rotate(15deg); /* Rotation légère de l'icône au survol */
+}
+
+
 </style>
 {% endblock %}
+{% load static %}
 
 {% block content %}
 
@@ -234,6 +274,14 @@ form input[type="submit"] {
     </div>
 {% endif %}
 <div class="container">
+    {% load static %}
+    <!-- Chargement des fichiers CSS et JS nécessaires pour select2 -->
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+   
+
+
     
 
         <div class="cardBox" id="money">
@@ -286,18 +334,151 @@ form input[type="submit"] {
                     <h1>Gestion de la Scolarité</h1>
                     <br>
                     <br>
-                    <!-- Ajouter un champ de recherche pour les étudiants 
-                    <label for="search-etudiant">Rechercher un étudiant (Nom ou Prénom)</label>
-                    <input type="text" id="search-etudiant" name="search-etudiant" class="form-control" placeholder="Rechercher...">-->
-                    <br>
+                    
+                    
                     {% csrf_token %}
-                    {{ scolarite_form.as_p }}
-                    <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant_id.value }}">
+                    <!--{{ scolarite_form.as_p }}
+
+                      Dynamically created input fields for tranches -->
+                     <input type="hidden" name="etudiant-id" value="{{ scolarite_form.etudiant.value }}">
+                     <div class="form-group">
+                        <label for="id_etudiant">Sélectionner un étudiant</label>
+                        <select id="id_etudiant" name="etudiant" class="form-control">
+                            <option value="">Sélectionnez un etudiant</option>
+                            <!-- Les options seront ajoutées par Select2 -->
+                        </select>
+                    </div>
                     <br>
-                    <button type="submit" class="btn btn-success">Enregistrer</button>
+    
+
+                 
+
+                    <div class="form-group">
+                        <label for="tranche_1">Tranche 1</label>
+                        <input type="number" id="tranche_1" name="tranche_1" class="form-control" value="{{ scolarite_form.tranche_1.value }}">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="tranche_2">Tranche 2</label>
+                        <input type="number" id="tranche_2" name="tranche_2" class="form-control" value="{{ scolarite_form.tranche_2.value }}">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="tranche_3">Tranche 3</label>
+                        <input type="number" id="tranche_3" name="tranche_3" class="form-control" value="{{ scolarite_form.tranche_3.value }}">
+                    </div>
+            
+                    <div id="tranches-container"></div> <!-- Conteneur pour les tranches supplémentaires -->
+                   
+
+            
+                    
+                    <div class="form-groupicone">
+                        <button type="button" id="ajouter-tranche" class="btn btn-info">
+                            
+                            <img src="{% static 'Administration/images/icons8-ajouter-48.png' %}" alt="Ajouter" style="width: 20px; height: 20px; margin-right: 8px;">
+
+                        </button>
+                    </div>
+                    
+                    <br>
+            
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Enregistrer</button>
+                    </div>
                 </form>
+
+                
             
             <div>
+                <script>
+                    document.getElementById("ajouter-tranche").addEventListener("click", function() {
+                    var lastTrancheIndex = document.querySelectorAll("[id^='tranche_']").length + 1;
+                    
+                    var newTranche = document.createElement('div');
+                    newTranche.classList.add('form-group');
+                    
+                    newTranche.innerHTML = `
+                        <label for="tranche_${lastTrancheIndex}">Tranche ${lastTrancheIndex}</label>
+                        <input type="number" id="tranche_${lastTrancheIndex}" name="tranche_${lastTrancheIndex}" class="form-control" step="0.01">
+                    `;
+                    
+                    document.getElementById("tranches-container").appendChild(newTranche);
+});
+
+                </script>
+          
+                 <!-- Initialisation de Select2 pour le champ d'autocomplétion -->
+                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+                 
+    <script>
+        $(document).ready(function() {
+    var $etudiantSelect = $("#id_etudiant");
+
+    if ($etudiantSelect.length) {
+        $etudiantSelect.select2({
+            ajax: {
+                url: "/etudiant-autocomplete/",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results };
+                },
+                cache: true
+            },
+            placeholder: "Rechercher un étudiant...",
+            allowClear: true
+        });
+
+        // Écouteur d'événement pour récupérer les tranches lors de la sélection d'un étudiant
+        $etudiantSelect.on("change", function() {
+            var matricule = $(this).val();  // Récupère le matricule sélectionné
+            console.log("Matricule sélectionné :", matricule); // Debugging
+
+            if (matricule) {
+                $.ajax({
+                    url: "/get-scolarite/",  // URL de get_scolarite2
+                    data: { etudiant_id: matricule },
+                    dataType: "json",
+                    success: function(data) {
+                        console.log("Données récupérées :", data); // Afficher les données dans la console
+
+                        if (data.tranche_1 !== undefined) {
+                            $("#tranche_1").val(data.tranche_1);
+                            $("#tranche_2").val(data.tranche_2);
+                            $("#tranche_3").val(data.tranche_3);
+
+                            // Afficher une alerte avec les tranches
+                            alert("Tranche 1: " + data.tranche_1 + 
+                                  "\nTranche 2: " + data.tranche_2 + 
+                                  "\nTranche 3: " + data.tranche_3 + 
+                                  "\nTotal: " + data.total);
+                        } else {
+                            alert("Aucune donnée trouvée !");
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log("Erreur AJAX :", xhr.responseText); // Debugging
+                        alert("Erreur AJAX: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+    }
+});
+
+    </script>
+        
+        
+    
+        
+        
+              
+                
         </div>
         
     </div>
@@ -377,9 +558,9 @@ form input[type="submit"] {
                     <td>{{ scolarite.etudiant.filiere.nom_filiere }}</td>
                     <td>{{ scolarite.etudiant.niveau_etudiant }}</td>
                     <td>{{ scolarite.etudiant.annee_academique_etudiant }}</td>
-                    <td>{{ scolarite.tranche_1 }}</td>
-                    <td>{{ scolarite.tranche_2 }}</td>
-                    <td>{{ scolarite.tranche_3 }}</td>
+                    <td>{{ scolarite.tranches.0|default:"0" }}</td>
+                    <td>{{ scolarite.tranches.1|default:"0" }}</td>
+                    <td>{{ scolarite.tranches.2|default:"0" }}</td>
                     <td>{{ scolarite.montant_total_verse }}</td>
                     <td>{{ scolarite.total }}</td>
                     <td>{{ scolarite.Montant_restant }}</td>
@@ -399,10 +580,11 @@ form input[type="submit"] {
         </table>
     </div>
     </div>
+    
 </div>
 
 <!-- Ajouter jQuery pour la gestion des événements -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -437,63 +619,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     $(document).ready(function() {
-        function filterTable() {
-            var filiere = $('#filter-filiere').val();
-            var niveau = $('#filter-niveau').val();
-            var bourse = $('#filter-bourse').val();
-            var anne_academique = $('#filter-anne_academique').val();
-            var searchNom = $('#search-nom').val().toLowerCase();
-            var searchPrenom = $('#search-prenom').val().toLowerCase();
-            var hasResults = false; // Track if any results are shown
-    
-            $('#student-table-body tr').each(function() {
-                var show = true;
-    
-                if (filiere && $(this).data('filiere') != filiere) {
-                    show = false;
-                }
-                if (niveau && $(this).data('niveau') != niveau) {
-                    show = false;
-                }
-                if (bourse && $(this).data('bourse') != bourse) {
-                    show = false;
-                }
-                if (anne_academique && $(this).data('anne_academique') != anne_academique) {
-                    show = false;
-                }
-    
-                var nom = $(this).children('td').eq(1).text().toLowerCase();
-                var prenom = $(this).children('td').eq(2).text().toLowerCase();
-                
-                if (searchNom && !nom.includes(searchNom)) {
-                    show = false;
-                }
-                if (searchPrenom && !prenom.includes(searchPrenom)) {
-                    show = false;
-                }
-    
-                if (show) {
-                    $(this).show();
-                    hasResults = true; // Mark that there is at least one result
-                } else {
-                    $(this).hide();
+    // Activer l'autocomplétion sur le champ de recherche
+    $("#search-etudiant").autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: "{% url 'recherche_etudiants_pour_solarite' %}",  // URL pour récupérer les données des étudiants
+                dataType: "json",
+                data: {
+                    term: request.term  // Terme que l'utilisateur tape
+                },
+                success: function(data) {
+                    // Retourner les résultats sous forme de tableau avec label (nom et prénom) et value (ID de l'étudiant)
+                    response($.map(data, function(item) {
+                        return {
+                            label: item.nom + " " + item.prenom,  // Affichage du nom et prénom de l'étudiant
+                            value: item.id  // Valeur utilisée dans le champ (ID de l'étudiant)
+                        };
+                    }));
                 }
             });
-    
-            if (!hasResults) {
-                $('#student-table-body').append('<tr id="no-results"><td colspan="13">Aucun résultat trouvé</td></tr>');
-            } else {
-                $('#no-results').remove();
-            }
-        }
-    
-        $('#filter-filiere, #filter-niveau, #filter-bourse, #filter-anne_academique, #search-nom, #search-prenom').on('input', function() {
-            filterTable();
-        });
-    
-        filterTable(); // Initial call to filter the table when the page loads
+        },
+        minLength: 2,  // L'autocomplétion commence après 2 caractères
+        select: function(event, ui) {
+            // Remplir le champ avec le nom sélectionné (label) et stocker l'ID dans un champ caché
+            $("#search-etudiant").val(ui.item.label);  // Mettre à jour le champ de recherche avec le nom complet
+            $("input[name='etudiant-id']").val(ui.item.value);  // Stocker l'ID dans un champ caché si nécessaire
+            return false;  // Empêcher l'auto-remplissage du champ
+        },
+        autoFocus: true,  // Assurer que le premier résultat est mis en surbrillance
+        delay: 300,  // Délai avant l'activation de l'autocomplétion (300 ms)
+        minLength: 2  // La recherche démarre après que l'utilisateur ait tapé 2 caractères
     });
-    
+});
 
     
     $(document).ready(function() {
@@ -543,8 +700,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
    
-    // Lorsqu'un étudiant est sélectionné, effectuer une requête AJAX pour obtenir ses données de scolarité
-    $('#id_etudiant').change(function() {
+     // Lorsqu'un étudiant est sélectionné, effectuer une requête AJAX pour obtenir ses données de scolarité
+     $('#id_etudiant').change(function() {
         var etudiant_id = $(this).val();  // Récupérer l'ID de l'étudiant sélectionné
         if (etudiant_id) {
             $.ajax({

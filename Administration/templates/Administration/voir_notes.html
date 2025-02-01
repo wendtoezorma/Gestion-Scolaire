@@ -25,34 +25,32 @@
 
 {% if module_selected %}
     <h2>Notes des Étudiants pour le Module {{ module_selected.nom_module }}</h2>
+    
     <table>
         <thead>
             <tr>
-                <th>Étudiant</th>
-                <th>Note 1</th>
-                <th>Note 2</th>
+                <th>Nom Etudiant</th>
+                {% for i in note_range %}
+                    <th>Note {{ i }}</th>
+                {% endfor %}
                 <th>Moyenne</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% if notes %}
                 {% for note in notes %}
-                    <tr>
-                        <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
-                        <td>{{ note.Note1 }}</td>
-                        <td>{{ note.Note2 }}</td>
-                        <td>{{ note.moyenne }}</td>
-                        <td><a href="{% url 'modifier_note' note.Id_note %}">Modifier</a></td>
-                    </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="5">Les notes de ce module ne sont pas enregistrées.</td>
-                </tr>
-            {% endif %}
+        <tr>
+            <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
+            {% for i in note.notes %}
+                <td>{{ i }}</td>
+            {% endfor %}
+            <td>{{ note.moyenne }}</td>
+    </tr>
+{% endfor %}
+
         </tbody>
     </table>
+    
+
 {% endif %}
 {% endblock %}
 

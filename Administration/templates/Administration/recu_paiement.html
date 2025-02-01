@@ -131,9 +131,9 @@
                 <tbody>
                     <tr>
                         <td>{{ scolarites.etudiant.niveau_etudiant }}</td>
-                        <td>{{ scolarites.tranche_1 }} FCFA</td>
-                        <td>{{ scolarites.tranche_2 }} FCFA</td>
-                        <td>{{ scolarites.tranche_3 }} FCFA</td>
+                        <td>{{ scolarites.tranches.0 }} FCFA</td>
+                        <td>{{ scolarites.tranches.1|default:"0" }} FCFA</td>
+                        <td>{{ scolarites.tranches.2|default:"0" }} FCFA</td>
                         <td>{{ scolarites.montant_total_verse }} FCFA</td>
                         <td>{{ scolarites.Montant_restant }} FCFA</td>
                         <td>{{ date_paiement }}</td>

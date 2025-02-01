@@ -3,7 +3,7 @@ from .forms import *
 from Administration.models import *
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseForbidden
-from Administration.models import professeurs
+from Administration.models import *
 from .login_required import * 
 
 # Create your views here.
@@ -73,9 +73,12 @@ def afficher_classe(request, filiere_id, niveau, professeur_id):
         })
     
     # Vérifier si le professeur enseigne un cours dans la filière demandée
+    print(f"filiere_id: {filiere_id}, professeur_id: {professeur.Id_prof}, niveau: {niveau}")
     modules = Cours_Module.objects.filter(filiere_id=filiere_id, professeur_id=professeur.Id_prof,niveau=niveau)
     #filiere = modules.first().filiere  # Récupérer la filière du premier module trouvé
+    print(modules)
     filiere = getattr(modules.first(), 'filiere', None)
+    print(filiere)
     if not modules.exists():
         return render(request, 'Prof/classes.html', {
             'error_message': "Vous n'avez pas le droit d'ouvrir cette classe."
@@ -191,6 +194,8 @@ def display_table_prof(request, file_id):
     return render(request, 'prof/display_table_prof.html', {'table_html': table_html})
 
 from django.contrib import messages
+
+"""
 def creer_note_prof(request):
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
@@ -256,13 +261,7 @@ def creer_note_prof(request):
                     continue  # Skip this entry if both notes are empty
 
                 # Mise à jour ou création des notes
-                """
-                note, created = Notes.objects.update_or_create(
-                    etudiant_id=etudiant_id, 
-                    matiere_module_id=module_id, 
-                    defaults={'Note1': note1, 'Note2': note2}
-                )
-                """
+                
                 note = Notes(
                         etudiant_id=etudiant_id, 
                         matiere_module_id=module_id, 
@@ -293,6 +292,127 @@ def creer_note_prof(request):
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
         return redirect('Professeur_dashboard')
 
+"""
+
+#from .models import Administration
+def creer_note_prof(request):
+    if request.method == 'POST':
+        etudiants = []
+        notes_data = {}
+
+        # Récupérer les matricules des étudiants
+        for key in request.POST:
+            if key.startswith('etudiant_matricules_'):
+                matricule = request.POST.get(key)
+                etudiants.append(matricule)
+
+        print("Etudiants récupérés:", etudiants)
+
+        # Récupérer les notes pour chaque étudiant
+        for etudiant in etudiants:
+            notes_data[etudiant] = []
+            for key in request.POST:
+                if key.startswith(f'note_{etudiant}_'):
+                    note_value = request.POST.get(key)
+                    try:
+                        notes_data[etudiant].append(float(note_value))
+                    except ValueError:
+                        print(f"Erreur de conversion pour la note de l'étudiant {etudiant} : {note_value}")
+                        pass  # Ignorer si la valeur n'est pas une note valide
+
+        print("Notes Data:", notes_data)
+
+        # Trouver le nombre maximal de notes pour un étudiant
+        max_notes_count = max(len(notes) for notes in notes_data.values())
+
+        # Remplir les notes manquantes avec 0
+        for etudiant, notes in notes_data.items():
+            while len(notes) < max_notes_count:
+                notes.append(0)
+
+        # Récupérer l'ID du module
+        module_id = request.POST.get('module_id')
+
+        # Traitez les données comme vous le faisiez dans votre code
+        etudiants_modifies = []
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+            nom_module = module.nom_module
+            professeur = module.professeur
+            administrateurs = Administration.objects.filter(is_superuser=True)
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('Professeur_dashboard')
+
+        # Ajouter ou modifier les notes pour chaque étudiant
+        for etudiant_matricule, notes in notes_data.items():
+            note, created = Notes.objects.get_or_create(
+                etudiant_id=etudiant_matricule,
+                matiere_module_id=module_id,
+                defaults={'notes': notes}
+            )
+
+            if not created:
+                print(f"Mise à jour des notes pour l'étudiant {etudiant_matricule}")
+                note.notes = notes  # Mettre à jour les notes si elles existent déjà
+                note.save()
+
+            etudiant = Etudiant.objects.get(pk=etudiant_matricule)
+            etudiants_modifies.append(etudiant.nom_etudiant)
+
+        # Message de notification pour le professeur
+        message = f"Des notes ont été ajoutées ou modifiées pour les étudiants suivants dans le  module {nom_module} : {', '.join(etudiants_modifies)}."
+        admin = administrateurs
+        creer_notification(
+            destinataire_prof=professeur,
+            destinataire_admin=None,
+            
+            message=message
+        )
+        # Créer une notification pour chaque administrateur
+        for admin in administrateurs:
+            creer_notification(
+                destinataire_admin=admin,  # Chaque administrateur est spécifié individuellement
+                destinataire_prof=None,    # Aucun destinataire professeur pour cette notification
+                message=message
+            )
+
+        messages.success(request, 'Les notes ont été enregistrées avec succès.')
+        return redirect('Professeur_dashboard')
+
+    # Si c'est une requête GET, afficher le formulaire pour ajouter les notes
+    if request.method == 'GET':
+        filiere_id = request.GET.get('filiere_id')
+        niveau = request.GET.get('niveau')
+        module_id = request.GET.get('module_id')
+        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
+
+        try:
+            module = Cours_Module.objects.get(Id_module=module_id)
+        except Cours_Module.DoesNotExist:
+            messages.error(request, "Le module spécifié n'existe pas.")
+            return redirect('Professeur_dashboard')
+
+        # Vérifie si le professeur enseigne ce module
+        if module.professeur.Id_prof != request.session.get('professeur_id'):
+            messages.error(request, "Vous ne pouvez pas ajouter de notes pour ce module car vous ne l'enseignez pas.")
+            return redirect('Professeur_dashboard')
+
+        context = {
+            'etudiants': etudiants,
+            'module': module,
+            'filiere_id': filiere_id,
+            'niveau': niveau,
+            'range_list': range(1, 6)  # Exemple de la gamme de notes
+        }
+        return render(request, 'prof/add_note_prof.html', context)
+
+    # Retourner une erreur si la méthode n'est ni GET ni POST
+    return redirect('Professeur_dashboard')
+
+
+
+"""
 def voir_notes_prof(request, filiere_id, niveau):
     if request.method == 'GET':
         module_id = request.GET.get('module_id')
@@ -318,7 +438,57 @@ def voir_notes_prof(request, filiere_id, niveau):
         return render(request, 'prof/voir_notes_prof.html', context)
     else:
         return redirect('Professeur_dashboard')
-    
+
+"""
+
+
+import json
+def voir_notes_prof(request, filiere_id, niveau):
+    if request.method == 'GET':
+        module_id = request.GET.get('module_id')
+        filiere_id = int(filiere_id)
+        
+        # Récupérer tous les modules pour cette filière
+        modules = Cours_Module.objects.filter(filiere_id=filiere_id)
+        
+        # Initialiser les variables
+        module_selected = None
+        notes = None
+        max_notes = 0  # Le nombre maximum de notes
+        note_range = range(1, 1)  # Plage vide par défaut (ajustée plus tard)
+
+        if module_id:
+            module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
+            notes_queryset = Notes.objects.filter(matiere_module=module_selected)
+            
+            # Désérialiser les notes si elles sont stockées en JSON
+            notes = []
+            for note in notes_queryset:
+                note_data = {
+                    'etudiant': note.etudiant,
+                    'notes': json.loads(note.notes) if isinstance(note.notes, str) else note.notes,
+                    'moyenne': note.moyenne,
+                }
+                notes.append(note_data)
+                # Mettre à jour le nombre maximum de notes
+                max_notes = max(max_notes, len(note_data['notes']))
+            
+            # Définir la plage de notes en fonction de max_notes
+            note_range = range(1, max_notes + 1)
+
+        context = {
+            'modules': modules,
+            'module_selected': module_selected,
+            'notes': notes,
+            'max_notes': max_notes,
+            'note_range': note_range,
+        }
+
+        return render(request, 'prof/voir_notes_prof.html', context)
+    else:
+        return redirect('Professeur_dashboard')
+
+   
 def modifier_note_prof(request, note_id):
     note = get_object_or_404(Notes, Id_note=note_id)
     
@@ -387,7 +557,7 @@ def ajouter_tache(request):
         form = TacheForm()
     return render(request, 'prof/ajouter_tache.html', {'form': form})
 
-@login_required
+
 def modifier_tache(request, id):
     tache = get_object_or_404(Tache, pk=id)
     
@@ -525,3 +695,63 @@ def notifications_non_lues_count(request):
     except Exception as e:
         # Capturer toute erreur et retourner un message d'erreur
         return JsonResponse({'error': str(e)}, status=500)
+    
+from django.db.models import Prefetch
+
+def profil(request ) :
+    
+    professeur_id = request.session.get('professeur_id')
+    # Vérifier si l'ID est présent
+    if not professeur_id:
+        return redirect('connexion_Prof')  # Rediriger vers une page de connexion si non connecté
+
+    # Récupérer le professeur correspondant ou afficher une erreur 404
+    #professeur = get_object_or_404(professeurs, Id_prof=professeur_id)
+    professeur = get_object_or_404(
+        professeurs.objects.prefetch_related(
+            Prefetch('cours_fichiers', queryset=CoursFichier.objects.select_related('module', 'filiere'))
+        ), 
+        Id_prof=professeur_id
+    )
+    modules = Cours_Module.objects.filter(professeur=professeur)
+     # Calculer la somme du volume horaire
+    total_volume_horaire = modules.aggregate(Sum('volume_horaire'))['volume_horaire__sum'] or 0
+
+     # Calculer le nombre de filières enseignées
+    nombre_filiere = modules.values('filiere').distinct().count()
+
+    # Calculer le nombre de classes enseignées
+    nombre_classes = modules.values('niveau').distinct().count()
+    cours_historique = Cours_Module.objects.filter(professeur=professeur).order_by('-date_ajout')
+
+     # Pourcentage des étudiants en fonction de leurs moyennes dans chaque module
+    pourcentages_par_module = []
+    for module in modules:
+        notes_module = Notes.objects.filter(matiere_module=module)
+        total_etudiants = notes_module.count()
+        
+        if total_etudiants > 0:
+            pourcentage_par_moyenne = {
+                'module': module.nom_module,
+                'etudiants_10_plus': notes_module.filter(moyenne__gte=10).count() * 100 / total_etudiants,
+                'etudiants_10_moins': notes_module.filter(moyenne__lt=10).count() * 100 / total_etudiants,
+            }
+            pourcentages_par_module.append(pourcentage_par_moyenne)
+        
+    # Ajouter ces informations dans le contexte
+    
+    
+
+    context ={
+        'professeur' : professeur,
+        'modules': modules,
+        'total_volume_horaire': total_volume_horaire,
+        'nombre_filiere': nombre_filiere,
+        'nombre_classes': nombre_classes,
+        'pourcentages_par_module': pourcentages_par_module,
+       
+    }
+    context['cours_historique'] = cours_historique
+    context['pourcentages_par_moduleS'] = json.dumps(pourcentages_par_module)
+
+    return render(request , 'prof/profil.html',context )

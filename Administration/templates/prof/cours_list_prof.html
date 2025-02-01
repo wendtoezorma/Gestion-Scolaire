@@ -9,6 +9,7 @@
     border-collapse: collapse;
     font-family: 'Arial', sans-serif;
     transition: transform 0.3s ease;
+    
 }
 
 /* Style des cellules de la table avec texte plus visible */
@@ -85,6 +86,10 @@
     height: 50px;
     animation: spin 2s linear infinite;
 }
+.totalpage{
+    background: url('https://img.freepik.com/vecteurs-libre/fond-technologie-numerique-fil-maille-reseau_1017-27428.jpg?t=st=1735988689~exp=1735992289~hmac=9f06bc91bd05c602e512252bf870f33f57b82c9107d4748b27bc8f3c2bc25928&w=1060') no-repeat center;
+
+}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -95,101 +100,103 @@
 </style>
 
 <br><br><br>
-<h1>Liste des Cours</h1>
 
-<div id="loader" class="loader-container">
-    <div class="loader"></div>
-</div>
+<div class="totalpage">
+    <h1>Liste des Cours</h1>
+        <div id="loader" class="loader-container">
+            <div class="loader"></div>
+        </div>
 
-<a href="{% url 'upload_cours_prof' %}" id="add">
-    <i class="fas fa-plus-circle btn btn-success add-file"></i>
-</a>
-<br><br>
+        <a href="{% url 'upload_cours_prof' %}" id="add">
+            <i class="fas fa-plus-circle btn btn-success add-file"></i>
+        </a>
+        <br><br>
 
-<div class="cours-list-container">
-    <table class="cours-table">
-        <thead>
-            <tr>
-                <th>Module
-                    <select id="filter-modules">
-                        <option value="">Tous</option>
-                        {% for cour in cours_fichiers %}
-                        <option value="{{ cour.module.Id_module }}">{{ cour.module.nom_module }}</option>
-                        {% endfor %}
-                    </select>
-                </th>
-                <th>Type Fichier
-                    <select id="filter-type_fichier">
-                        <option value="">Tous</option>
-                        <option value="Cours">Cours</option>
-                        <option value="TD">TD</option>
-                        <option value="Devoir 1">Devoir 1</option>
-                        <option value="Devoir 2">Devoir 2</option>
-                        <option value="Devoir Session">Devoir Session</option>
-                    </select>
-                </th>
-                <th>Niveau
-                    <select id="filter-niveau">
-                        <option value="">Tous</option>
-                        <option value="LICENCE1">LICENCE1</option>
-                        <option value="LICENCE2">LICENCE2</option>
-                        <option value="LICENCE3">LICENCE3</option>
-                        <option value="MASTER1">MASTER1</option>
-                        <option value="MASTER2">MASTER2</option>
-                        <option value="DOCTORAT">DOCTORAT</option>
-                    </select>
-                </th>
-                <th>Enseignant
-                    <select id="filter-enseignant">
-                        <option value="">Tous</option>
-                        {% for cour in cours_fichiers %}
-                        <option value="{{ cour.professeur.Id_prof }}">{{ cour.professeur.nom_prof }}</option>
-                        {% endfor %}
-                    </select>
-                </th>
-                <th>Filière
-                    <select id="filter-filiere">
-                        <option value="">Toutes</option>
-                        {% for cour in cours_fichiers %}
-                        <option value="{{ cour.filiere.Id_filiere }}">{{ cour.filiere.nom_filiere }}</option>
-                        {% endfor %}
-                    </select>
-                </th>
-                <th>Année Académique
-                    <select id="filter-annee_academique">
-                        <option value="">Tous</option>
-                        <option value="2022/2023">2022/2023</option>
-                        <option value="2023/2024">2023/2024</option>
-                        <option value="2024/2025">2024/2025</option>
-                        <option value="2025/2026">2025/2026</option>
-                        <option value="2026/2027">2026/2027</option>
-                        <option value="2027/2028">2027/2028</option>
-                        <option value="2028/2029">2028/2029</option>
-                    </select>
-                </th>
-                <th>PDF</th>
-                <th>Date D'ajout</th>
-            </tr>
-        </thead>
-        <tbody id="cours-table-body">
-            {% for cour in cours_fichiers %}
-            <tr data-module="{{ cour.module.Id_module }}" data-type_fichier="{{ cour.type_fichier }}" data-niveau="{{ cour.niveau }}" data-enseignant="{{ cour.professeur.Id_prof }}" data-filiere="{{ cour.filiere.Id_filiere }}" data-annee_academique="{{ cour.annee_academique_cour }}">
-                <td>{{ cour.module.nom_module }}</td>
-                <td>{{ cour.type_fichier }}</td>
-                <td>{{ cour.niveau }}</td>
-                <td>{{ cour.professeur.nom_prof }}</td>
-                <td>{{ cour.filiere.nom_filiere }}</td>
-                <td>{{ cour.annee_academique_cour }}</td>
-                <td>
-                    <a href="{{ cour.fichier.url }}" download>
-                        {{ cour.nom_fichier }} <i class="fas fa-download"></i>
-                    </a>
-                </td>
-                <td>{{ cour.date_ajout }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <div class="cours-list-container">
+            <table class="cours-table">
+                <thead>
+                    <tr>
+                        <th>Module
+                            <select id="filter-modules">
+                                <option value="">Tous</option>
+                                {% for cour in cours_fichiers %}
+                                <option value="{{ cour.module.Id_module }}">{{ cour.module.nom_module }}</option>
+                                {% endfor %}
+                            </select>
+                        </th>
+                        <th>Type Fichier
+                            <select id="filter-type_fichier">
+                                <option value="">Tous</option>
+                                <option value="Cours">Cours</option>
+                                <option value="TD">TD</option>
+                                <option value="Devoir 1">Devoir 1</option>
+                                <option value="Devoir 2">Devoir 2</option>
+                                <option value="Devoir Session">Devoir Session</option>
+                            </select>
+                        </th>
+                        <th>Niveau
+                            <select id="filter-niveau">
+                                <option value="">Tous</option>
+                                <option value="LICENCE1">LICENCE1</option>
+                                <option value="LICENCE2">LICENCE2</option>
+                                <option value="LICENCE3">LICENCE3</option>
+                                <option value="MASTER1">MASTER1</option>
+                                <option value="MASTER2">MASTER2</option>
+                                <option value="DOCTORAT">DOCTORAT</option>
+                            </select>
+                        </th>
+                        <th>Enseignant
+                            <select id="filter-enseignant">
+                                <option value="">Tous</option>
+                                {% for cour in cours_fichiers %}
+                                <option value="{{ cour.professeur.Id_prof }}">{{ cour.professeur.nom_prof }}</option>
+                                {% endfor %}
+                            </select>
+                        </th>
+                        <th>Filière
+                            <select id="filter-filiere">
+                                <option value="">Toutes</option>
+                                {% for cour in cours_fichiers %}
+                                <option value="{{ cour.filiere.Id_filiere }}">{{ cour.filiere.nom_filiere }}</option>
+                                {% endfor %}
+                            </select>
+                        </th>
+                        <th>Année Académique
+                            <select id="filter-annee_academique">
+                                <option value="">Tous</option>
+                                <option value="2022/2023">2022/2023</option>
+                                <option value="2023/2024">2023/2024</option>
+                                <option value="2024/2025">2024/2025</option>
+                                <option value="2025/2026">2025/2026</option>
+                                <option value="2026/2027">2026/2027</option>
+                                <option value="2027/2028">2027/2028</option>
+                                <option value="2028/2029">2028/2029</option>
+                            </select>
+                        </th>
+                        <th>PDF</th>
+                        <th>Date D'ajout</th>
+                    </tr>
+                </thead>
+                <tbody id="cours-table-body">
+                    {% for cour in cours_fichiers %}
+                    <tr data-module="{{ cour.module.Id_module }}" data-type_fichier="{{ cour.type_fichier }}" data-niveau="{{ cour.niveau }}" data-enseignant="{{ cour.professeur.Id_prof }}" data-filiere="{{ cour.filiere.Id_filiere }}" data-annee_academique="{{ cour.annee_academique_cour }}">
+                        <td>{{ cour.module.nom_module }}</td>
+                        <td>{{ cour.type_fichier }}</td>
+                        <td>{{ cour.niveau }}</td>
+                        <td>{{ cour.professeur.nom_prof }}</td>
+                        <td>{{ cour.filiere.nom_filiere }}</td>
+                        <td>{{ cour.annee_academique_cour }}</td>
+                        <td>
+                            <a href="{{ cour.fichier.url }}" download>
+                                {{ cour.nom_fichier }} <i class="fas fa-download"></i>
+                            </a>
+                        </td>
+                        <td>{{ cour.date_ajout }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

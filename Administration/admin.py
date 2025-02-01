@@ -15,13 +15,17 @@ class AdminFiliere(admin.ModelAdmin):
     list_display=('nom_filiere',)
 
 class AdminNote(admin.ModelAdmin):
-    list_display=("matiere_module","Note1","Note2","moyenne")
+    list_display=("matiere_module","notes","moyenne","index")
     
 class Adminmodule(admin.ModelAdmin):
-    list_display=("nom_module","credit_module","volume_horaire","date_ajout",'niveau')
+    list_display=("nom_module","credit_module","volume_horaire","date_ajout",'niveau','professeur', 'filiere' )
     
 class AdminProfesseur(admin.ModelAdmin):
     list_display=("nom_prof","prenom_prof","email_prof","niveau_prof","mdp_prof","numero_prof",'date_ajout')
+ 
+class AdminBoursier(admin.ModelAdmin):
+    list_display=('type_bourse','reduction')
+
     
 class AdminEnseignement(admin.ModelAdmin) :
     list_display=("professeur",'module_enseigner')
@@ -33,7 +37,7 @@ class AdminInfos(admin.ModelAdmin) :
     list_display=("titre",'message','contenu')
     
 class AdminScolarite(admin.ModelAdmin):
-    list_display=("etudiant","tranche_1","tranche_2","tranche_3","total","montant_total_verse","Montant_restant")
+    list_display=("etudiant","tranches","total","montant_total_verse","Montant_restant")
 
 class UploadedFileAdmin(admin.ModelAdmin):
     list_display = ('file', 'uploaded_at')  # Champs à afficher dans la liste
@@ -77,7 +81,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from django.contrib import admin
 from .models import Administration
-from .forms import AdministrationAuthenticationForm, CustomUserChangeForm
+from .forms import  CustomUserChangeForm
 # administration/admin.py
 
 from django.contrib import admin

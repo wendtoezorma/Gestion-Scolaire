@@ -18,12 +18,14 @@ urlpatterns = [
 
     # ======================= SECTION SCOLARITÉ =======================
     path('gestion_scolarite/', gestion_scolarite, name='gestion_scolarite'),
-    path('get_scolarite/<int:etudiant_id>/', get_scolarite, name='get_scolarite'),
+    path('get-scolarite/<int:etudiant_id>/', get_scolarite, name='get_scolarite'),
+    path('get-scolarite/', get_scolarite2, name='get-scolarite'),
     path('recherche-etudiants/', recherche_etudiants_pour_solarite, name='recherche_etudiants_pour_solarite'),
     path('upload_cours/', upload_cours, name='upload_cours'),
     path('cours_list/', cours_list, name='cours_list'),
     path('obtenir_informations_etudiant', obtenir_informations_etudiant, name='obtenir_informations_etudiant'),
-
+    path('etudiant-autocomplete/', EtudiantAutocompleteView.as_view(), name='etudiant-autocomplete'),#autocompletition pour la recherche dans scolarité recherche_etudiant_scolarite
+    path('recherche_etudiant_scolarite/', recherche_etudiant_scolarite, name='recherche_etudiant_scolarite'),
     # ======================= SECTION ADMINISTRATION =======================
     path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
     path('upload_file', upload_file, name='upload_file'),
