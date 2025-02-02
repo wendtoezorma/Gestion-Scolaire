@@ -882,7 +882,12 @@ def creer_note(request):
         module_id = request.GET.get('module_id')
         try:
             module = Cours_Module.objects.get(Id_module=module_id)
-            etudiants = Etudiant.objects.filter(filiere=module.filiere)  # Récupérer les étudiants par filière
+            #etudiants = Etudiant.objects.filter(filiere=module.filiere)  # Récupérer les étudiants par filière
+            etudiants = Etudiant.objects.filter(
+                filiere=module.filiere,
+                niveau_etudiant=module.niveau
+            )
+
         except Cours_Module.DoesNotExist:
             messages.error(request, "Le module spécifié n'existe pas.")
             return redirect('admin_dashboard')
@@ -1060,7 +1065,7 @@ def voir_notes(request, filiere_id, niveau):
             'note_range': note_range,
             'filiere_id': filiere_id,  # Passer l'ID de la filière si nécessaire
             'niveau': niveau,  # Passer le niveau de l'étudiant si nécessaire
-            'id': note.id,  # Ajouter l'ID de la note
+              # Ajouter l'ID de la note
         }
 
         return render(request, 'Administration/voir_notes.html', context)

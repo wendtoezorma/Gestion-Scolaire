@@ -101,7 +101,7 @@ class CoursFichierSerializer(serializers.ModelSerializer):
 class BoursierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boursier
-        fields = ['id', 'type_bourse']
+        fields = ['id', 'type_bourse', 'reduction']
 
 
 class ScolariteSerializer(serializers.ModelSerializer):
