@@ -106,9 +106,17 @@ class BoursierSerializer(serializers.ModelSerializer):
 
 class ScolariteSerializer(serializers.ModelSerializer):
     bourse = serializers.CharField(source='etudiant.bourse')
+    tranches = serializers.SerializerMethodField()
+
     class Meta:
         model = Scolarite
-        fields = ['tranche_1', 'tranche_2', 'tranche_3', 'montant_total_verse', 'Montant_restant', 'date_payement','bourse']
+        fields = ['tranches', 'montant_total_verse', 'Montant_restant', 'date_payement','bourse','total']
+
+    def get_tranches(self, obj):
+        # Vérifie que obj.tranches est une liste et filtre les valeurs > 0
+        if isinstance(obj.tranches, list):
+            return [tranche for tranche in obj.tranches if tranche > 0]
+        return []
 
 
 class InfosSerializer(serializers.ModelSerializer):
