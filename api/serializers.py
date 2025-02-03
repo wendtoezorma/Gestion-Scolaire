@@ -124,6 +124,7 @@ class NotesSerializer(serializers.ModelSerializer):
     notes_details = serializers.SerializerMethodField()
     credit_module = serializers.SerializerMethodField()
     semestre = serializers.SerializerMethodField()
+    moyenne = serializers.SerializerMethodField()
 
     class Meta:
         model = Notes
@@ -154,6 +155,8 @@ class NotesSerializer(serializers.ModelSerializer):
             notes_details[note_key] = note
         return notes_details
           # Vous pouvez ajuster la logique ici si nécessaire
+    def get_moyenne(self, obj):
+        return round(obj.moyenne, 2)  # Limite à 2 décimales
 
 
 class UploadedFileSerializer(serializers.ModelSerializer):
