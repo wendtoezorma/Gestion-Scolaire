@@ -1099,7 +1099,6 @@ def voir_notes(request, filiere_id, niveau):
 """
 
 from io import BytesIO  # Importer BytesIO du module io
-
 from django.shortcuts import render
 from django.http import HttpResponse
 from io import BytesIO
@@ -1141,39 +1140,43 @@ def upload_file(request):
             for sheet_name in excel_file.sheet_names:
                 # Lire chaque feuille dans un DataFrame
                 df = excel_file.parse(sheet_name)
-
+                df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
                 # Remplacer les NaN par des chaînes vides
                 df.fillna('', inplace=True)
-
                 # Ajouter un titre pour la feuille
                 elements.append(Paragraph(sheet_name, ParagraphStyle(
                     name='Heading1',
-                    fontSize=14,
-                    textColor=colors.blue,
-                    spaceAfter=10,
+                    fontSize=26,
+                    leading=20,
+                    textColor=colors.darkblue,
+                    alignment=1,  # Centrer le texte
+                    spaceAfter=12,
                 )))
+                
 
                 # Préparer les données pour le tableau
                 data = [df.columns.to_list()] + df.values.tolist()
 
                 # Créer le tableau
-                table = Table(data)
+                table = Table(data)  # Ajuste la largeur des colonnes
 
                 # Appliquer un style au tableau
                 style = TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.blueviolet),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4A86E8")),  # Bleu pour l'en-tête
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Texte blanc pour l'en-tête
                     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                    ('FONTSIZE', (0, 0), (-1, 0), 12),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
                 ])
                 table.setStyle(style)
 
                 # Ajouter le tableau au PDF
                 elements.append(table)
                 elements.append(Spacer(1, 12))  # Ajouter un espace entre les feuilles
+                elements.append(PageBreak())  # Saut de page après chaque feuille
 
             # ======================= SECTION GÉNÉRATION DU PDF =======================
             # Construire le PDF
