@@ -92,32 +92,42 @@ button:hover {
 {% block content %}
 <h1>Liste des étudiants</h1><br>
 <h2>Filière: {{ nom_filiere }} - Niveau: {{ niveau }}</h2><br>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Sexe</th>
-            <th>Matricule</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for etudiant in etudiants %}
-        <tr>
-            <td>{{ etudiant.nom_etudiant }}</td>
-            <td>{{ etudiant.prenom_etudiant }}</td>
-            <td>{{ etudiant.sexe_etudiant }}</td>
-            <td>{{ etudiant.matricule }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
+{% if etudiants %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Sexe</th>
+                <th>Matricule</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for etudiant in etudiants %}
+            <tr>
+                <td>{{ etudiant.nom_etudiant }}</td>
+                <td>{{ etudiant.prenom_etudiant }}</td>
+                <td>{{ etudiant.sexe_etudiant }}</td>
+                <td>{{ etudiant.matricule }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Aucun étudiant présent</p>
+{% endif %}
 <!-- Boutons au lieu des liens -->
 <div class="center-buttons">
-    <button onclick="location.href='{% url 'select_module' filiere_id niveau %}'">Ajouter des notes</button>
+    <button onclick="location.href='{% url 'select_module' filiere_id=filiere_id niveau=niveau %}'">
+        <i class="fas fa-plus"></i> Ajouter des notes
+    </button>
     
-    <button onclick="location.href='{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}'">Voir les notes des étudiants</button>
+    <button onclick="location.href='{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}'">
+        <i class="fas fa-eye"></i> Voir les notes des étudiants
+    </button>
 </div>
+
+
 
 {% endblock %}

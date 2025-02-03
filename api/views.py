@@ -48,28 +48,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from Administration.models import Etudiant
 from .serializers import EtudiantLoginSerializer, UpdatePasswordSerializer
-"""
-class EtudiantLoginView(APIView):
-    def post(self, request):
-        serializer = EtudiantLoginSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            mot_de_passe = serializer.validated_data['mot_de_passe']
-            try:
-                etudiant = Etudiant.objects.get(email_etudiant=email)
-                if etudiant.check_password(mot_de_passe):
-                    if not etudiant.password_updated:
-                        # Rediriger vers la mise à jour du mot de passe si ce n'est pas encore fait
-                        return Response({'update_password_required': True, 'etudiant_id': etudiant.matricule}, status=status.HTTP_200_OK)
-                    # Authentifier l'étudiant et créer une session
-                    request.session['etudiant_id'] = etudiant.matricule
-                    return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
-                else:
-                    return Response({'error': 'Mot de passe incorrect'}, status=status.HTTP_400_BAD_REQUEST)
-            except Etudiant.DoesNotExist:
-                return Response({'error': 'Email non trouvé'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-"""
+
 
 class EtudiantLoginView(APIView):
     def post(self, request):
@@ -139,7 +118,9 @@ class EtudiantNotesList(APIView):
                 
                 'moyenne': note_data['moyenne'],
                 'professeur_nom': note_data['professeur_nom'],
-                'notes_details': note_data['notes_details']
+                'notes_details': note_data['notes_details'],
+                'credit_module': note_data['credit_module'],
+                'semestre': note_data['semestre']
                 
             }
         etudiant_data = etudiant_serializer.data
@@ -148,11 +129,7 @@ class EtudiantNotesList(APIView):
             'notes': notes_dict
         }, status=status.HTTP_200_OK)
         
-        '''return Response({
-            'etudiant': etudiant_serializer.data,
-            'notes': note_serializer.data
-        }, status=status.HTTP_200_OK)'''
-
+        
 
 class ModulesClasseView(APIView):
     def get(self, request):

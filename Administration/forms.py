@@ -37,7 +37,9 @@ class EtudiantCreationForm(forms.ModelForm):
             'mot_de_passe': forms.TextInput(attrs={'class': 'form-control'}),
             'type_bac': forms.Select(attrs={'class': 'form-control'}),
             #'photo': forms.ClearableFileInput(attrs={'required': False}),
-            'photo': forms.HiddenInput(),
+            #LE BON 'photo': forms.HiddenInput(),
+            'photo': forms.ClearableFileInput(attrs={'style': 'display: none;', 'hidden': True}),
+
             'Date_naiss_etudiant': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'jj/MM/AA'}),
             'chef_de_classe' : forms.Select(
             choices=[(True, 'Oui'), (False, 'Non')],

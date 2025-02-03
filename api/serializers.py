@@ -101,14 +101,22 @@ class CoursFichierSerializer(serializers.ModelSerializer):
 class BoursierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boursier
-        fields = ['id', 'type_bourse']
+        fields = ['id', 'type_bourse', 'reduction']
 
 
 class ScolariteSerializer(serializers.ModelSerializer):
     bourse = serializers.CharField(source='etudiant.bourse')
+    tranches = serializers.SerializerMethodField()
+
     class Meta:
         model = Scolarite
-        fields = ['tranche_1', 'tranche_2', 'tranche_3', 'montant_total_verse', 'Montant_restant', 'date_payement','bourse']
+        fields = ['tranches', 'montant_total_verse', 'Montant_restant', 'date_payement','bourse','total']
+
+    def get_tranches(self, obj):
+        # Vérifie que obj.tranches est une liste et filtre les valeurs > 0
+        if isinstance(obj.tranches, list):
+            return [tranche for tranche in obj.tranches if tranche > 0]
+        return []
 
 
 class InfosSerializer(serializers.ModelSerializer):
@@ -122,10 +130,13 @@ class NotesSerializer(serializers.ModelSerializer):
     nom_module = serializers.SerializerMethodField()
     professeur_nom = serializers.SerializerMethodField()  # Nouveau champ pour récupérer le nom du professeur
     notes_details = serializers.SerializerMethodField()
+    credit_module = serializers.SerializerMethodField()
+    semestre = serializers.SerializerMethodField()
+    moyenne = serializers.SerializerMethodField()
 
     class Meta:
         model = Notes
-        fields = ['nom_module',  'moyenne','professeur_nom','notes_details']  # Ajoutez d'autres champs si nécessaire
+        fields = ['nom_module',  'moyenne','professeur_nom','notes_details','credit_module','semestre']  # Ajoutez d'autres champs si nécessaire
 
     def get_nom_module(self, obj):
         # Récupérer le nom du module à partir de la relation (ForeignKey)
@@ -135,6 +146,15 @@ class NotesSerializer(serializers.ModelSerializer):
         # Récupérer le nom complet du professeur lié au module
         return obj.matiere_module.professeur.get_nom_prof()  # Utiliser la méthode pour obtenir le nom complet du professeur
     
+    def get_credit_module(self, obj):
+        # Récupérer le coef lié au module
+        return obj.matiere_module.credit_module  # Utiliser la méthode pour obtenir le nom complet du professeur
+    
+    
+    def get_semestre(self, obj):
+        # Récupérer le nom complet du professeur lié au module
+        return obj.matiere_module.semestre
+    
     def get_notes_details(self, obj):
         # Ici, vous retournez les notes détaillées, si vous le souhaitez
         notes_details = {}
@@ -143,6 +163,8 @@ class NotesSerializer(serializers.ModelSerializer):
             notes_details[note_key] = note
         return notes_details
           # Vous pouvez ajuster la logique ici si nécessaire
+    def get_moyenne(self, obj):
+        return round(obj.moyenne, 2)  # Limite à 2 décimales
 
 
 class UploadedFileSerializer(serializers.ModelSerializer):
