@@ -37,7 +37,6 @@ SECRET_KEY = 'django-insecupyoluyiujtrre-0-ofzo)haefmy*4kjfhdsfcg!;9t#yjd#o)3bz9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
-#ALLOWED_HOSTS = ['192.168.100.1']
 
 
 # Application definition
@@ -217,5 +216,3 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Utilisation de Redis comme
 
 # Optionnel, configurer un préfixe pour les files d'attente
 CELERY_DEFAULT_QUEUE = 'default'
-
-

@@ -98,18 +98,27 @@ form button:hover {
 
 
 
-<h1>Modifier les Notes d'un Étudiant</h1>
+<h1>Modifier les Notes d'un Étudiant {{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</h1>
 
 <form method="POST">
     {% csrf_token %}
-    <label for="note1">Note 1 :</label>
-    <input type="text" id="note1" name="note1" value="{{ note.Note1 }}"><br><br>
+    <div>
+        <label for="notes">Notes :</label><br>
+        {% for i in note.notes %}
+            <input type="text" name="notes" value="{{ i }}" placeholder="Note {{ loop.index }}" required><br>
+        {% endfor %}
+    </div>
     
-    <label for="note2">Note 2 :</label>
-    <input type="text" id="note2" name="note2" value="{{ note.Note2 }}"><br><br>
-
-    <button type="submit">Enregistrer</button>
+    <button type="submit">Sauvegarder</button>
 </form>
+
+{% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
 
 {% endblock profcontent %}
   

@@ -998,26 +998,25 @@ def student_Notes(request):
 
 @login_required(login_url='login')
 def modifier_note(request, note_id):
-    note = get_object_or_404(Notes, Id_note=note_id)
+    note = get_object_or_404(Notes, id=note_id)
     
     if request.method == 'POST':
-        note1_str = request.POST.get('note1', '')
-        note2_str = request.POST.get('note2', '')
+        notes_str = request.POST.getlist('notes')  # Récupère toutes les notes envoyées
         
         try:
-            note.Note1 = float(note1_str.replace(',', '.'))
-            note.Note2 = float(note2_str.replace(',', '.'))
+            notes_float = [float(n.replace(',', '.')) for n in notes_str]  # Convertit les valeurs
+            note.notes = notes_float  # Met à jour la liste des notes
             note.save()
-            messages.success(request, 'La note a été modifiée avec succès.')
+            messages.success(request, 'Les notes ont été modifiées avec succès.')
             return redirect('admin_dashboard')
         except ValueError:
             messages.error(request, 'Veuillez saisir des nombres valides pour les notes.')
-            # Gérer l'erreur ici, peut-être rediriger vers une page d'erreur ou afficher un message
     
     context = {
         'note': note
     }
     return render(request, 'Administration/modifier_note.html', context)
+
 
 def voir_notes(request, filiere_id, niveau):
     if request.method == 'GET':
@@ -1044,6 +1043,7 @@ def voir_notes(request, filiere_id, niveau):
                     'etudiant': note.etudiant,
                     'notes': json.loads(note.notes) if isinstance(note.notes, str) else note.notes,
                     'moyenne': note.moyenne,
+                    'id': note.id,
                 }
                 notes.append(note_data)
                 # Mettre à jour le nombre maximum de notes
@@ -1058,6 +1058,9 @@ def voir_notes(request, filiere_id, niveau):
             'notes': notes,
             'max_notes': max_notes,
             'note_range': note_range,
+            'filiere_id': filiere_id,  # Passer l'ID de la filière si nécessaire
+            'niveau': niveau,  # Passer le niveau de l'étudiant si nécessaire
+            'id': note.id,  # Ajouter l'ID de la note
         }
 
         return render(request, 'Administration/voir_notes.html', context)
@@ -1181,16 +1184,18 @@ def upload_file(request):
             pdf_file_path = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
 
             # Créer un fichier temporaire pour sauvegarder le PDF dans le système
-            pdf_file_name = f'uploaded_files/{uploaded_file.name.replace(".xlsx", ".pdf")}'
-            pdf_file_path = os.path.join(settings.MEDIA_ROOT, pdf_file_name)
+            pdf_file_name = uploaded_file.name.replace(".xlsx", ".pdf")
+            pdf_uploaded_file_instance = UploadedFile()
+            pdf_uploaded_file_instance.file.save(f'uploaded_files/{pdf_file_name}', buffer, save=True)
 
             # Sauvegarder le contenu PDF dans le fichier
             with open(pdf_file_path, 'wb') as f:
                 f.write(buffer.getvalue())
 
             # Créer une nouvelle instance de UploadedFile pour le PDF
-            pdf_uploaded_file_instance = UploadedFile(file=pdf_file_path)
-            pdf_uploaded_file_instance.save()
+            uploaded_file_instance = UploadedFile()
+            uploaded_file_instance.file.save(uploaded_file.name, uploaded_file, save=True)
+
 
             # ======================= SECTION NOTIFICATION =======================
             # Création de la notification
@@ -1535,10 +1540,20 @@ def get_scolarite2(request):
         scolarite = Scolarite.objects.get(etudiant__matricule=etudiant_id)
         tranches = scolarite.tranches  # Supposé être un JSONField sous forme de liste
 
+          
+        
         return JsonResponse({
             'tranche_1': tranches[0] if len(tranches) > 0 else 0,
             'tranche_2': tranches[1] if len(tranches) > 1 else 0,
             'tranche_3': tranches[2] if len(tranches) > 2 else 0,
+            'tranche_4': tranches[3] if len(tranches) > 0 else 0,
+            'tranche_5': tranches[4] if len(tranches) > 1 else 0,
+            'tranche_6': tranches[5] if len(tranches) > 2 else 0,
+            
+            'tranche_7': tranches[6] if len(tranches) > 0 else 0,
+            'tranche_8': tranches[7] if len(tranches) > 1 else 0,
+            'tranche_9': tranches[8] if len(tranches) > 2 else 0,
+            'tranche_10': tranches[9] if len(tranches) > 0 else 0,
             'total': scolarite.total
         })
     except Scolarite.DoesNotExist:
@@ -1612,6 +1627,7 @@ def infos(request):
         form = Infos_Form()
 
     return render(request, 'Administration/infos.html', {'form': form, 'infos_list': infos_list})
+
 def voir_info(request):
     if request.method == 'POST':
         # Suppression d'un message

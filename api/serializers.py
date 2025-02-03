@@ -60,7 +60,7 @@ class EtudiantSerializer(serializers.ModelSerializer):
     filiere = FiliereSerializer()
     class Meta:
         model = Etudiant
-        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere','photo',]
+        fields = ['matricule', 'nom_etudiant', 'prenom_etudiant', 'email_etudiant', 'telephone_etudiant', 'sexe_etudiant', 'Date_naiss_etudiant', 'lieu_naiss_etudiant', 'nationalite_etudiant', 'niveau_etudiant', 'annee_academique_etudiant', 'filiere','photo','chef_de_classe',]
 
    
     def get_photo(self, obj):
@@ -206,6 +206,7 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
             return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
 
         else:
+            
             # Chercher l'avancement précédent de l'étudiant pour ce module
             avancement_precedent = AvancementCours.objects.filter(
                 etudiant=etudiant,

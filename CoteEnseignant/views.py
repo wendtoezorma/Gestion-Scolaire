@@ -468,6 +468,7 @@ def voir_notes_prof(request, filiere_id, niveau):
                     'etudiant': note.etudiant,
                     'notes': json.loads(note.notes) if isinstance(note.notes, str) else note.notes,
                     'moyenne': note.moyenne,
+                    'id': note.id,
                 }
                 notes.append(note_data)
                 # Mettre à jour le nombre maximum de notes
@@ -488,8 +489,9 @@ def voir_notes_prof(request, filiere_id, niveau):
     else:
         return redirect('Professeur_dashboard')
 
-   
+
 def modifier_note_prof(request, note_id):
+    """
     note = get_object_or_404(Notes, Id_note=note_id)
     
     if request.method == 'POST':
@@ -512,6 +514,31 @@ def modifier_note_prof(request, note_id):
         except ValueError:
             messages.error(request, 'Veuillez saisir des nombres valides pour les notes.')
             # Gérer l'erreur ici, peut-être rediriger vers une page d'erreur ou afficher un message
+    
+    context = {
+        'note': note
+    }"""
+    note = get_object_or_404(Notes, id=note_id)
+    
+    if request.method == 'POST':
+        notes_str = request.POST.getlist('notes')  # Récupère toutes les notes envoyées
+        
+        try:
+            notes_float = [float(n.replace(',', '.')) for n in notes_str]  # Convertit les valeurs
+            note.notes = notes_float  # Met à jour la liste des notes
+            note.save()
+            administrateurs = Administration.objects.all()
+            # Envoyer des notifications aux administrateurs
+            for admin in administrateurs:
+                creer_notification(
+                    destinataire_admin=admin,
+                    message=f"Nouvelle note créée pour l'étudiant {note.etudiant}."
+                )
+            
+            messages.success(request, 'Les notes ont été modifiées avec succès.')
+            return redirect('Professeur_dashboard')
+        except ValueError:
+            messages.error(request, 'Veuillez saisir des nombres valides pour les notes.')
     
     context = {
         'note': note

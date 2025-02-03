@@ -41,9 +41,12 @@
         <tr>
             <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
             {% for i in note.notes %}
-                <td>{{ i }}</td>
+                <td>{{ i }} </td>
             {% endfor %}
-            <td>{{ note.moyenne }}</td>
+            <td>{{ note.moyenne }} </td>
+            <td><a href="{% url 'modifier_note' note.id %}">Modifier</a></td>
+
+            
     </tr>
 {% endfor %}
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -507,3 +508,514 @@
     </script>
 
 -->
+=======
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil du Professeur</title>
+    {% load static %}
+    
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('{% static "Administration/images/background.jpg" %}') no-repeat center center fixed;
+
+            
+           
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+    
+        h1, h2 {
+            color: #34495e;
+            text-align: center;
+            margin: 20px 0;
+        }
+    
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+        }
+    
+        p {
+            font-size: 1em;
+            margin: 10px 0;
+        }
+    
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            background: url('https://fr.pinterest.com/pin/457256168433845226/') no-repeat center center fixed;
+
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+    
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        /* Professor Block */
+        .professor-block {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+
+            padding: 20px;
+            background: linear-gradient(135deg, #f9f9f9, #eaf0f6);
+            background: url('https://pin.it/6ki6N78cW') no-repeat center;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+    
+        .professor-block div {
+            flex: 1;
+            min-width: 280px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+    
+        .professor-block div:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+    
+        .professor-block h2 {
+            font-size: 1.5em;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+    
+        .professor-block p, .professor-block ul {
+            font-size: 1em;
+            color: #555;
+        }
+    
+        .professor-block ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    
+        .professor-block ul li {
+            margin: 8px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+    
+        .professor-block ul li:before {
+            content: "•";
+            color: #3498db;
+            font-size: 1.2em;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+    
+        th {
+            background-color: #2980b9;
+            color: #ffffff;
+            font-size: 1.2em;
+        }
+    
+        td {
+            background-color: #f9f9f9;
+        }
+    
+        tr:hover td {
+            background-color: #f1f7fc;
+        }
+    
+        /* Chart Container */
+        .chart-container {
+            width: 80%;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+    
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                margin: 20px auto;
+            }
+    
+            .professor-block {
+                flex-direction: column;
+            }
+    
+            .professor-block div {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+    
+            .chart-container {
+                width: 95%;
+            }
+        }
+
+                .professor-info {
+            background: url('https://img.freepik.com/vecteurs-libre/fond-technologie-numerique-fil-maille-reseau_1017-27428.jpg?t=st=1735988689~exp=1735992289~hmac=9f06bc91bd05c602e512252bf870f33f57b82c9107d4748b27bc8f3c2bc25928&w=1060') no-repeat center;
+            background-size: cover;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .professor-info:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5); /* Overlay sombre pour mieux lire le texte */
+            border-radius: 15px;
+        }
+
+        .professor-info h2 {
+            font-size: 1.8em;
+            color: #ffc107; /* Couleur dorée pour le titre */
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .professor-info p {
+            font-size: 1.1em;
+            color: #f8f9fa;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .professor-info p strong {
+            color: #ffd54f;
+        }
+
+    </style>
+    
+</head>
+<body>
+
+    <div class="container">
+        <h1>Votre Profil</h1>
+
+        <!-- Professor Information Block -->
+        <div class="professor-block">
+            <div class="professor-info">
+                <h2>Informations Personnelles</h2>
+                <p><strong>Nom :</strong> {{ professeur.nom_prof }}</p>
+                <p><strong>Prénom :</strong> {{ professeur.prenom_prof }}</p>
+                <p><strong>Email :</strong> {{ professeur.email_prof }}</p>
+                <p><strong>Niveau :</strong> {{ professeur.niveau_prof }}</p>
+                <p><strong>Numéro de téléphone :</strong> {{ professeur.numero_prof }}</p>
+                <p><strong>Date d'ajout :</strong> {{ professeur.date_ajout }}</p>
+            </div>
+
+            <!-- Historique des Cours, Volume Horaire et Statistiques Horizontaux -->
+            <div>
+                <h2>Historique des Cours</h2>
+                <ul>
+                    {% for cours in cours_historique %}
+                        <li>{{ cours.nom_module }} - {{ cours.niveau }} ({{ cours.date_ajout }}, {{ cours.semestre }})</li>
+                    {% empty %}
+                        <p>Aucun cours enseigné dans le passé.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div>
+                <h2>Total Volume Horaire cumulé</h2>
+                <p>{{ total_volume_horaire }} heures</p>
+            </div>
+
+            <div>
+                <h2>Statistiques d'enseignement</h2>
+                <p><strong>Nombre de filières enseignées :</strong> {{ nombre_filiere }}</p>
+                <p><strong>Nombre de classes enseignées :</strong> {{ nombre_classes }}</p>
+            </div>
+        </div>
+
+        <h2>Pourcentage des Étudiants par Module</h2>
+        <div class="chart-container">
+            <canvas id="pourcentageChart"></canvas>
+        </div>
+
+        <h2>Table des Pourcentages</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Étudiants ≥ 12/20 (%)</th>
+                    <th>Étudiants < 12/20 (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pourcentage in pourcentages_par_module %}
+                <tr>
+                    <td>{{ pourcentage.module }}</td>
+                    <td>{{ pourcentage.etudiants_10_plus|floatformat:2 }}%</td>
+                    <td>{{ pourcentage.etudiants_10_moins|floatformat:2 }}%</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">Aucun module ou note disponible.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Chart.js -->
+     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inclure les données sous forme de JSON -->
+    <script type="application/json" id="chart-data">
+        {{ pourcentages_par_moduleS|safe }}
+    </script>
+    <script>
+        // Récupérer les données JSON
+        const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+        
+        console.log(chartData);
+
+    
+        // Extraire les labels (modules) et les datasets (pourcentages)
+        const labels = chartData.map(data => data.module);
+        const pourcentages_10_plus = chartData.map(data => data.etudiants_10_plus);
+        const pourcentages_10_moins = chartData.map(data => data.etudiants_10_moins);
+    
+        // Configurer les données pour le graphique
+        const pourcentages = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Étudiants ≥ 10/20',
+                    data: pourcentages_10_plus,
+                    backgroundColor: 'rgba(39, 174, 96, 0.6)',
+                    borderColor: 'rgba(39, 174, 96, 1)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Étudiants < 10/20',
+                    data: pourcentages_10_moins,
+                    backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 1,
+                },
+            ],
+        };
+    
+        // Configurer le graphique
+        const config = {
+            type: 'bar',
+            data: pourcentages,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return tooltipItem.raw.toFixed(2) + '%';
+                            },
+                        },
+                    },
+                },
+            },
+        };
+    
+        // Créer et afficher le graphique
+        new Chart(document.getElementById('pourcentageChart'), config);
+    </script>
+    
+
+</body>
+</html>
+
+
+
+<!--<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil du Professeur</title>
+</head>
+<body>
+    <h1>Profil du Professeur</h1>
+
+    <p><strong>Nom :</strong> {{ professeur.nom_prof }}</p>
+    <p><strong>Prénom :</strong> {{ professeur.prenom_prof }}</p>
+    <p><strong>Email :</strong> {{ professeur.email_prof }}</p>
+    <p><strong>Niveau :</strong> {{ professeur.niveau_prof }}</p>
+    <p><strong>Numéro de téléphone :</strong> {{ professeur.numero_prof }}</p>
+    <p><strong>Date d'ajout :</strong> {{ professeur.date_ajout }}</p>
+
+
+    <h2>Modules enseignés</h2>
+    <ul>
+        {% for fichier in professeur.cours_fichiers.all %}
+            <li>{{ fichier.module.nom_module }} (Filière : {{ fichier.filiere.nom_filiere }})</li>
+        {% empty %}
+            <p>Aucun module enseigné pour le moment.</p>
+        {% endfor %}
+    </ul>
+
+    <h2>Total Volume Horaire cumulé</h2>
+    <p>{{ total_volume_horaire }} heures</p>
+
+    <h2>Statistiques d'enseignement</h2>
+    <p><strong>Nombre de filières enseignées :</strong> {{ nombre_filiere }}</p>
+    <p><strong>Nombre de classes enseignées :</strong> {{ nombre_classes }}</p>
+
+        <h2>Historique des Cours</h2>
+    <ul>
+        {% for cours in cours_historique %}
+            <li>{{ cours.nom_module }} - {{ cours.niveau }} ({{ cours.annee_academique_cour }}, {{ cours.semestre }})</li>
+        {% empty %}
+            <p>Aucun cours enseigné dans le passé.</p>
+        {% endfor %}
+    </ul>
+
+        <h2>Pourcentage des Étudiants par Module</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Module</th>
+                
+                <th>Étudiants ≥ 12/20 (%)</th>
+                <th>Étudiants < 12/20 (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pourcentage in pourcentages_par_module %}
+            <tr>
+                <td>{{ pourcentage.module }}</td>
+               
+                <td>{{ pourcentage.etudiants_10_plus|floatformat:2 }}%</td>
+                <td>{{ pourcentage.etudiants_10_moins|floatformat:2 }}%</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">Aucun module ou note disponible.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+</body>
+</html>
+
+    <script>
+        // Données des pourcentages (à adapter avec les données réelles)
+        const modules = ['ALGEBRE', 'PACK OFFICE'];  // Remplacer par les modules réels
+        const pourcentages_12 = [50, 33];  // Pourcentages des étudiants ayant ≥ 12/20
+        const pourcentages_moins_12 = [50, 67];  // Pourcentages des étudiants ayant < 12/20
+
+        // Configuration des labels et des données
+        const pourcentages = {
+            labels: modules,
+            datasets: [{
+                label: 'Étudiants ≥ 12/20',
+                data: pourcentages_12,
+                backgroundColor: 'rgba(39, 174, 96, 0.6)',
+                borderColor: 'rgba(39, 174, 96, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Étudiants < 12/20',
+                data: pourcentages_moins_12,
+                backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                borderColor: 'rgba(231, 76, 60, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        // Configurer le graphique
+        const config = {
+            type: 'bar',
+            data: pourcentages,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.raw.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                    }
+                }
+            }
+        };
+
+        // Créer le graphique
+        const ctx = document.getElementById('pourcentageChart').getContext('2d');
+        new Chart(ctx, config);
+    </script>
+
+-->
+>>>>>>> f367bd8779157b1b2c45f926a8cb119112a27de1
