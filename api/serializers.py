@@ -206,8 +206,7 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
             return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
 
         else:
-            
-            # Chercher l'avancement précédent de l'étudiant pour ce module
+            # Chercher l'avancement précédent de l'étudiant pour ce module là
             avancement_precedent = AvancementCours.objects.filter(
                 etudiant=etudiant,
                 cours_module=cours_module
