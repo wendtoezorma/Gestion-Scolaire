@@ -40,16 +40,31 @@
         outline: none;
     }
 
-    button {
-        background-color: #34495e;;
-        color: white;
-        padding: 12px 20px;
+    /* Boutons personnalisés, alignés et avec la même largeur */
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .button-group button,
+    .button-group a {
+        width: 48%; /* Largeur égale pour chaque bouton */
         font-size: 1rem;
-        border: none;
+        padding: 12px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         border-radius: 5px;
+    }
+
+    button {
+        background-color: #34495e;
+        color: white;
+        border: none;
         cursor: pointer;
         transition: background-color 0.3s;
-        width: 100%;
     }
 
     button:hover {
@@ -58,6 +73,15 @@
 
     button:focus {
         outline: none;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .hidden {
@@ -83,7 +107,14 @@
         {% endfor %}
     </select>
 
-    <button id="envoyer">Envoyer</button>
+    <div class="button-group">
+        <button id="envoyer">
+            <i class="fas fa-check"></i> Envoyer
+        </button>
+        <a href="{% url 'Professeur_dashboard' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
 </div>
 
 <h3 class="hidden">var professeurId = "{{ professeurs_id }}"</h3>

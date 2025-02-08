@@ -1,124 +1,125 @@
-{%extends 'prof/baseprof.html'%}
+{% extends 'prof/baseprof.html' %}
 {% block title %}Modifier des notes {% endblock %}
- 
+
 {% block profcontent %}
-    
+
 <style>
-/* Styles spécifiques au template enfant */
+/* Corps de la page */
 body {
-    overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    min-height: 100vh !important;
-    background: none !important; /* Supprime l'arrière-plan par défaut */
-}
-
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
-    animation: gradientAnimation 10s ease infinite;
-}
-
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.background .bubble {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    animation: bubbleAnimation 15s infinite;
-}
-
-@keyframes bubbleAnimation {
-    0% { transform: translate(0, 0); }
-    50% { transform: translate(-100%, 100%); }
-    100% { transform: translate(0, 0); }
-}
-
-form {
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-width: 700px;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Prend toute la hauteur de la fenêtre */
     text-align: center;
-    margin-top: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    position: relative;
-    z-index: 2;
 }
 
+/* Conteneur principal centré */
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 500px;  /* Réduit la largeur du formulaire */
+    width: 100%;
+    box-sizing: border-box; /* Assure que le padding n'affecte pas la largeur totale */
+}
+
+/* Titre du formulaire */
+h1 {
+    font-size: 1.6rem;  /* Réduit la taille du titre */
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Labels du formulaire */
 form label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;  /* Réduit l'espace entre le label et le champ */
     font-weight: bold;
     color: #333;
 }
 
-form input[type="text"],
-form input[type="number"] {
+/* Champs de texte et notes */
+form input[type="text"], form input[type="number"] {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    font-size: 16px;
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
+    padding: 10px;  /* Réduit le padding */
+    margin-bottom: 15px;  /* Réduit l'espace entre les champs */
+    border: 2px solid #ddd;
+    border-radius: 8px;  /* Réduit les bords arrondis */
+    font-size: 14px;  /* Réduit la taille de la police */
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
 }
 
+form input[type="text"]:focus, form input[type="number"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Bouton de soumission */
 form button {
+    width: 100%;
     background-color: #007bff;
     color: #fff;
     border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 25px;
+    padding: 12px;  /* Réduit le padding */
+    font-size: 14px;  /* Réduit la taille de la police */
+    border-radius: 8px;  /* Réduit les bords arrondis */
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 form button:hover {
     background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+form button:active {
+    background-color: #003d7a;
+    transform: translateY(2px);
+}
+
+/* Message d'erreur ou succès */
+.alert {
+    background-color: #e74c3c;
+    color: white;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.alert.success {
+    background-color: #2ecc71;
 }
 </style>
 
+<div class="container">
+    <h1>Modifier les Notes d'un Étudiant: {{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</h1>
 
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="notes">Notes :</label><br>
+            {% for i in note.notes %}
+                <input type="text" name="notes" value="{{ i }}" placeholder="Note {{ loop.index }}" required><br>
+            {% endfor %}
+        </div>
 
-<h1>Modifier les Notes d'un Étudiant {{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</h1>
+        <button type="submit">Sauvegarder</button>
+    </form>
 
-<form method="POST">
-    {% csrf_token %}
-    <div>
-        <label for="notes">Notes :</label><br>
-        {% for i in note.notes %}
-            <input type="text" name="notes" value="{{ i }}" placeholder="Note {{ loop.index }}" required><br>
-        {% endfor %}
-    </div>
-    
-    <button type="submit">Sauvegarder</button>
-</form>
-
-{% if messages %}
-    <div>
-        {% for message in messages %}
-            <div class="alert {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    </div>
-{% endif %}
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
 
 {% endblock profcontent %}
-  

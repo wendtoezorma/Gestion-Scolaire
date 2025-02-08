@@ -202,12 +202,21 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-"""
 def extract_volume_as_int(volume_horaire):
     try:
         return int(volume_horaire[:2])  # Extraire les 2 premiers caractères et convertir en entier
     except (ValueError, TypeError):
         return 0  # Valeur par défaut si la conversion échoue
+
+
+"""
+import re 
+
+def extract_volume_as_int(volume_horaire):
+    match = re.match(r"(\d+)", volume_horaire)  # Capture tous les chiffres au début
+    return int(match.group(1)) if match else 0  # Convertir en entier si trouvé, sinon 0
+
+
 class AvancementCoursSerializer(serializers.ModelSerializer):
     etudiant_nom = serializers.CharField(source='etudiant.nom_etudiant', read_only=True)
     class Meta:

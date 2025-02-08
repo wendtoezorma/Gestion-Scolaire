@@ -8,19 +8,20 @@
 <style>
     /* Assure que le body et le conteneur occupent tout l'espace disponible */
     body {
-        overflow: hidden; /* Cache les barres de défilement */
+        overflow: hidden;
         display: flex;
         flex-direction: column;
-        align-items: center; /* Centre horizontalement */
-        justify-content: center; /* Centre verticalement */
+        align-items: center;
+        justify-content: center;
         min-height: 100vh;
-        background: none;
+        background: linear-gradient(135deg, #6e7dff, #abb8ff); /* Dégradé de fond */
         padding: 0;
         margin: 0;
         padding-top: 80px;
     }
 
-    .form-container {
+    /* Conteneur du formulaire */
+    .custom-form-container {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -30,11 +31,11 @@
 
     form {
         padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        max-width: 700px; /* Largeur maximale du formulaire */
+        border-radius: 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        max-width: 700px;
         text-align: left;
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: rgba(255, 255, 255, 0.9);
         position: relative;
         z-index: 2;
         margin: 20px;
@@ -43,8 +44,10 @@
         gap: 20px;
         align-items: center;
         justify-items: center;
+        animation: fadeIn 1s ease-in-out; /* Animation pour un effet de fade-in */
     }
 
+    /* Effet de fond avec animation */
     .background {
         position: absolute;
         top: 0;
@@ -53,8 +56,21 @@
         height: 100%;
         z-index: 0;
         pointer-events: none;
-        background-color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.2);
         overflow: hidden;
+        animation: gradientAnimation 4s ease infinite;
+    }
+
+    @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Animation du fade-in */
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
     }
 
     form h1 {
@@ -62,6 +78,9 @@
         margin-bottom: 20px;
         color: #333;
         text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 1px;
     }
 
     form label {
@@ -73,73 +92,96 @@
     form input[type="text"],
     form input[type="email"] {
         width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
         border: 1px solid #ccc;
-        border-radius: 25px;
+        border-radius: 10px;
         font-size: 16px;
         box-sizing: border-box;
         background-color: rgba(255, 255, 255, 0.9);
         color: #333;
+        transition: all 0.3s ease;
+    }
+
+    form input[type="text"]:focus,
+    form input[type="email"]:focus {
+        border-color: #0056b3;
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 86, 179, 0.3);
     }
 
     form input[type="submit"] {
-        background-color: #007bff;
+        background-color: #0056b3;
         color: #fff;
         border: none;
-        padding: 12px 20px;
+        padding: 15px;
         font-size: 16px;
-        border-radius: 25px;
+        border-radius: 10px;
         cursor: pointer;
         transition: background-color 0.3s ease;
         width: 100%;
+        text-transform: uppercase;
     }
 
     form input[type="submit"]:hover {
-        background-color: #0056b3;
+        background-color: #003f8f;
+        box-shadow: 0 4px 10px rgba(0, 86, 179, 0.5);
     }
 
     .form-control {
         width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
         border: 1px solid #ced4da;
-        border-radius: 20px;
+        border-radius: 10px;
+        background-color: #fff;
         transition: background-color 0.3s ease;
-        background-color: #ffffff;
     }
 
-    form input[type="submit"],
-    button#envoyer {
-        background-color: #0056b3;
+    form button#envoyer {
+        background-color: #28a745; /* Vert pour le bouton envoyer */
         color: #fff;
         border: none;
-        padding: 12px 20px;
+        padding: 15px;
         font-size: 16px;
-        border-radius: 25px;
+        border-radius: 10px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
         width: 100%;
+        transition: background-color 0.3s ease;
     }
 
-    form input[type="submit"]:hover,
-    button#envoyer:hover {
-        background-color: #007bff;
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5);
+    form button#envoyer:hover {
+        background-color: #218838;
+    }
+
+    .add-file {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .add-file a {
+        color: #007bff;
+        font-weight: bold;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .add-file a:hover {
+        color: #0056b3;
     }
 
     #loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
     }
 
     .spinner {
@@ -165,10 +207,26 @@
         font-size: 18px;
         color: #333;
     }
+    .add-file a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-file a:hover {
+    color: #0056b3;
+}
+
+.add-file i {
+    font-size: 20px;
+}
 
 
 </style>
-{% endblock  %}
+{% endblock %}
     
 {% block content %}
 
@@ -187,7 +245,7 @@
     <p>Veuillez patienter pendant le téléchargement...</p>
 </div>
 
-<div class="form-container">
+<div class="custom-form-container">
     <form method="post" enctype="multipart/form-data" class="contenu">
         <h1>FAIRE PART D'UNE INFORMATION</h1>
         <br><br><br>
@@ -195,9 +253,11 @@
         {{ form.as_p }}
         <br><br>
         <button type="submit" class="btn btn-success" id="envoyer">Informer</button>
+    
         <div class="add-file">
-            <a href="/voir_info">Voir Informations Enregistées</a>
+            <a href="/voir_info"><i class="fas fa-eye"></i> Voir Informations Enregistrées</a>
         </div>
+        
     </form>
 </div>
 
@@ -208,6 +268,7 @@
             messageContainer.style.display = 'none';
         }
     }, 4000); // 5000 millisecondes = 5 secondes
+
     document.getElementById('infoForm').addEventListener('submit', function () {
         document.getElementById('loader').style.display = 'flex';
     });

@@ -2,126 +2,242 @@
 
 {% block content %}
 <style>
-.container {
-    max-width: 800px; /* Limite la largeur du conteneur */
-    margin: auto; /* Centre le conteneur */
-    padding: 20px; /* Ajoute un espacement interne */
-    background-color: #ffffff; /* Couleur de fond blanche */
-    border-radius: 8px; /* Coins arrondis */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    /* Conteneur principal */
+    .registration-container {
+        max-width: 900px;
+        margin: 60px auto;
+        padding: 40px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Titre de la section */
+    .registration-container h2 {
+        text-align: center;
+        font-size: 32px;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+
+    /* Paragraphe */
+    .registration-container p {
+        font-size: 18px;
+        color: #34495e;
+        margin-bottom: 15px;
+        line-height: 1.8;
+    }
+
+    /* Mise en page avec Flexbox pour l'alignement horizontal */
+    .registration-container .fields-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    /* Champs de formulaire */
+    .registration-container .field {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 280px;
+        margin-bottom: 15px;
+    }
+
+    .registration-container .field label {
+        display: block;
+        font-size: 16px;
+        color: #2980b9;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .registration-container input[type="text"],
+    .registration-container input[type="email"],
+    .registration-container input[type="file"],
+    .registration-container button[type="submit"] {
+        width: 100%;
+        padding: 18px;
+        margin: 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        background-color: #f7f7f7;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    .registration-container input[type="file"] {
+        border: 1px solid #ddd;
+        background-color: #f1f1f1;
+    }
+
+    .registration-container input[type="file"]:focus,
+    .registration-container input[type="text"]:focus,
+    .registration-container input[type="email"]:focus {
+        outline: none;
+        border-color: #2980b9;
+    }
+
+    /* Style des boutons */
+    .registration-container .btn {
+        
+        display: inline-block;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-top: 20px;
+        width: 100%;
+        text-transform: uppercase;
+    }
+
+    .registration-container .btn-primary {
+        background-color: #2980b9;
+        color: white;
+    }
+
+    .registration-container .btn-primary:hover {
+        background-color: #1abc9c;
+    }
+
+    .registration-container .btn-secondary {
+        background-color: #7f8c8d;
+        color: white;
+    }
+
+    .registration-container .btn-secondary:hover {
+        background-color: #95a5a6;
+    }
+
+    /* Mise en page des images */
+    .registration-container img {
+        max-width: 220px;
+        height: auto;
+        margin-top: 25px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Mise en page responsive */
+    @media (max-width: 768px) {
+        .registration-container .fields-container {
+            flex-direction: column;
+        }
+
+        .registration-container .field {
+            flex: 1 1 100%;
+        }
+
+        .registration-container input[type="text"], 
+        .registration-container input[type="email"],
+        .registration-container input[type="file"] {
+            padding: 16px;
+        }
+
+        .registration-container .btn {
+            font-size: 16px;
+            padding: 12px 25px;
+        }
+    }
+    /* Style pour les informations de l'étudiant */
+.student-info {
+    background-color: #f4f6f7;  /* Fond clair */
+    border-radius: 8px;  /* Coins arrondis */
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Ombre légère pour un effet de profondeur */
+    font-size: 18px;
+    color: #34495e;
+    margin-bottom: 15px;
 }
 
-h2 {
-    text-align: center; /* Centre le titre */
-    color: #333; /* Couleur du texte */
-    margin-bottom: 20px; /* Espace sous le titre */
-    font-family: 'Arial', sans-serif; /* Police d'écriture */
+/* Mettre en valeur les labels (Bourse, Téléphone, etc.) */
+.student-info strong {
+    color: #2980b9;  /* Bleu pour les labels */
+    font-size: 20px;
 }
 
-p {
-    font-size: 16px; /* Taille de police */
-    line-height: 1.6; /* Hauteur de ligne */
-    color: #555; /* Couleur du texte */
-    margin-bottom: 10px; /* Espace sous chaque paragraphe */
-}
-
-li {
-    list-style: none; /* Supprime les puces de la liste */
-}
-
-strong {
-    color: #007bff; /* Couleur pour le texte fort */
-}
-
-.btn {
-    display: inline-block; /* Affiche les boutons en ligne */
-    padding: 10px 20px; /* Espace interne des boutons */
-    margin: 10px 0; /* Espace entre les boutons */
-    font-size: 16px; /* Taille de police des boutons */
-    border: none; /* Supprime la bordure par défaut */
-    border-radius: 5px; /* Coins arrondis pour les boutons */
-    text-align: center; /* Centre le texte dans les boutons */
-    transition: background-color 0.3s ease; /* Transition douce pour le changement de couleur */
-}
-
-.btn-primary {
-    background-color: #007bff; /* Couleur de fond primaire */
-    color: white; /* Couleur du texte */
-}
-
-.btn-primary:hover {
-    background-color: #0056b3; /* Couleur de fond au survol */
-}
-
-.btn-secondary {
-    background-color: #6c757d; /* Couleur de fond secondaire */
-    color: white; /* Couleur du texte */
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268; /* Couleur de fond au survol */
-}
-/* Style du label */
-.custom-file-label {
-    display: inline-block;
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #333;
+/* Style pour les valeurs (Bourse, Téléphone, Mot de passe) */
+.student-info .info-value {
     font-weight: bold;
+    color: #6d7276;  /* Couleur sombre pour les valeurs */
+    font-size: 18px;
 }
 
-/* Style de l'input file */
-.custom-file-input {
-    display: none; /* Cache l'input file par défaut */
+/* Style spécifique pour le mot de passe généré */
+.student-info .password {
+    font-weight: bold;
+    color: #e74c3c;  /* Rouge pour attirer l'attention */
+    font-size: 18px;
 }
 
-/* Style personnalisé pour le bouton */
-.custom-file-label::after {
-    content: 'Choisir un fichier';
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    padding: 8px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.custom-file-label:hover::after {
-    background-color: #0056b3;
-}
-
-/* Afficher le nom du fichier sélectionné */
-.custom-file-input:valid + .custom-file-label::after {
-    content: 'Fichier sélectionné';
-}
-
+    
 </style>
-<div>
+
+<div class="registration-container">
     <h2>Récapitulatif de l'inscription de l'étudiant</h2>
-    <p><strong>Nom:</strong> {{ etudiant_data.nom_etudiant }}</p>
-    <p><strong>Prénom:</strong> {{ etudiant_data.prenom_etudiant }}</p>
-    <p><strong>Email:</strong> {{ etudiant_data.email_etudiant }}</p>
-    <p><strong>Filière:</strong> {{ etudiant_data.filiere }}</p>
-    <p><strong>lieu de naissance:</strong> {{ etudiant_data.lieu_naiss_etudiant }}</p>
-    <p><strong>Nationnalité :</strong> {{ etudiant_data.lieu_naiss_etudiant }}</p>
-    <p><strong>niveau  :</strong> {{ etudiant_data.niveau_etudiant }}</p>
-    <p><strong>Année Academique :</strong> {{ etudiant_data.annee_academique_etudiant }}</p>
-    <p><strong>Date de Naissance :</strong> {{ etudiant_data.date_naissance }}</p>
-    <p><strong>personne a prevenir :</strong> {{ etudiant_data.nom_personne_prevenir }}</p>
-    <p><strong>numero a prevenir :</strong> {{ etudiant_data.numero_personne_prevenir }}</p>
 
-
-
+    <div class="fields-container">
+        <div class="field">
+            <label for="nom_etudiant">Nom</label>
+            <input type="text" id="nom_etudiant" value="{{ etudiant_data.nom_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="prenom_etudiant">Prénom</label>
+            <input type="text" id="prenom_etudiant" value="{{ etudiant_data.prenom_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="email_etudiant">Email</label>
+            <input type="email" id="email_etudiant" value="{{ etudiant_data.email_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="filiere">Filière</label>
+            <input type="text" id="filiere" value="{{ etudiant_data.filiere }}" disabled>
+        </div>
+        <div class="field">
+            <label for="lieu_naiss_etudiant">Lieu de naissance</label>
+            <input type="text" id="lieu_naiss_etudiant" value="{{ etudiant_data.lieu_naiss_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="nationalite">Nationalité</label>
+            <input type="text" id="nationalite" value="{{ etudiant_data.nationalite_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="niveau_etudiant">Niveau</label>
+            <input type="text" id="niveau_etudiant" value="{{ etudiant_data.niveau_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="annee_academique_etudiant">Année académique</label>
+            <input type="text" id="annee_academique_etudiant" value="{{ etudiant_data.annee_academique_etudiant }}" disabled>
+        </div>
+        <div class="field">
+            <label for="date_naissance">Date de naissance</label>
+            <input type="text" id="date_naissance" value="{{ etudiant_data.date_naissance }}" disabled>
+        </div>
+        <div class="field">
+            <label for="nom_personne_prevenir">Personne à prévenir</label>
+            <input type="text" id="nom_personne_prevenir" value="{{ etudiant_data.nom_personne_prevenir }}" disabled>
+        </div>
+        <div class="field">
+            <label for="numero_personne_prevenir">Numéro à prévenir</label>
+            <input type="text" id="numero_personne_prevenir" value="{{ etudiant_data.numero_personne_prevenir }}" disabled>
+        </div>
+    </div>
+    <div class="student-info">
+        <p><strong>Bourse:</strong> <span class="info-value">{{ etudiant_data.bourse_type }}</span></p>
+        <p><strong>Téléphone:</strong> <span class="info-value">{{ etudiant_data.telephone_etudiant }}</span></p>
+        <p><strong>Mot de passe généré:</strong> <span class="password">{{ etudiant_data.raw_password }}</span></p>
+    </div>
     
-    
-    <li><strong>Bourse :</strong> {{ etudiant_data.bourse_type }}
-    <p><strong>Téléphone:</strong> {{ etudiant_data.telephone_etudiant }}</p> <br>
-    <p><strong>Mot de passe généré:</strong> <span style="font-weight: bold;">{{ etudiant_data.raw_password }}</span></p>
     {% if etudiant_data.photo %}
-    <p><strong>Photo:</strong></p>
-    <img src="{{ etudiant_data.photo }}" alt="Photo de l'étudiant" style="max-width: 200px; height: auto;" />
+        <p><strong>Photo:</strong></p>
+        <img src="{{ etudiant_data.photo }}" alt="Photo de l'étudiant" />
     {% endif %}
 
     <form method="POST" action="{% url 'confirmer_inscription_etudiant' %}" class="mt-3" enctype="multipart/form-data">
@@ -135,13 +251,18 @@ strong {
         <input type="hidden" name="telephone_etudiant" value="{{ etudiant_data.telephone_etudiant }}">
         <input type="hidden" name="bourse" value="{{ etudiant_data.bourse_type }}">
         <input type="hidden" name="filiere" value="{{ etudiant_data.filiere }}">
-        <label for="photo" class="custom-file-label">Télécharger la photo :</label><br><br><br>
+        
+        <label for="photo" class="custom-file-label">Télécharger la photo :</label><br><br>
         <input type="file" name="photo" id="photo" class="custom-file-input">
+
         <input type="hidden" name="raw_password" value="{{ etudiant_data.raw_password }}">
-        <button type="submit" class="btn btn-primary">Confirmer l'inscription</button>
-       
+
+        <button type="submit" class="btn btn-primary" style="background-color: #0056b3; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; text-align: center; text-transform: uppercase; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#007bff'" onmouseout="this.style.backgroundColor='#0056b3'">Confirmer l'inscription</button>
+
+
     </form>
-    
-    <a href="{% url 'inscription_etudiant' %}" class="btn btn-secondary mt-2">Modifier les informations</a>
+
+    <a href="{% url 'inscription_etudiant' %}" class="btn btn-secondary">Modifier les informations</a>
 </div>
+
 {% endblock %}

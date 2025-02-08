@@ -1,8 +1,7 @@
-{%extends 'prof/baseprof.html'%}
-{% block title %}Notes des etudiants {% endblock %}
- 
+{% extends 'prof/baseprof.html' %}
+{% block title %}Notes des étudiants{% endblock %}
+
 {% block profcontent %}
-    
 <h1>Choisissez un Module pour Voir les Notes</h1>
 <form method="GET">
     <label for="module">Module :</label>
@@ -15,10 +14,11 @@
     </select>
     <button type="submit">Voir les Notes</button>
 </form>
+
 {% if module_selected %}
     <h2>Notes des Étudiants pour le Module {{ module_selected.nom_module }}</h2>
 
-    <table>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Nom Etudiant</th>
@@ -26,10 +26,7 @@
                     <th>Note {{ i }}</th>
                 {% endfor %}
                 <th>Moyenne</th>
-<<<<<<< HEAD
-=======
                 <th>Actions</th>
->>>>>>> f367bd8779157b1b2c45f926a8cb119112a27de1
             </tr>
         </thead>
         <tbody>
@@ -40,80 +37,40 @@
                         <td>{{ i }}</td>
                     {% endfor %}
                     <td>{{ note.moyenne }}</td>
-<<<<<<< HEAD
-=======
-                    <td><a href="{% url 'modifier_note_prof' note.id %}">Modifier</a></td>
->>>>>>> f367bd8779157b1b2c45f926a8cb119112a27de1
+                    <td><a href="{% url 'modifier_note_prof' note.id %}" class="btn-edit">Modifier</a></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 {% endif %}
 
-
 {% block styles %}
 {{ block.super }}
 
-    <style>
-    /* Styles spécifiques au template enfant */
-    body {
-        overflow-y: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        min-height: 100vh !important;
-        background: none !important; /* Supprime l'arrière-plan par défaut */
-        font-family: 'Arial', sans-serif; /* Police élégante */
-    }
+<style>
+/* Styles généraux */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    color: #333;
+    padding: 20px;
+    margin: 0;
+}
 
-    .background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        pointer-events: none;
-        animation: gradientAnimation 10s ease infinite;
-    }
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    color: #333;
+    margin-bottom: 40px;
+}
 
-    @keyframes gradientAnimation {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    .background .bubble {
-        position: absolute;
-        background-color: rgba(255, 255, 255, 0.3);
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        animation: bubbleAnimation 15s infinite;
-    }
-
-    @keyframes bubbleAnimation {
-        0% { transform: translate(0, 0); }
-        50% { transform: translate(-100%, 100%); }
-        100% { transform: translate(0, 0); }
-    }
-
-    h1 {
-        color: #0c0c0c; /* Couleur du titre */
-        margin: 40px 0;
-        font-size: 2.5rem; /* Taille de la police */
-        text-align: center;
-    }
-
-    h2 {
-        color: #333; /* Couleur du sous-titre */
-        margin-top: 30px;
-        font-size: 1.8rem; /* Taille de la police */
-        text-align: center;
-    }
-
-    form {
+h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    color: #555;
+    margin-top: 30px;
+}
+form {
         padding: 40px;
         border-radius: 15px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -156,90 +113,66 @@
     }
 
     form button:hover {
-        background-color: #0056b3; /* Couleur au survol */
+        background-color: #0056b3; 
     }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    table th, table td {
-        padding: 10px;
-        border: 1px solid #ccc;
-    }
-
-    table th {
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    table td {
-        text-align: center;
-        background-color: #f9f9f9;
-        transition: background-color 0.3s;
-    }
-
-    table td:hover {
-        background-color: #e9ecef; /* Fond au survol */
-    }
-    </style>
-
-
-{% endblock %}
-{% endblock profcontent %}
-
-
-
-<!--
-{% if module_selected %}
-    <h2>Notes des Étudiants pour le Module sélectionné</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Étudiant</th>
-                <th>Note 1</th>
-                <th>Note 2</th>
-                <th>Moyenne</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if notes %}
-                {% for note in notes %}
-                    <tr>
-                        <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
-                        <td>{{ note.Note1 }}</td>
-                        <td>{{ note.Note2 }}</td>
-                        <td>{{ note.moyenne }}</td>
-                        <td><a href="{% url 'modifie_note_prof' note.Id_note %}">Modifier</a></td>
-                    </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="5">Les notes de ce module ne sont pas enregistrées.</td>
-                </tr>
-            {% endif %}
-        </tbody>
-    </table>
-{% endif %}
-
-<style>
-/* Styles spécifiques au template enfant */
-body {
-    overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    min-height: 100vh !important;
-    background: none !important; /* Supprime l'arrière-plan par défaut */
+/* Table Styles */
+table.table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
 }
 
+table th, table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
 
+table th {
+    background-color: #34495e;
+    color: white;
+    font-weight: bold;
+}
+
+table td {
+    background-color: #f9f9f9;
+}
+
+table tr:nth-child(even) td {
+    background-color: #f2f2f2;
+}
+
+table td:hover {
+    background-color: #e9ecef;
+}
+
+/* Actions Styles */
+a.btn-edit {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+a.btn-edit:hover {
+    background-color: #007bff;
+}
+
+/* Background Animation */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    animation: gradientAnimation 10s ease infinite;
+}
 
 @keyframes gradientAnimation {
     0% { background-position: 0% 50%; }
@@ -247,79 +180,21 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-
+.background .bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    animation: bubbleAnimation 15s infinite;
+}
 
 @keyframes bubbleAnimation {
     0% { transform: translate(0, 0); }
     50% { transform: translate(-100%, 100%); }
     100% { transform: translate(0, 0); }
 }
-
-form {
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-width: 700px;
-    text-align: center;
-    margin-top: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    position: relative;
-    z-index: 2;
-}
-
-form label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
-}
-
-form select,
-form button {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    font-size: 16px;
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
-}
-
-form button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-form button:hover {
-    background-color: #0056b3;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-table th, table td {
-    padding: 10px;
-    border: 1px solid #ccc;
-}
-
-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    text-align: center;
-}
-
-table td {
-    text-align: center;
-}
 </style>
--->
+
+{% endblock %}
+{% endblock profcontent %}

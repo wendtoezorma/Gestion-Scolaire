@@ -1,14 +1,7 @@
 {% extends "Administration/base.html" %}
 {% block title %}Voir les Notes des Étudiants{% endblock %}
 {% block content %}
-<div class="background">
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-    <div class="bubble"></div>
-</div>
+
 
 <h1>Choisissez un Module pour Voir les Notes</h1>
 <form method="GET">
@@ -25,15 +18,18 @@
 
 {% if module_selected %}
     <h2>Notes des Étudiants pour le Module {{ module_selected.nom_module }}</h2>
-    
+
     <table>
         <thead>
             <tr>
                 <th>Nom Etudiant</th>
-                {% for i in note_range %}
-                    <th>Note {{ i }}</th>
-                {% endfor %}
-                <th>Moyenne</th>
+                
+                    {% for i in note_range %}
+                        <th>Note {{ i }}</th>
+                    {% endfor %}
+                    <th>Moyenne</th>
+                    <th>Action</th>
+                
             </tr>
         </thead>
         <tbody>

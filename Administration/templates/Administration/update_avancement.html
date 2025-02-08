@@ -1,41 +1,43 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choisir un Module</title>
+{% extends "Administration/base.html" %}
+{% load custom_filters %}
+{% block title %}Choisir un Module{% endblock %}
+{% block styles %}
+{{ block.super }}
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to bottom, #6a11cb, #2575fc);
-            color: #fff;
+        /* Appliquez ce style uniquement à ce template */
+        .form-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 100vh; /* Prend toute la hauteur de l'écran */
+            padding: 0;
+            margin: 0;
         }
 
         #choisir-module-form {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px 30px;
+            background: #ffffff;
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
             text-align: center;
+            border: 2px solid #eaeaec; /* Bordure bleue */
         }
 
         #choisir-module-form p {
-            font-size: 1.1em;
+            font-size: 1.2em;
+            font-weight: bold;
             margin-bottom: 20px;
+            color: #2575fc; /* Texte bleu */
         }
 
         #choisir-module-form label {
             font-size: 1em;
-            margin-bottom: 10px;
             display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
         #choisir-module-form select {
@@ -43,77 +45,77 @@
             padding: 10px;
             font-size: 1em;
             margin-bottom: 20px;
-            border: none;
+            border: 2px solid #2575fc; /* Bordure bleue */
             border-radius: 5px;
             outline: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background: white;
+            color: black;
         }
 
         #choisir-module-form button {
-            background: #ff6600;
+            background: #2575fc; /* Bleu */
             color: white;
-            padding: 10px 20px;
+            padding: 12px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            transition: background 0.3s ease;
+            transition: 0.3s;
+            width: 100%;
         }
 
         #choisir-module-form button:hover {
-            background: #ff4500;
+            background: #1b5bcc;
         }
 
         #choisir-module-form button:active {
-            background: #e63900;
+            background: #154aa8;
         }
 
         #choisir-module-form select:focus {
-            box-shadow: 0 0 8px rgba(0, 0, 255, 0.5);
+            box-shadow: 0 0 10px rgba(37, 117, 252, 0.6);
         }
 
         @media (max-width: 768px) {
             #choisir-module-form {
-                padding: 15px 20px;
-            }
-
-            #choisir-module-form button {
-                width: 100%;
+                padding: 20px;
             }
         }
     </style>
-</head>
-<body>
-    <form id="choisir-module-form" method="post">
-        
-        <p>Niveau : {{ niveau }} | Filière : {{ filiere }}</p>
 
-        {% csrf_token %}
-        <label for="cours_module">Choisir un module :</label>
-        <select name="cours_module" id="cours_module">
-            {% for module in modules %}
-                <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Continuer</button>
-    </form>
+{% endblock %}
+{% block content %}
+<body>
+    <div class="form-container">
+        <form id="choisir-module-form" method="post">
+            <p>Niveau : {{ niveau }} | Filière : {{ filiere }} </p>
+
+            {% csrf_token %}
+            <label for="cours_module">Choisir un module :</label>
+            <select name="cours_module" id="cours_module">
+                {% for module in modules %}
+                    <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Continuer</button>
+        </form>
+    </div>
 
     <script>
         document.getElementById('choisir-module-form').onsubmit = function(event) {
             event.preventDefault();
 
-            const form = new FormData(event.target);  // Créer l'objet FormData à partir du formulaire
-            const etudiantId = "{{ module.matricule }}";
-            const niveau = "{{ niveau }}";  // Ajouter niveau
-            const filiere = "{{ filiere }}";  // Ajouter filiere
+            const form = new FormData(event.target);
+            const niveau = "{{ niveau }}";
+            const filiere = "{{ filiere }}";
 
             fetch(window.location.href, {
                 method: "POST",
                 headers: {
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
-                body: form  // Envoyer le formulaire sous forme de form-data
+                body: form
             })
             .then(response => {
                 if (!response.ok) {
@@ -123,7 +125,6 @@
             })
             .then(data => {
                 if (data.module_id) {
-                    //window.location.href = `/etudiant/${etudiantId}/avancement/${data.module_id}/`;
                     window.location.href = `/avancement/${niveau}/${filiere}/${data.module_id}/`;
                 } else {
                     alert("Module ID introuvable !");
@@ -131,9 +132,8 @@
             })
             .catch(error => {
                 console.error('Erreur détectée :', error);
-                alert('Une erreur est survenue. Vérifiez les logs pour plus d\'informations.');
+                alert('Une erreur est survenue.');
             });
         };
     </script>
-</body>
-</html>
+{% endblock %}

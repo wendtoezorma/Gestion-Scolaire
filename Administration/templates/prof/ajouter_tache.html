@@ -1,11 +1,109 @@
-{%extends 'prof/baseprof.html'%}
-{% block title %}ajouter une tahe {% endblock %}
+{% extends 'prof/baseprof.html' %}
+{% block title %}Ajouter une tâche{% endblock %}
 {% block profcontent %}
-<h2>Ajouter une tâche</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Ajouter</button>
-</form>
-<a href="{% url 'Professeur_dashboard' %}" class="btn btn-secondary mt-2">Retour</a>
+    <div class="custom-form-wrapper">
+
+        <form method="post" class="form-container">
+            <h2><i class="fas fa-tasks"></i> Ajouter une tâche</h2>
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <div class="button-group"> <!-- Groupe de boutons pour les aligner sur la même ligne -->
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Ajouter
+                </button>
+                <a href="{% url 'Professeur_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </form>
+
+    </div>
+
+    <style>
+        /* Centrer le formulaire au milieu de la page uniquement pour ce template */
+        .custom-form-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Hauteur complète de la vue */
+            background-color: #f4f6f9;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px; /* Limite la largeur du formulaire */
+        }
+
+        .form-container input,
+        .form-container select,
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        /* Style du groupe de boutons pour les aligner sur la même ligne */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px; /* Espacement entre les boutons */
+            
+        }
+
+        /* Assurer que les boutons ont la même largeur */
+        .button-group button,
+        .button-group a {
+            width: 48%; /* Largeur égale pour chaque bouton */
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px; /* Ajout de padding pour uniformité */
+            text-align: center; /* Centrer le texte dans les boutons */
+            margin-bottom: 20px;
+        }
+
+        .form-container button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .form-container button:active {
+            transform: translateY(0);
+        }
+
+        h2 {
+            color: #5f71a2;
+            margin-bottom: 20px;
+        }
+
+        h2 i {
+            margin-right: 10px;
+        }
+
+        a {
+            display: inline-block;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
 {% endblock %}

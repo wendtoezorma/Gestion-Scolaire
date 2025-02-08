@@ -293,7 +293,7 @@ def creer_note_prof(request):
         return redirect('Professeur_dashboard')
 
 """
-
+from django.urls import reverse
 #from .models import Administration
 def creer_note_prof(request):
     if request.method == 'POST':
@@ -339,7 +339,10 @@ def creer_note_prof(request):
             module = Cours_Module.objects.get(Id_module=module_id)
             nom_module = module.nom_module
             professeur = module.professeur
+            professeurs = module.professeur.Id_prof
             administrateurs = Administration.objects.filter(is_superuser=True)
+            filiere_id = module.filiere.Id_filiere  # Récupérer l'ID de la filière
+            niveau = module.niveau  # Récupérer le niveau
         except Cours_Module.DoesNotExist:
             messages.error(request, "Le module spécifié n'existe pas.")
             return redirect('Professeur_dashboard')
@@ -378,7 +381,10 @@ def creer_note_prof(request):
             )
 
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('Professeur_dashboard')
+         # Rediriger vers 'liste_etudiants_par_classe' avec les paramètres appropriés
+        return redirect(reverse('liste_etudiants_par_classe', kwargs={'filiere_id': filiere_id, 'niveau': niveau, 'professeur_id': professeurs }))
+
+        #return redirect('Professeur_dashboard')
 
     # Si c'est une requête GET, afficher le formulaire pour ajouter les notes
     if request.method == 'GET':
@@ -459,7 +465,7 @@ def voir_notes_prof(request, filiere_id, niveau):
 
         if module_id:
             module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
-            notes_queryset = Notes.objects.filter(matiere_module=module_selected)
+            notes_queryset = Notes.objects.filter(matiere_module=module_selected,etudiant__niveau_etudiant=niveau)
             
             # Désérialiser les notes si elles sont stockées en JSON
             notes = []
@@ -483,6 +489,7 @@ def voir_notes_prof(request, filiere_id, niveau):
             'notes': notes,
             'max_notes': max_notes,
             'note_range': note_range,
+            'niveau': niveau,
         }
 
         return render(request, 'prof/voir_notes_prof.html', context)

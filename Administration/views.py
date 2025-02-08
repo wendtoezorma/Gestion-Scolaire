@@ -654,6 +654,8 @@ def mettre_a_jour_avancementA(request, niveau, filiere):
                 return JsonResponse({'error': 'Module non spécifié'}, status=400)
 
             module = get_object_or_404(Cours_Module, pk=module_id)
+            filiere = module.filiere.nom_filiere
+            
 
             # Renvoyer les détails du module et du niveau
             return JsonResponse({
@@ -667,6 +669,7 @@ def mettre_a_jour_avancementA(request, niveau, filiere):
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+        
 
     # Rendu du template avec les modules filtrés
     return render(
@@ -717,79 +720,6 @@ def select_module(request, filiere_id, niveau):
         'niveau': niveau,
     }
     return render(request, 'Administration/select_module.html', context)
-
-"""
-@login_required(login_url='login')
-
-def creer_note(request):
-    if request.method == 'GET':
-        filiere_id = request.GET.get('filiere_id')
-        niveau = request.GET.get('niveau')
-        module_id = request.GET.get('module_id')
-
-        try:
-            module = Cours_Module.objects.get(Id_module=module_id)
-        except Cours_Module.DoesNotExist:
-            messages.error(request, "Le module spécifié n'existe pas.")
-            return redirect('admin_dashboard')
-
-        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
-        notes_existantes = {note.etudiant_id: note for note in Notes.objects.filter(matiere_module_id=module_id)}
-
-        context = {
-            'etudiants': etudiants,
-            'module': module,
-            'filiere_id': filiere_id,
-            'niveau': niveau,
-            'notes_existantes': notes_existantes,
-        }
-
-        return render(request, 'Administration/add_note.html', context)
-
-    elif request.method == 'POST':
-        etudiants = request.POST.getlist('etudiant_matricule')
-        module_id = request.POST.get('module_id')
-        
-                # Utilisez une approche basée sur la structure dynamique des noms de champs
-        notes1 = [request.POST.get(f'note1_{matricule}') for matricule in etudiants]
-        notes2 = [request.POST.get(f'note2_{matricule}') for matricule in etudiants]
-
-    
-        
-
-        etudiants_modifies = []
-        try:
-            module = Cours_Module.objects.get(Id_module=module_id)
-            nom_module = module.nom_module
-            #filiere = module.filiere
-            professeur = module.professeur
-        except Cours_Module.DoesNotExist:
-            messages.error(request, "Le module spécifié n'existe pas.")
-            return redirect('admin_dashboard')
-
-        for etudiant_matricule, note1, note2 in zip(etudiants, notes1, notes2):
-            note1 = float(note1) if note1 else 0.0
-            note2 = float(note2) if note2 else 0.0
-            print(note1)
-
-            note = Notes(etudiant_id=etudiant_matricule, matiere_module_id=module_id, Note1=note1, Note2=note2)
-            note.save()
-
-            etudiant = Etudiant.objects.get(pk=etudiant_matricule)
-            etudiants_modifies.append(etudiant.nom_etudiant)
-
-        message = (
-            f"Des notes ont été ajoutées ou modifiées pour les étudiants suivants dans votre module {nom_module} : "
-            f"{', '.join(etudiants_modifies)}."
-        )
-        creer_notification(
-            destinataire_prof=professeur,
-            message=message
-        )
-
-        messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('admin_dashboard')
-"""
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -845,6 +775,8 @@ def creer_note(request):
             module = Cours_Module.objects.get(Id_module=module_id)
             nom_module = module.nom_module
             professeur = module.professeur
+            filiere_id = module.filiere.Id_filiere  # Récupérer l'ID de la filière
+            niveau = module.niveau  # Récupérer le niveau
         except Cours_Module.DoesNotExist:
             messages.error(request, "Le module spécifié n'existe pas.")
             return redirect('admin_dashboard')
@@ -875,7 +807,10 @@ def creer_note(request):
         )
 
         messages.success(request, 'Les notes ont été enregistrées avec succès.')
-        return redirect('admin_dashboard')
+         # Rediriger vers 'liste_etudiants_par_classe' avec les paramètres appropriés
+        return redirect(reverse('liste_etudiants_par_classe', kwargs={'filiere_id': filiere_id, 'niveau': niveau}))
+
+        #return redirect('admin_dashboard')
 
     # Si c'est une requête GET, afficher le formulaire pour ajouter les notes
     if request.method == 'GET':
@@ -1013,7 +948,14 @@ def modifier_note(request, note_id):
             note.notes = notes_float  # Met à jour la liste des notes
             note.save()
             messages.success(request, 'Les notes ont été modifiées avec succès.')
-            return redirect('admin_dashboard')
+            #return redirect('admin_dashboard')
+             # Récupérer les informations nécessaires pour la redirection
+            filiere_id = note.matiere_module.filiere.Id_filiere  # Supposons que vous avez la filière dans le module
+            niveau = note.matiere_module.niveau  # Supposons que vous avez le niveau dans le module
+
+            # Rediriger vers 'liste_etudiants_par_classe' avec les paramètres appropriés
+            return redirect(reverse('liste_etudiants_par_classe', kwargs={'filiere_id': filiere_id, 'niveau': niveau}))
+
         except ValueError:
             messages.error(request, 'Veuillez saisir des nombres valides pour les notes.')
     
@@ -1027,9 +969,11 @@ def voir_notes(request, filiere_id, niveau):
     if request.method == 'GET':
         module_id = request.GET.get('module_id')
         filiere_id = int(filiere_id)
+       
         
         # Récupérer tous les modules pour cette filière
-        modules = Cours_Module.objects.filter(filiere_id=filiere_id)
+        modules = Cours_Module.objects.filter(filiere_id=filiere_id, )
+        
         
         # Initialiser les variables
         module_selected = None
@@ -1039,10 +983,11 @@ def voir_notes(request, filiere_id, niveau):
 
         if module_id:
             module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
-            notes_queryset = Notes.objects.filter(matiere_module=module_selected)
+            notes_queryset = Notes.objects.filter(matiere_module=module_selected,  etudiant__niveau_etudiant=niveau)
             
             # Désérialiser les notes si elles sont stockées en JSON
-            notes = []
+            notes = [] 
+            
             for note in notes_queryset:
                 note_data = {
                     'etudiant': note.etudiant,
@@ -1056,8 +1001,12 @@ def voir_notes(request, filiere_id, niveau):
             
             # Définir la plage de notes en fonction de max_notes
             note_range = range(1, max_notes + 1)
+         # Récupérer les étudiants ayant la même filière et le même niveau
+        etudiants_same_filiere_niveau = Etudiant.objects.filter(niveau_etudiant=niveau)
+        
 
         context = {
+            
             'modules': modules,
             'module_selected': module_selected,
             'notes': notes,
@@ -1065,6 +1014,7 @@ def voir_notes(request, filiere_id, niveau):
             'note_range': note_range,
             'filiere_id': filiere_id,  # Passer l'ID de la filière si nécessaire
             'niveau': niveau,  # Passer le niveau de l'étudiant si nécessaire
+            'etudiants': etudiants_same_filiere_niveau,  # Liste des étudiants ayant le même niveau
               # Ajouter l'ID de la note
         }
 

@@ -1,24 +1,16 @@
-
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>liste de note</title>
-</head>
-<body>
-
-<style>
-/* Styles spécifiques au template enfant */
-        /* Héritage des styles principaux */
+    <title>Liste des étudiants et notes</title>
+    <style>
+        /* Styles généraux */
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(120deg, #1f2e3d, #8e8d8d); /* Animation conservée */
-            background-size: 300% 300%;
-            animation: gradientAnimation 10s ease infinite;
-            color: #333; /* Couleur du texte héritée */
+            background-color: #fff; /* Fond blanc */
+            color: #333;
             margin: 0;
             padding: 0;
-            text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,22 +18,9 @@
             min-height: 100vh;
         }
 
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            background-image: linear-gradient(120deg, #007bff, #00bfff); /* Dégradé de bleu animé */
-            animation: gradientAnimation 10s ease infinite;
+        h1, h2 {
+            margin-bottom: 20px;
+            color: #34495e;
         }
 
         /* Conteneur du formulaire */
@@ -115,46 +94,46 @@
             justify-content: center;
             gap: 20px;
         }
-        
-     /* Pour une meilleure responsivité */
-     @media (max-width: 768px) {
-        form {
-            padding: 20px;
-            width: 95%;  /* Réduit la largeur sur les petits écrans */
+
+        /* Responsivité */
+        @media (max-width: 768px) {
+            form {
+                padding: 20px;
+                width: 95%;
+            }
+
+            table th, table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
         }
 
-        table th, table td {
-            font-size: 14px;
-            padding: 8px;
+        @media (max-width: 480px) {
+            h1, h2 {
+                font-size: 18px;
+            }
+
+            table th, table td {
+                font-size: 12px;
+                padding: 6px;
+            }
+
+            button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
         }
+    </style>
+</head>
+<body>
 
-        button {
-            padding: 10px 15px;
-            font-size: 14px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        h1, h2 {
-            font-size: 18px; /* Réduit la taille des titres */
-        }
-
-        table th, table td {
-            font-size: 12px;
-            padding: 6px;
-        }
-
-        button {
-            padding: 8px 12px;
-            font-size: 12px;
-        }
-    }
-
-    
-</style>
-
-<h1 class="h1">Ajouter des notes pour le module {{ module.nom_module }}</h1>
-<h2 class="h1"><br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
+<h1>Liste des étudiants et ajout des notes</h1>
+<h2>Module : {{ module.nom_module }} | Professeur : {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
 
 <div class="custom-form-container">
     <form method="post">
@@ -173,98 +152,25 @@
             </thead>
             <tbody>
                 {% for etudiant in etudiants %}
-                <tr>
-                    <td>{{ etudiant.nom_etudiant }}</td>
-                    <td>{{ etudiant.prenom_etudiant }}</td>
-                    {% for i in range_list %}
-                        <td>
-                            <input type="hidden" name="etudiant_matricules_{{ etudiant.matricule }}" value="{{ etudiant.matricule }}">
-                            <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20" placeholder="Entrez la note" >
-                        </td>
-                    {% endfor %}
-                </tr>
+                    <tr>
+                        <td>{{ etudiant.nom_etudiant }}</td>
+                        <td>{{ etudiant.prenom_etudiant }}</td>
+                        {% for i in range_list %}
+                            <td>
+                                <input type="hidden" name="etudiant_matricules_{{ etudiant.matricule }}" value="{{ etudiant.matricule }}">
+                                <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20" placeholder="Entrez la note">
+                            </td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <div>
-            <button type="button" id="add-note-btn">Ajouter une autre note</button>
+        <div class="button-container">
             <button type="submit">Enregistrer les notes</button>
         </div>
     </form>
 </div>
 
-<script>
-    document.getElementById('add-note-btn').addEventListener('click', function() {
-        const table = document.getElementById('notes-table');
-        const rows = table.getElementsByTagName('tr');
-        const newNoteIndex = rows[0].cells.length - 2 + 1;
-
-        const th = document.createElement('th');
-        th.textContent = 'Note ' + newNoteIndex;
-        rows[0].appendChild(th);
-
-        for (let i = 1; i < rows.length; i++) {
-            const td = document.createElement('td');
-            const noteInput = document.createElement('input');
-            noteInput.type = 'number';
-            noteInput.name = `note_${rows[i].cells[0].textContent.trim()}_${newNoteIndex}`;
-            noteInput.step = '0.01';
-            noteInput.max = '20';
-            noteInput.placeholder = 'Entrez la note';
-            noteInput.required = false;
-
-            td.appendChild(noteInput);
-            rows[i].appendChild(td);
-        }
-    });
-</script>
-
-
-
 </body>
 </html>
-   
-<!--
-<h1 class="h1">Ajouter des notes pour le module {{ module.nom_module }}</h1>
-<h2 class="h1">Module: {{ module.nom_module }} <br> Professeur: {{ module.professeur.nom_prof }} {{ module.professeur.prenom_prof }}</h2>
-
-<div class="custom-form-container">
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="module_id" value="{{ module.Id_module }}">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Note 1</th>
-                    <th>Note 2</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for etudiant in etudiants %}
-                    <tr>
-                        <td>{{ etudiant.nom_etudiant }}</td>
-                        <td>{{ etudiant.prenom_etudiant }}</td>
-                        <td>
-                            <input type="hidden" name="etudiant_id" value="{{ etudiant.matricule }}">
-                            <input type="number" name="note1" step="0.01" max="20">
-                        </td>
-                        <td>
-                            <input type="number" name="note2" step="0.01" max="20">
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <button type="submit">Enregistrer les notes</button>
-    </form>
-</div>
-
-
-
-
-</body>
-</html>
--->

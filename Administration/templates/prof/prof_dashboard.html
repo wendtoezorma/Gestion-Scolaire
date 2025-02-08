@@ -2,113 +2,102 @@
 {% block title %}Tableau de bord du professeur{% endblock %}
 
 {% block profcontent %}
-
 <div class="container-fluid mt-4">
-    <!-- Section principale -->
-    <div class="row">
-        <!-- Calendrier des événements -->
-        <div class="col-lg-9 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Calendrier des événements</h5>
+    <div class="row d-flex flex-column align-items-center">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-lg border-0 elegant-card">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h5 class="mb-0">📅 Calendrier des événements</h5>
                 </div>
-                <div class="card-body">
-                    <div id="event-calendar" class="event-calendar"></div>
+                <div class="card-body text-center">
+                    <div id="event-calendar" class="event-calendar">
+                        <p class="text-muted">Aucun événement à afficher</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Liste des tâches -->
-        <div class="col-lg-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">To-Do List</h5>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-lg border-0 elegant-card">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h5 class="mb-0">✅ To-Do List</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group" id="taches-list">
                         {% for tache in taches %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>{{ tache.titre }}</span>
-                                <span class="badge {% if tache.statut == 'en_attente' %}badge-primary{% elif tache.statut == 'terminee' %}badge-success{% else %}badge-danger{% endif %}">
+                                <span class="badge badge-pill {% if tache.statut == 'en_attente' %}badge-info{% elif tache.statut == 'terminee' %}badge-success{% else %}badge-danger{% endif %}">
                                     {{ tache.get_statut_display }}
                                 </span>
-                                <span>
-                                    <a href="{% url 'modifier_tache' tache.id %}" class="btn btn-sm btn-warning ml-2">Modifier</a>
-                                </span>
+                                <a href="{% url 'modifier_tache' tache.id %}" class="btn btn-sm btn-outline-warning ml-2">Modifier</a>
                             </li>
                         {% empty %}
                             <li class="list-group-item text-muted">Aucune tâche à afficher.</li>
                         {% endfor %}
                     </ul>
                     <div class="text-center mt-3">
-                        <a href="{% url 'ajouter_tache' %}" class="btn btn-sm btn-primary">Ajouter une tâche</a>
+                        <a href="{% url 'ajouter_tache' %}" class="btn btn-sm btn-outline-primary">➕ Ajouter une tâche</a>
                     </div>
                 </div>
             </div>
         </div>
-        
     </div>
 </div>
 
 <style>
-    /* Personnalisation générale */
-    .card {
-        border-radius: 0.75rem;
+    body {
+        background-color: #f4f6f9;
+    }
+    .elegant-card {
+        border-radius: 12px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
     }
     .card-header {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
         font-weight: bold;
+        background: linear-gradient(135deg, #4b0082, #8a2be2);
     }
     .list-group-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        font-size: 1rem;
     }
     #event-calendar {
-        min-height: 300px;
-        background-color: #5441e3d4;
-        border: 1px solid #587591;
-        border-radius: 0.75rem;
+        min-height: 80px;
+        width: 100%;
+        background: rgba(53, 3, 89, 0);
+        border: 1px solid #8a2be2;
+        border-radius: 8px;
+        padding: 15px;
     }
-    /* Personnalisation de la taille du badge */
-    .badge {
-        font-size: 0.35rem; /* Réduit la taille de la police */
-        padding: 0.25rem 0.2rem; /* Réduit le padding du badge */
+    .badge-pill {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
     }
-
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("Page chargée. Affichage des tâches.");
-        
-        // Appel AJAX pour récupérer les tâches
         fetch('/enseignant/api/get_taches/')
-
             .then(response => response.json())
             .then(data => {
                 const tachesList = document.getElementById('taches-list');
-                tachesList.innerHTML = ''; // Effacer la liste actuelle
-
-                // Ajouter les tâches récupérées à la liste
-                    data.taches.forEach(tache => {
+                tachesList.innerHTML = '';
+                data.taches.forEach(tache => {
                     const li = document.createElement('li');
                     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
                     li.innerHTML = `
                         <span>${tache.titre}</span>
-                        <span class="badge ${tache.statut === 'en_attente' ? 'badge-primary' : tache.statut === 'terminee' ? 'badge-success' : 'badge-danger'}">
+                        <span class="badge badge-pill ${tache.statut === 'en_attente' ? 'badge-info' : tache.statut === 'terminee' ? 'badge-success' : 'badge-danger'}">
                             ${tache.statut}
                         </span>
-                        <a href="/enseignant/modifier_tache/${tache.id}/" class="btn btn-sm btn-warning ml-2">Modifier</a>
+                        <a href="/enseignant/modifier_tache/${tache.id}/" class="btn btn-sm btn-outline-warning ml-2">Modifier</a>
                     `;
                     tachesList.appendChild(li);
                 });
-
             })
-            .catch(error => {
-                console.error("Erreur lors de la récupération des tâches:", error);
-            });
-        
+            .catch(error => console.error("Erreur lors de la récupération des tâches:", error));
     });
 </script>
-
 {% endblock profcontent %}
