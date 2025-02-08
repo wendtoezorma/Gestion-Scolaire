@@ -26,10 +26,9 @@
                     <th>Note {{ i }}</th>
                 {% endfor %}
                 <th>Moyenne</th>
-<<<<<<< HEAD
-=======
+
                 <th>Actions</th>
->>>>>>> f367bd8779157b1b2c45f926a8cb119112a27de1
+
             </tr>
         </thead>
         <tbody>
@@ -40,10 +39,8 @@
                         <td>{{ i }}</td>
                     {% endfor %}
                     <td>{{ note.moyenne }}</td>
-<<<<<<< HEAD
-=======
-                    <td><a href="{% url 'modifier_note_prof' note.id %}">Modifier</a></td>
->>>>>>> f367bd8779157b1b2c45f926a8cb119112a27de1
+           <td><a href="{% url 'modifier_note_prof' note.id %}">Modifier</a></td>
+
                 </tr>
             {% endfor %}
         </tbody>
