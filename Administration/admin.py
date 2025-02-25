@@ -58,7 +58,8 @@ class TacheAdmin(admin.ModelAdmin):
 
 
 class AvancementCoursAdmin(admin.ModelAdmin):
-    list_display = ('etudiant', 'cours_module', 'volume_horaire_total', 'volume_horaire_realise', 'pourcentage_avancement', 'date_op','volume_horaire_restant')
+   
+    list_display = ('etudiant', 'cours_module', 'volume_horaire_total', 'volume_horaire_realise', 'pourcentage_avancement', 'date_op','volume_horaire_restant','heure_debut','heure_fin','image','image2','image3')
     list_filter = ('etudiant', 'cours_module')
     search_fields = ('etudiant__nom_etudiant', 'cours_module__nom_module')
     ordering = ('-date_op',)

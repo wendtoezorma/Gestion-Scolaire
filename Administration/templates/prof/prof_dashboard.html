@@ -28,8 +28,9 @@
                                 <span>{{ tache.titre }}</span>
                                 <span class="badge badge-pill {% if tache.statut == 'en_attente' %}badge-info{% elif tache.statut == 'terminee' %}badge-success{% else %}badge-danger{% endif %}">
                                     {{ tache.get_statut_display }}
-                                </span>
+                                
                                 <a href="{% url 'modifier_tache' tache.id %}" class="btn btn-sm btn-outline-warning ml-2">Modifier</a>
+                                </span>
                             </li>
                         {% empty %}
                             <li class="list-group-item text-muted">Aucune tâche à afficher.</li>

@@ -67,6 +67,7 @@
             <th>Volume horaire total</th>
             <th>Volume horaire REALISER</th>
             <th>Volume horaire RESTANT</th>
+            <th>horaire</th>
             <th>Date de l'opération</th>
              
         </tr>
@@ -80,6 +81,31 @@
             <td>{{ avancements.volume_horaire_realise }}</td>
             
             <td>{{ avancements.horaire_restants }}</td> 
+            <!--
+            <td>{{ avancements.heure_debut }} - {{ avancements.heure_fin }} 
+                {% if avancements.image %}
+                <a href="#" onclick="showImage('{{ avancements.image.url }}')">
+                    
+                    🔍 contenu
+                </a>
+                {% else %}
+                    Pas d'image
+                {% endif %}
+            </td>-->
+            <td>{{ avancements.heure_debut }} - {{ avancements.heure_fin }}
+                {% if avancements.image or avancements.image2 or avancements.image3 %}
+                <a href="#" onclick="showImages([
+                    {% if avancements.image %}'{{ avancements.image.url }}'{% endif %},
+                    {% if avancements.image2 %}'{{ avancements.image2.url }}'{% endif %},
+                    {% if avancements.image3 %}'{{ avancements.image3.url }}'{% endif %}
+                    ])">
+                    🔍 contenu
+                </a>
+                {% else %}
+                    Pas d'image
+                {% endif %}
+            </td>
+             
             
             <td>{{ avancements.date_op }}</td>
 
@@ -130,9 +156,50 @@
             }
         }
     });
+    function showImage(imageUrl) {
+        document.getElementById("modalImage").src = imageUrl;
+        document.getElementById("imageModal").style.display = "block";
+    }
+
+    function closeImage() {
+        document.getElementById("imageModal").style.display = "none";
+    }
+
+    function showImages(imageUrls) {
+    const modalImagesContainer = document.getElementById("modalImages");
+    modalImagesContainer.innerHTML = '';  // Réinitialiser les images affichées dans le modal
+    
+    imageUrls.forEach(url => {
+        if (url) { // Vérifie que l'URL de l'image existe
+            const imgElement = document.createElement("img");
+            imgElement.src = url;
+            imgElement.style.maxWidth = "80%";
+            imgElement.style.maxHeight = "80%";
+            imgElement.style.margin = "10px";
+            imgElement.style.objectFit = "cover";
+            modalImagesContainer.appendChild(imgElement);
+        }
+    });
+
+    document.getElementById("imageModal").style.display = "block";
+}
+
+function closeImage() {
+    document.getElementById("imageModal").style.display = "none";
+}
+
 </script>
-
-
+<!-- Fenêtre pour afficher l'image 
+<div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); text-align: center;">
+    <span onclick="closeImage()" style="color: white; font-size: 30px; position: absolute; right: 20px; top: 20px; cursor: pointer;">&times;</span>
+    <img id="modalImage" src="" style="max-width: 80%; max-height: 80%; margin-top: 5%;">
+</div>-->
+<div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); text-align: center;">
+    <span onclick="closeImage()" style="color: white; font-size: 30px; position: absolute; right: 20px; top: 20px; cursor: pointer;">&times;</span>
+    <div id="modalImages" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
+        <!-- Les images seront ajoutées ici -->
+    </div>
+</div>
 
 <!-- Le reste de votre formulaire ici -->
 <style>

@@ -285,6 +285,7 @@ class ProfesseurFiliere(models.Model):
     class Meta:
         unique_together = ('professeur', 'filiere')  # Assurer que la combinaison est unique
 from django.utils import timezone
+from datetime import time
 
 from django.db.models import Sum
 class AvancementCours(models.Model):
@@ -294,17 +295,38 @@ class AvancementCours(models.Model):
     volume_horaire_realise = models.IntegerField(help_text="Volume horaire déjà réalisé")
     volume_horaire_restant = models.IntegerField(default=0)
     pourcentage_avancement = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    heure_debut = models.TimeField(help_text="Heure de début du cours",default=time(0, 0))
+    heure_fin = models.TimeField(help_text="Heure de fin du cours",default=time(0, 0))
     
-    date_op = models.DateTimeField(auto_now_add=True)
-    #a commenter apres si s passe chez gedeon
+    #images = models.JSONField(default=list, blank=True)  # Stocke les URLs des images
+    #images = models.ManyToManyField('Image', related_name="avancements")  # Utilisation d'un modèle Image pour stocker plusieurs images
+    image = models.ImageField(upload_to='avancement_images/', blank=True, null=True)
+    image2 = models.ImageField(upload_to='avancement_images/', blank=True, null=True)
+    image3 = models.ImageField(upload_to='avancement_images/', blank=True, null=True)
 
+    date_op = models.DateTimeField(auto_now_add=True)
+ 
+    def save(self, *args, **kwargs):
+        if self.volume_horaire_total > 0:
+            self.pourcentage_avancement = (self.volume_horaire_realise / self.volume_horaire_total) * 100
+        else:
+            self.pourcentage_avancement = 0
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.etudiant.nom_etudiant} - {self.cours_module.nom_module} : {self.pourcentage_avancement}%"
     
 
+class Image(models.Model):
+    # = models.ForeignKey(AvancementCours, on_delete=models.CASCADE, related_name="images_list",default=1)
+    image = models.ImageField(upload_to='avancement_images/')
+    date_ajout = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image {self.id}"
 
 from django.db import models
+import json
 
 class Notes(models.Model):
     id = models.AutoField(primary_key=True)
@@ -326,7 +348,15 @@ class Notes(models.Model):
     def save(self, *args, **kwargs):
         # Calcul de la moyenne des notes
         if self.notes:
-            self.moyenne = sum(self.notes) / len(self.notes)
+            #self.moyenne = sum(self.notes) / len(self.notes)
+
+            if isinstance(self.notes, str):
+                self.notes = json.loads(self.notes)  # Convertir la chaîne JSON en liste
+
+            if self.notes:  # Vérifier si la liste contient des valeurs avant d'effectuer la division
+                self.moyenne = round(sum(self.notes) / len(self.notes), 2)
+            else:
+                self.moyenne = 0.0
         else:
             self.moyenne = 0.0
         super(Notes, self).save(*args, **kwargs)

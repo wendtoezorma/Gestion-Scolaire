@@ -3,64 +3,70 @@
 {% block styles %}
 {{ block.super }}
 <style>
-     body {
-        font-family: Arial, sans-serif;
+    body {
+        font-family: 'Roboto', sans-serif;
         margin: 20px;
-        background-color: #f9f9f9;
+        background-color: #f4f7fc;
     }
     .receipt {
-        border: 1px solid #ccc;
-        padding: 20px;
-        border-radius: 8px;
-        max-width: 700px;
+        border: 1px solid #e0e0e0;
+        padding: 25px;
+        border-radius: 12px;
+        max-width: 800px;
         margin: auto;
-        background-color: #fff;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background-color: #ffffff;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
     .receipt h1 {
         text-align: center;
-        border-bottom: 2px solid #1f0587;
-        padding-bottom: 10px;
-        color: #2737e7;
+        border-bottom: 3px solid #0056b3;
+        padding-bottom: 15px;
+        color: #003366;
+        font-size: 30px;
+        font-weight: 600;
     }
     .details {
         margin: 20px 0;
     }
     .details div {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        color: #333;
+    }
+    .details strong {
+        color: #0056b3;
     }
     .table-wrapper {
         margin-top: 20px;
-        overflow-x: auto; /* Pour assurer une bonne gestion des débordements sur petits écrans */
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Ajouter un peu d'ombre pour le style */
+        overflow-x: auto;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
     }
     .tableauScolarite table {
         width: 100%;
         border-collapse: collapse;
-        text-align: left;
         background-color: #f9f9f9;
         border-radius: 8px;
     }
     .tableauScolarite th, .tableauScolarite td {
         border: 1px solid #ddd;
-        padding: 12px;
-        font-size: 14px;
-        color: #333;
+        padding: 12px 15px;
+        font-size: 15px;
         text-align: center;
     }
     .tableauScolarite th {
-        background-color: #0e20e4;
+        background-color: #0056b3;
         color: white;
     }
     .tableauScolarite td {
-        background-color: #fff;
+        background-color: #ffffff;
     }
     .tableauScolarite tr:nth-child(even) {
         background-color: #f2f2f2;
     }
     .tableauScolarite tr:hover {
-        background-color: #ddd;
+        background-color: #e1e1e1;
+        transition: background-color 0.3s ease;
     }
     .print-button {
         display: block;
@@ -72,8 +78,10 @@
         border-radius: 5px;
         cursor: pointer;
         text-align: center;
-        font-size: 16px;
-        margin-top: 20px;
+        font-size: 18px;
+        margin-top: 30px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
     }
     .print-button:hover {
         background-color: #218838;
@@ -83,8 +91,8 @@
             padding: 15px;
         }
         .tableauScolarite th, .tableauScolarite td {
-            font-size: 12px;
-            padding: 8px;
+            font-size: 13px;
+            padding: 10px;
         }
     }
     @media print {
@@ -110,9 +118,7 @@
         <div><strong>Prénom :</strong> {{ scolarites.etudiant.prenom_etudiant }}</div>
         <div><strong>Filière :</strong> {{ scolarites.etudiant.filiere }}</div>
         <div><strong>Niveau :</strong> {{ scolarites.etudiant.niveau_etudiant }}</div><br>
-         <!-- <div><strong>mdp :</strong> {{ mot_de_passe }}</div><br>-->
     </div>
-         <!-- Ajout de la nouvelle div pour le tableau -->
     <div class="table-wrapper">
         <div class="tableauScolarite">
             <table>
@@ -143,33 +149,19 @@
             </table>
         </div>
     </div><br>
-    
 </div>
- <!-- Div pour le contenu imprimable -->
- <button class="print-button" onclick="printDiv('receipt')">Imprimer</button>
+<button class="print-button" onclick="printDiv('receipt')">Imprimer</button>
 <script>
     function printDiv(divId) {
-        // Récupérer le contenu à imprimer
         var content = document.getElementById(divId).innerHTML;
-
-        // Ouvrir une nouvelle fenêtre
         var myWindow = window.open('', '', 'height=600,width=800');
-
-        // Écrire le contenu dans la nouvelle fenêtre
         myWindow.document.write('<style>body { font-family: Arial, sans-serif; margin: 0; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } th { background-color: #f2f2f2; }</style>');
         myWindow.document.write('</head><body>');
         myWindow.document.write(content);
         myWindow.document.write('</body></html>');
-        
-        // Fermer le document pour IE >= 10
         myWindow.document.close(); 
-
-        // Lancer l'impression
         myWindow.print();
-
-        // Fermer la fenêtre après l'impression (optionnel)
         myWindow.close();
     }
 </script>
-
-{% endblock content %}
+{% endblock %}

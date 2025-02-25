@@ -176,61 +176,33 @@ from rest_framework import serializers
 
 from rest_framework import serializers
 
-"""
-class AvancementCoursSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AvancementCours
-        fields = ['id', 'cours_module', 'volume_horaire_realise', 'date_op']
 
-class AvancementCoursSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AvancementCours
-        fields = [
-            'id', 'etudiant', 'cours_module', 'volume_horaire_total',
-            'volume_horaire_realise', 'pourcentage_avancement', 'date_op'
-        ]
-        read_only_fields = ['pourcentage_avancement', 'date_op']
-
-    def create(self, validated_data):
-        etudiant = self.context.get("etudiant")
-        cours_module = self.context.get("cours_module")
-
-        # Inclure ces champs dans les données validées
-        validated_data['etudiant'] = etudiant
-        validated_data['cours_module'] = cours_module
-
-        return super().create(validated_data)
-
-
-def extract_volume_as_int(volume_horaire):
-    try:
-        return int(volume_horaire[:2])  # Extraire les 2 premiers caractères et convertir en entier
-    except (ValueError, TypeError):
-        return 0  # Valeur par défaut si la conversion échoue
-
-
-"""
 import re 
 
 def extract_volume_as_int(volume_horaire):
     match = re.match(r"(\d+)", volume_horaire)  # Capture tous les chiffres au début
     return int(match.group(1)) if match else 0  # Convertir en entier si trouvé, sinon 0
 
+from rest_framework import serializers
+
+"""
 
 class AvancementCoursSerializer(serializers.ModelSerializer):
     etudiant_nom = serializers.CharField(source='etudiant.nom_etudiant', read_only=True)
+    images = ImageSerializer(many=True)
     class Meta:
         model = AvancementCours
         fields = [
             'id', 'etudiant_nom', 'cours_module', 'volume_horaire_total','volume_horaire_restant',
-            'volume_horaire_realise', 'pourcentage_avancement', 'date_op'
+            'volume_horaire_realise', 'pourcentage_avancement','heure_debut','heure_fin','images', 'date_op'
         ]
         read_only_fields = ['etudiant', 'cours_module', 'pourcentage_avancement', 'date_op', 'volume_horaire_total','volume_horaire_restant']
+
+
+
     @staticmethod
     def calculate_volume_horaire_restant(etudiant, cours_module, volume_horaire_realise):
-        """
-        Calcule le volume horaire restant pour un étudiant et un module donnés.
-        """
+        
         # Vérifier si c'est le premier enregistrement pour cet étudiant et ce module
         if not AvancementCours.objects.filter(etudiant=etudiant, cours_module=cours_module).exists():
             # Si c'est le premier enregistrement, initialiser volume_horaire_restant avec volume_horaire_total
@@ -251,9 +223,8 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
                 return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
 
     def create(self, validated_data):
-        """
-        Méthode personnalisée pour créer un avancement.
-        """
+      
+        
         etudiant = self.context.get('etudiant')
         cours_module = self.context.get('cours_module')
 
@@ -288,3 +259,167 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
         validated_data['pourcentage_avancement'] = pourcentage_avancement
         
         return super().create(validated_data)
+"""
+from rest_framework import serializers
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image 
+        fields = ['id','image', 'date_ajout']
+
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from rest_framework import serializers
+from django.core.exceptions import ValidationError
+from PIL import Image as PILImage
+import io
+
+from rest_framework import serializers
+
+from PIL import Image as PILImage
+from django.core.exceptions import ValidationError
+from io import BytesIO
+
+
+class AvancementCoursSerializer(serializers.ModelSerializer):
+    etudiant_nom = serializers.CharField(source='etudiant.nom_etudiant', read_only=True)
+    image = serializers.ImageField(required=False)  # Champ image pour une seule image
+    image2 = serializers.ImageField(required=False)
+    image3 = serializers.ImageField(required=False)
+    class Meta:
+        model = AvancementCours
+        fields = [
+            'id', 'etudiant_nom', 'cours_module', 'volume_horaire_total', 
+            'volume_horaire_restant', 'volume_horaire_realise', 'pourcentage_avancement', 
+            'heure_debut', 'heure_fin', 'date_op', 'image','image2','image3'
+        ]
+        read_only_fields = ['etudiant', 'cours_module', 'pourcentage_avancement', 
+                            'date_op', 'volume_horaire_total', 'volume_horaire_restant']
+
+    @staticmethod
+    def calculate_volume_horaire_restant(etudiant, cours_module, volume_horaire_realise):
+        """
+        Calcule le volume horaire restant pour un étudiant et un module donnés.
+        """
+        # Vérifier si c'est le premier enregistrement pour cet étudiant et ce module
+        if not AvancementCours.objects.filter(etudiant=etudiant, cours_module=cours_module).exists():
+            # Si c'est le premier enregistrement, initialiser volume_horaire_restant avec volume_horaire_total
+            return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
+
+        else:
+            # Chercher l'avancement précédent de l'étudiant pour ce module là
+            avancement_precedent = AvancementCours.objects.filter(
+                etudiant=etudiant,
+                cours_module=cours_module
+            ).order_by('-date_op').first()  # Prendre le plus récent
+
+            if avancement_precedent:
+                # Calculer le volume horaire restant basé sur l'enregistrement précédent
+                return avancement_precedent.volume_horaire_restant - volume_horaire_realise
+            else:
+                # Si aucun avancement précédent, calculer à partir du volume horaire total du module
+                return extract_volume_as_int(cours_module.volume_horaire) - volume_horaire_realise
+
+    def validate(self, data):
+        image = data.get('image', None)
+        
+        if image:
+            # Validation de l'image pour vérifier que c'est bien une image valide
+            try:
+                pil_image = PILImage.open(image)
+                pil_image.verify()  # Vérifie que l'image est valide
+                pil_image.close()
+            except Exception:
+                raise ValidationError({'image': 'L\'image doit être valide.'})
+
+            # Vérification du type InMemoryUploadedFile
+            if not isinstance(image, InMemoryUploadedFile):
+                raise ValidationError({'image': 'L\'image doit être un fichier valide.'})
+        
+        return data
+
+    def create(self, validated_data):
+        request = self.context.get('request', None)
+        image_data = request.FILES.get('image', None) if request else None
+        image2_data = request.FILES.get('image2', None) if request else None
+        image3_data = request.FILES.get('image3', None) if request else None
+
+        etudiant = self.context.get('etudiant')
+        cours_module = self.context.get('cours_module')
+
+        if not etudiant or not cours_module:
+            raise ValidationError("Étudiant ou module manquant dans le contexte.")
+
+        # Enregistrer l'image si présente
+        image_instance = None
+        if image_data:
+            try:
+                # Vérifier que l'image est bien un InMemoryUploadedFile
+                if isinstance(image_data, InMemoryUploadedFile):
+                    image_instance = Image.objects.create(image=image_data)
+                else:
+                    raise ValidationError("Le fichier d'image n'est pas valide.")
+            except Exception as e:
+                raise ValidationError(f"Erreur lors de l'enregistrement de l'image : {str(e)}")
+        
+         # Enregistrer l'image secondaire si présente
+        image2_instance = None
+        if image2_data:
+            try:
+                if isinstance(image2_data, InMemoryUploadedFile):
+                    image2_instance = image2_data  #AvancementCours.objects.create(image=image2_data)
+                else:
+                    raise ValidationError("Le fichier d'image 2 n'est pas valide.")
+            except Exception as e:
+                raise ValidationError(f"Erreur lors de l'enregistrement de l'image 2 : {str(e)}")
+
+        image3_instance = None
+        if image3_data:
+            try:
+                if isinstance(image3_data, InMemoryUploadedFile):
+                    image3_instance = image3_data  #AvancementCours.objects.create(image=image2_data)
+                else:
+                    raise ValidationError("Le fichier d'image 3 n'est pas valide.")
+            except Exception as e:
+                raise ValidationError(f"Erreur lors de l'enregistrement de l'image 3 : {str(e)}")
+
+
+
+        # Créer l'objet `AvancementCours`
+        validated_data['etudiant'] = etudiant
+        validated_data['cours_module'] = cours_module
+        validated_data['volume_horaire_total'] = extract_volume_as_int(cours_module.volume_horaire)
+        validated_data['pourcentage_avancement'] = 0
+        validated_data['volume_horaire_restant'] = self.calculate_volume_horaire_restant(
+            etudiant, cours_module, validated_data.get('volume_horaire_realise')
+        )
+         # Calculer le pourcentage d'avancement
+        total_realise = AvancementCours.objects.filter(
+            etudiant=etudiant,
+            cours_module=cours_module
+        ).aggregate(Sum('volume_horaire_realise'))['volume_horaire_realise__sum'] or 0
+        
+        # Ajouter le volume horaire réalisé actuellement en cours d'enregistrement
+        total_realise += validated_data['volume_horaire_realise']
+
+        # Calculer le pourcentage d'avancement
+        pourcentage_avancement = (total_realise / validated_data['volume_horaire_total']) * 100
+
+        # Enregistrer le pourcentage dans les données validées
+        validated_data['pourcentage_avancement'] = pourcentage_avancement
+        
+        avancement_cours = AvancementCours.objects.create(**validated_data)
+
+        # Associer l'image à `AvancementCours`
+        if image_instance:
+            avancement_cours.image = image_instance
+        if image2_instance:
+            avancement_cours.image = image2_instance
+        if image3_instance:
+            avancement_cours.image = image2_instance
+        
+        print("okk" ,validated_data['volume_horaire_restant'], total_realise, validated_data['volume_horaire_total'],validated_data['pourcentage_avancement'])
+
+        avancement_cours.save()
+
+        return avancement_cours

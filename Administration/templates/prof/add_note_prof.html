@@ -95,6 +95,11 @@
             gap: 20px;
         }
 
+        .add-note-button {
+            background-color: #28a745;
+            color: #fff;
+        }
+
         /* Responsivité */
         @media (max-width: 768px) {
             form {
@@ -140,7 +145,7 @@
         {% csrf_token %}
         <input type="hidden" name="module_id" value="{{ module.Id_module }}">
 
-        <table>
+        <table id="notes-table">
             <thead>
                 <tr>
                     <th>Nom</th>
@@ -152,7 +157,7 @@
             </thead>
             <tbody>
                 {% for etudiant in etudiants %}
-                    <tr>
+                    <tr data-matricule="{{ etudiant.matricule }}">
                         <td>{{ etudiant.nom_etudiant }}</td>
                         <td>{{ etudiant.prenom_etudiant }}</td>
                         {% for i in range_list %}
@@ -168,9 +173,60 @@
 
         <div class="button-container">
             <button type="submit">Enregistrer les notes</button>
+            <button type="button" class="add-note-button" onclick="ajouterNote()">Ajouter une note</button>
         </div>
     </form>
 </div>
+<script>
+    // Fonction pour ajouter une nouvelle colonne "Note X" à la table
+    function ajouterNote() {
+        // Trouver la table et son en-tête
+        var table = document.getElementById("notes-table");
+        var tbody = table.getElementsByTagName("tbody")[0];
+        var thead = table.getElementsByTagName("thead")[0];
+        
+        // Récupérer le nombre de colonnes existantes
+        var colCount = thead.rows[0].cells.length - 1
+        
+
+        // Ajouter une colonne à l'en-tête
+        var newTh = document.createElement("th");
+        newTh.textContent = "Note " + (colCount);
+        thead.rows[0].appendChild(newTh);
+
+        // Ajouter une nouvelle cellule de note à chaque ligne du corps du tableau
+        var rows = tbody.rows;
+        for (var i = 0; i < rows.length; i++) {
+            var matricule = rows[i].getAttribute('data-matricule'); // Récupère le matricule depuis l'attribut 'data-matricule'
+            
+            // Créer l'input caché pour le matricule
+            var hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "etudiant_matricules_" + matricule;
+            hiddenInput.value = matricule;
+
+            // Créer la nouvelle cellule pour la note
+            var newTd = document.createElement("td");
+            var newInput = document.createElement("input");
+            newInput.type = "number";
+            
+            // Utiliser le matricule et l'index de la colonne pour le nom de l'input
+            newInput.name = "note_" + matricule + "_" + colCount; // Utilisation du matricule et de l'index de la colonne
+            
+            newInput.step = "0.01";
+            newInput.max = "20";
+            newInput.placeholder = "Entrez la note";
+            
+            // Ajouter les inputs à la cellule
+            newTd.appendChild(hiddenInput);
+            newTd.appendChild(newInput);
+
+            // Ajouter la cellule dans la ligne
+            rows[i].appendChild(newTd);
+        }
+    }
+</script>
+
 
 </body>
 </html>

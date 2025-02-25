@@ -99,7 +99,8 @@ def afficher_classe(request, filiere_id, niveau, professeur_id):
 
 
 def select_module_pour_prof(request, filiere_id, niveau):
-    modules = Cours_Module.objects.filter(filiere_id=filiere_id)
+    professeur_id = request.session.get('professeur_id')
+    modules = Cours_Module.objects.filter(filiere_id=filiere_id, professeur_id= professeur_id)
     context = {
         'modules': modules,
         'filiere_id': filiere_id,
@@ -414,48 +415,22 @@ def creer_note_prof(request):
         return render(request, 'prof/add_note_prof.html', context)
 
     # Retourner une erreur si la méthode n'est ni GET ni POST
-    return redirect('Professeur_dashboard')
+    #return redirect('Professeur_dashboard')
+    return redirect(reverse('classe_pour_prof', kwargs={'filiere_id': filiere_id, 'niveau': niveau}))
 
 
 
 """
-def voir_notes_prof(request, filiere_id, niveau):
-    if request.method == 'GET':
-        module_id = request.GET.get('module_id')
-        filiere_id = int(filiere_id)
-        
-        # Récupérer tous les modules pour cette filière
-        modules = Cours_Module.objects.filter(filiere_id=filiere_id)
-        
-        # Récupérer le module sélectionné
-        module_selected = None
-        notes = None
-        
-        if module_id:
-            module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
-            notes = Notes.objects.filter(matiere_module_id=module_id).select_related('etudiant')
-        
-        context = {
-            'modules': modules,
-            'module_selected': module_selected,
-            'notes': notes,
-        }
-        
-        return render(request, 'prof/voir_notes_prof.html', context)
-    else:
-        return redirect('Professeur_dashboard')
-
-"""
-
-
 import json
 def voir_notes_prof(request, filiere_id, niveau):
     if request.method == 'GET':
         module_id = request.GET.get('module_id')
         filiere_id = int(filiere_id)
+         
+        professeur_id = request.session.get('professeur_id')
         
         # Récupérer tous les modules pour cette filière
-        modules = Cours_Module.objects.filter(filiere_id=filiere_id)
+        modules = Cours_Module.objects.filter(filiere_id=filiere_id, professeur_id = professeur_id)
         
         # Initialiser les variables
         module_selected = None
@@ -496,35 +471,72 @@ def voir_notes_prof(request, filiere_id, niveau):
     else:
         return redirect('Professeur_dashboard')
 
+"""
+
+def voir_notes_prof(request, filiere_id, niveau):
+    if request.method == 'GET':
+        module_id = request.GET.get('module_id')
+        filiere_id = int(filiere_id)
+        professeur_id = request.session.get('professeur_id')
+
+        # Récupérer les modules enseignés par ce professeur dans cette filière
+        modules = Cours_Module.objects.filter(filiere_id=filiere_id, professeur_id=professeur_id)
+
+        module_selected = None
+        notes = []
+        max_notes = 0
+        note_range = range(1, 1)
+
+        if module_id:
+            # Vérification que l'ID du module correspond bien à un seul module
+            module_selected = get_object_or_404(Cours_Module, Id_module=int(module_id))
+
+            # Récupérer tous les étudiants du niveau donné
+            etudiants = Etudiant.objects.filter(niveau_etudiant=niveau)
+
+            # Récupérer les notes existantes pour ce module
+            notes_queryset = Notes.objects.filter(matiere_module=module_selected, etudiant__in=etudiants)
+
+            # Désérialisation et traitement des notes
+            notes_dict = {
+                note.etudiant.matricule: {
+                    'etudiant': note.etudiant,
+                    'notes': json.loads(note.notes) if isinstance(note.notes, str) else note.notes,
+                    'moyenne': note.moyenne,
+                    'id': note.id,
+                } for note in notes_queryset
+            }
+
+            # Vérifier quels étudiants n'ont pas de note et les ajouter à la liste
+            for etudiant in etudiants:
+                if etudiant.matricule not in notes_dict:
+                    notes.append({
+                        'etudiant': etudiant,
+                        'notes': None,  # Aucun note enregistrée
+                        'moyenne': 'Aucune note',
+                        'id': None,
+                    })
+                else:
+                    notes.append(notes_dict[etudiant.matricule])
+                    max_notes = max(max_notes, len(notes_dict[etudiant.matricule]['notes']))
+
+            note_range = range(1, max_notes + 1)
+
+        context = {
+            'modules': modules,
+            'module_selected': module_selected,
+            'notes': notes,
+            'max_notes': max_notes,
+            'note_range': note_range,
+            'niveau': niveau,
+        }
+
+        return render(request, 'prof/voir_notes_prof.html', context)
+    else:
+        return redirect('Professeur_dashboard')
 
 def modifier_note_prof(request, note_id):
-    """
-    note = get_object_or_404(Notes, Id_note=note_id)
-    
-    if request.method == 'POST':
-        note1_str = request.POST.get('note1', '')
-        note2_str = request.POST.get('note2', '')
-        
-        try:
-            note.Note1 = float(note1_str.replace(',', '.'))
-            note.Note2 = float(note2_str.replace(',', '.'))
-            note.save()
-            administrateurs = Administration.objects.all()
-            # Envoyer des notifications aux administrateurs
-            for admin in administrateurs:
-                creer_notification(
-                    destinataire_admin=admin,
-                    message=f"Nouvelle note créée pour l'étudiant {note.etudiant}."
-                )
-            messages.success(request, 'La note a été modifiée avec succès.')
-            return redirect('Professeur_dashboard')
-        except ValueError:
-            messages.error(request, 'Veuillez saisir des nombres valides pour les notes.')
-            # Gérer l'erreur ici, peut-être rediriger vers une page d'erreur ou afficher un message
-    
-    context = {
-        'note': note
-    }"""
+ 
     note = get_object_or_404(Notes, id=note_id)
     
     if request.method == 'POST':
@@ -534,6 +546,8 @@ def modifier_note_prof(request, note_id):
             notes_float = [float(n.replace(',', '.')) for n in notes_str]  # Convertit les valeurs
             note.notes = notes_float  # Met à jour la liste des notes
             note.save()
+            filiere_id = note.matiere_module.filiere.Id_filiere
+            niveau = note.matiere_module.niveau
             administrateurs = Administration.objects.all()
             # Envoyer des notifications aux administrateurs
             for admin in administrateurs:
@@ -543,7 +557,11 @@ def modifier_note_prof(request, note_id):
                 )
             
             messages.success(request, 'Les notes ont été modifiées avec succès.')
-            return redirect('Professeur_dashboard')
+            #return redirect('Professeur_dashboard')
+            return redirect(reverse('voir_notes_pro', kwargs={'filiere_id': filiere_id, 'niveau': niveau}))
+
+
+
         except ValueError:
             messages.error(request, 'Veuillez saisir des nombres valides pour les notes.')
     

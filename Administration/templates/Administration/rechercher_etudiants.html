@@ -7,6 +7,7 @@
             <table class="student-table">
                 <thead>
                     <tr>
+                        <th>Matricule</th>
                         <th>Nom</th>
                         <th>Prénom</th>
                         <th>Email</th>
@@ -20,6 +21,7 @@
                 <tbody>
                     {% for etudiant in etudiants %}
                         <tr>
+                            <td>{{ etudiant.matricule }}</td>
                             <td>{{ etudiant.nom_etudiant }}</td>
                             <td>{{ etudiant.prenom_etudiant }}</td>
                             <td>{{ etudiant.email_etudiant }}</td>

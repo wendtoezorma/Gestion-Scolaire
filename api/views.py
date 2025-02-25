@@ -938,43 +938,11 @@ class ListeAvancementsAPI(APIView):
             'avancements': avancements_serializer.data
         }, status=status.HTTP_200_OK)
 
-"""
-class AjouterAvancementAPI(APIView):
-    
-    #Vue pour ajouter un avancement pour un étudiant dans un module donné.
-    
-    def post(self, request, matricule, module_id, *args, **kwargs):
-        # Récupérer l'étudiant et le module
-        etudiant = get_object_or_404(Etudiant, matricule=matricule)
-        module = get_object_or_404(Cours_Module, pk=module_id)
-        print(module)
+from rest_framework.parsers import MultiPartParser, FormParser
+import pdb
 
-        # Vérifier et valider les données envoyées via le POST
-        serializer = AvancementCoursSerializer(data=request.data, context={
-        "etudiant": etudiant,
-        "cours_module": module})
-        
-        if serializer.is_valid():
-            print(f"Données validées : {serializer.validated_data}")
-            avancement = serializer.save(etudiant=etudiant, cours_module=module)
-            print("Avancement sauvegardé :", avancement)
 
-            # Calculer 'horaire_restants' après l'enregistrement de l'avancement
-            #avancement.horaire_restants = avancement.volume_horaire_total - avancement.volume_horaire_realise
-            avancement.save()
 
-            return Response({
-                'message': 'Avancement ajouté avec succès',
-                'avancement': AvancementCoursSerializer(avancement).data
-            }, status=status.HTTP_201_CREATED)
-
-        # Réponse en cas d'erreur de validation
-        return Response({
-            'message': 'Erreur lors de l\'ajout de l\'avancement',
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-"""
 class AjouterAvancementAPI(APIView):
     """
     Vue API pour gérer l'avancement des étudiants dans un module.
@@ -1030,43 +998,49 @@ class AjouterAvancementAPI(APIView):
                 'pourcentage_avancement': 0
             }
         }, status=status.HTTP_200_OK)
+   
+    
+    parser_classes = [MultiPartParser, FormParser]  # Ajouter le parser pour les fichiers multipart
+
 
     def post(self, request, matricule, module_id, *args, **kwargs):
-        """
-        Ajoute ou met à jour un avancement pour un étudiant et un module.
-        """
         # Récupérer l'étudiant et le module
         etudiant = get_object_or_404(Etudiant, matricule=matricule)
         module = get_object_or_404(Cours_Module, pk=module_id)
 
-        # Sérialiser les données envoyées
-        serializer = AvancementCoursSerializer(data=request.data, context={
-            'etudiant': etudiant,
-            'cours_module': module
-        })
+        # Récupérer les fichiers images envoyés dans la requête
+        files = request.FILES.getlist('images')
 
+        # Sérialiser les données avec le contexte nécessaire
+        serializer = AvancementCoursSerializer(
+            data=request.data,
+            context={'etudiant': etudiant, 'cours_module': module, 'request': request}
+        )
+
+        print(request.FILES)
+        print('ok', serializer)
+        # Vérifier la validité du sérialiseur
         if serializer.is_valid():
-            # Sauvegarder l'avancement
+            # Créer l'objet avancement
             avancement = serializer.save()
 
-            # Chercher l'avancement précédent de l'étudiant pour ce module
-            '''
-            avancement.volume_horaire_restant = AvancementCoursSerializer.calculate_volume_horaire_restant(
-                etudiant, module, avancement.volume_horaire_realise
-            )
-            print(avancement.volume_horaire_restant)
-            '''
-            # Sauvegarder l'avancement avec le volume horaire restant mis à jour
-            #avancement.save(update_fields=['volume_horaire_restant'])
+            # Ajouter les images directement dans le champ image de l'AvancementCours
+            if files:
+                # Si plusieurs fichiers sont envoyés, on les associe tous au champ image
+                avancement.image = files[0]  # On suppose que tu veux garder le premier fichier comme image principale
+                avancement.image2 = files[0]
+                avancement.image3 = files[0]
+                avancement.save()  # Sauvegarde l'objet avec l'image attachée
 
-            # Réponse avec l'avancement mis à jour
             return Response({
-                'message': 'Avancement ajouté ou mis à jour avec succès.',
+                'message': 'Avancement ajouté avec succès.',
                 'data': AvancementCoursSerializer(avancement).data
             }, status=status.HTTP_201_CREATED)
 
-        # Réponse en cas d'erreur
+        # Si le sérialiseur est invalide, renvoyer les erreurs
         return Response({
-            'message': 'Erreur lors de l\'ajout ou de la mise à jour de l\'avancement.',
+            'message': 'Erreur lors de l\'ajout de l\'avancement.',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+
+        

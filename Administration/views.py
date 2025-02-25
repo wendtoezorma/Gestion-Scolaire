@@ -285,7 +285,7 @@ def modifier_etudiant(request, id):
         form = EtudiantCreationForm(request.POST, instance=etudiant)
         if form.is_valid():
             form.save()
-            messages.success(request, "LES information de l'etudiant ont été modifiées avec succès.")
+            
             return redirect('admin_dashboard')  # Redirige vers le profil après la modification
     else:
         form = EtudiantCreationForm(instance=etudiant)
@@ -582,6 +582,7 @@ def ajouter_avancement_etapeA(request, niveau, filiere, module_id):
     avancements = AvancementCours.objects.filter(
         etudiant__in=etudiants, cours_module=module
     ).order_by('-date_op')
+   
 
     # Calculer 'horaire_restants' pour chaque avancement
     for avancement in avancements:
@@ -595,7 +596,9 @@ def ajouter_avancement_etapeA(request, niveau, filiere, module_id):
     )['somme_pourcentage'] or 0
 
     if request.method == 'POST':
-        form = AvancementCoursForm(request.POST)
+        #form = AvancementCoursForm(request.POST)
+        form = AvancementCoursForm(request.POST, request.FILES)  # Assure-toi d'inclure `request.FILES`
+
         if form.is_valid():
             avancement = form.save(commit=False)
             # Associer un étudiant et un module au nouvel avancement
@@ -604,6 +607,7 @@ def ajouter_avancement_etapeA(request, niveau, filiere, module_id):
             avancement.etudiant = etudiant
             avancement.cours_module = module
             avancement.save()
+            
             return redirect('update_avancement', niveau=niveau, filiere=filiere, module_id=module_id)
         else:
             # Afficher les erreurs du formulaire pour le débogage
@@ -964,7 +968,7 @@ def modifier_note(request, note_id):
     }
     return render(request, 'Administration/modifier_note.html', context)
 
-
+"""
 def voir_notes(request, filiere_id, niveau):
     if request.method == 'GET':
         module_id = request.GET.get('module_id')
@@ -1002,6 +1006,15 @@ def voir_notes(request, filiere_id, niveau):
             # Définir la plage de notes en fonction de max_notes
             note_range = range(1, max_notes + 1)
          # Récupérer les étudiants ayant la même filière et le même niveau
+                # Récupérer tous les étudiants du niveau donné
+        etudiants_same_filiere_niveau = Etudiant.objects.filter(niveau_etudiant=niveau)
+
+        # Vérifier si chaque étudiant a une note associée à ce module, sinon en créer une
+        for etudiant in etudiants_same_filiere_niveau:
+            note_existe = Notes.objects.filter(matiere_module=module_selected, etudiant=etudiant).exists()
+            if not note_existe:
+                Notes.objects.create(matiere_module=module_selected, etudiant=etudiant, notes=json.dumps([]), moyenne=0.0)
+
         etudiants_same_filiere_niveau = Etudiant.objects.filter(niveau_etudiant=niveau)
         
 
@@ -1021,37 +1034,79 @@ def voir_notes(request, filiere_id, niveau):
         return render(request, 'Administration/voir_notes.html', context)
     else:
         return redirect('admin_dashboard')
-
-
 """
+import json
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Cours_Module, Notes, Etudiant
+
 def voir_notes(request, filiere_id, niveau):
     if request.method == 'GET':
         module_id = request.GET.get('module_id')
         filiere_id = int(filiere_id)
 
-        # Récupérer tous les modules de la filière et du niveau
-        modules = Cours_Module.objects.filter(filiere_id=filiere_id, niveau=niveau)
+        # Récupérer tous les modules de la filière
+        modules = Cours_Module.objects.filter(filiere_id=filiere_id)
 
-        # Initialiser les variables pour le module sélectionné et les notes
+        # Initialisation des variables
         module_selected = None
-        notes = None
+        notes = []
+        max_notes = 0  # Nombre max de notes par étudiant
+        note_range = range(1, 1)  # Plage vide par défaut
 
+        # Vérifier si un module est sélectionné
         if module_id:
             module_selected = get_object_or_404(Cours_Module, Id_module=module_id)
-            notes = Notes.objects.filter(matiere_module_id=module_id).select_related('etudiant')
+            notes_queryset = Notes.objects.filter(matiere_module=module_selected, etudiant__niveau_etudiant=niveau)
 
+            # Désérialiser les notes JSON et calculer max_notes
+            for note in notes_queryset:
+                note_data = {
+                    'etudiant': note.etudiant,
+                    'notes': json.loads(note.notes) if isinstance(note.notes, str) else note.notes,
+                    'moyenne': note.moyenne,
+                    'id': note.id,
+                }
+                notes.append(note_data)
+                max_notes = max(max_notes, len(note_data['notes']))
+
+            # Définir la plage de notes
+            note_range = range(1, max_notes + 1)
+
+        # Récupérer tous les étudiants du niveau donné
+        etudiants_same_filiere_niveau = Etudiant.objects.filter(niveau_etudiant=niveau)
+        
+        
+
+        # Vérifier et créer les notes seulement si un module est sélectionné
+        if module_selected:
+            for etudiant in etudiants_same_filiere_niveau:
+                note_existe = Notes.objects.filter(matiere_module=module_selected, etudiant=etudiant).exists()
+                if not note_existe:
+                    Notes.objects.create(
+                        matiere_module=module_selected,
+                        etudiant=etudiant,
+                        notes=json.dumps([]),
+                        moyenne=0.0
+                    )
+        else:
+            messages.warning(request, "Veuillez sélectionner un module.")
+
+        # Préparer le contexte pour le template
         context = {
             'modules': modules,
             'module_selected': module_selected,
             'notes': notes,
-            'niveau': niveau,
+            'max_notes': max_notes,
+            'note_range': note_range,
             'filiere_id': filiere_id,
+            'niveau': niveau,
+            'etudiants': etudiants_same_filiere_niveau,
         }
 
         return render(request, 'Administration/voir_notes.html', context)
-    else:
-        return redirect('admin_dashboard')
-"""
+
+    return redirect('admin_dashboard')
 
 from io import BytesIO  # Importer BytesIO du module io
 from django.shortcuts import render
@@ -1626,6 +1681,7 @@ def rechercher_etudiants(request):
     if query:
         # Filtrage par plusieurs champs
         etudiants = Etudiant.objects.filter(
+            Q(matricule__icontains=query)|
             Q(nom_etudiant__icontains=query) |
             Q(prenom_etudiant__icontains=query) |
             Q(email_etudiant__icontains=query) |

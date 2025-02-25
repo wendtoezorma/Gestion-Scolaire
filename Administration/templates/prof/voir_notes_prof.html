@@ -33,14 +33,29 @@
             {% for note in notes %}
                 <tr>
                     <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
-                    {% for i in note.notes %}
-                        <td>{{ i }}</td>
-                    {% endfor %}
+                    
+                    {% if note.notes == "Pas de note pour le moment" %}
+                        <td colspan="{{ note_range|length }}" class="alert alert-warning">
+                            {{ note.etudiant.nom_etudiant }} n'a pas de note pour le moment.
+                        </td>
+                    {% else %}
+                        {% for i in note.notes %}
+                            <td>{{ i }}</td>
+                        {% endfor %}
+                    {% endif %}
+                    
                     <td>{{ note.moyenne }}</td>
-                    <td><a href="{% url 'modifier_note_prof' note.id %}" class="btn-edit">Modifier</a></td>
+                    <td>
+                        {% if note.id %}
+                            <a href="{% url 'modifier_note_prof' note.id %}" class="btn-edit">Modifier</a>
+                        {% else %}
+                            <span class="text-muted">Aucune note à modifier</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
+        
     </table>
 {% endif %}
 
