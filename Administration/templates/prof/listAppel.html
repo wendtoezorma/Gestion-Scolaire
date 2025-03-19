@@ -1,0 +1,206 @@
+{% load static %}
+{% load custom_filters %}
+
+<div class="container mt-5 d-flex justify-content-center align-items-center" style="min-height: 80vh; background: url('{% static "Administration/images/blue-peach-paper-circles.jpg" %}') no-repeat center center fixed; background-size: cover;">
+    <div class="card shadow-lg animate-fade-in w-100" style="max-width: 1200px; padding: 20px; background-color: rgba(255, 255, 255, 0.8);">
+        <div class="card-header bg-primary text-white text-center mb-4">
+            <h2 class="mb-0">📋 Liste des Appels</h2>
+        </div>
+        <div class="card-body">
+            <!-- Sélection du module -->
+            <form method="GET" action="{% url 'listAppel' filiere_id=filiere_id niveau=niveau %}" class="mb-4">
+                <div class="form-group text-center">
+                    <label for="module_id" class="font-weight-bold d-block">📘 Sélectionnez un module :</label>
+                    <select name="module_id" id="module_id" class="form-control custom-select shadow-sm stylish-select d-inline-block" onchange="this.form.submit()" style="width: auto;">
+                        <option value="">-- Choisissez un module --</option>
+                        {% for module in modules %}
+                            <option value="{{ module.Id_module }}" {% if module.Id_module|stringformat:"s" == module_id %}selected{% endif %}>
+                                {{ module.nom_module }} (ID: {{ module.Id_module }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <h4 class="text-secondary text-center mb-4">📚 Présence pour : <strong>{{ module.nom_module }}</strong></h4>
+                </div>
+            </form>
+
+            {% if module_id %}
+                
+                {% if appels %}
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered table-hover shadow-sm stylish-table text-center">
+                        <thead class="bg-dark text-white">
+                            <tr>
+                                <th class="p-3">👨‍🎓 Étudiant</th>
+                                {% for date in dates_appels %}
+                                    <th class="p-3">
+                                        <button class="btn btn-sm btn-outline-info stylish-button" onclick="toggleDetails('{{ date|date:'Y-m-d' }}');">
+                                            📅 {{ date }}
+                                        </button>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for etudiant in etudiants %}
+                                <tr>
+                                    <td class="font-weight-bold text-left p-3">{{ etudiant.nom_etudiant }} {{ etudiant.prenom_etudiant }}</td>
+                                    {% for date in dates_appels %}
+                                        <td class="p-3">
+                                            {% if etudiant.matricule|get_presence:date %}
+                                                <span class="badge badge-success p-2 stylish-badge">✅ Présent</span>
+                                            {% else %}
+                                                <span class="badge badge-danger p-2 stylish-badge">❌ Absent</span>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="alert alert-warning text-center mt-3">⚠ Aucun appel enregistré pour ce module.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Zone pour afficher les détails avec animation dans un emoji bulle -->
+<div id="details-container" class="container mt-4 p-4 stylish-bubble" style="display: none;">
+    <h4 class="text-white">📅 Détails de l'appel du <span id="details-date"></span></h4>
+    <hr>
+    <p><strong>🕒 Heure de début :</strong> <span id="details-heure-debut"></span></p>
+    <p><strong>⏳ Heure de fin :</strong> <span id="details-heure-fin"></span></p>
+    <p><strong>📝 Commentaire :</strong> <span id="details-commentaire"></span></p>
+</div>
+
+<style>
+    /* Animation d'apparition */
+    .animate-fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Bulle de message style */
+    .stylish-bubble {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        z-index: 1000;
+        width: 300px;
+        padding: 15px;
+        max-width: 100%;
+        background-color: #17a2b8;
+        border-radius: 50px 50px 50px 15px; /* Forme emoji */
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+        border: 2px solid #007bff;
+        overflow-y: auto; /* Ajout de scroll interne */
+        max-height: 300px; /* Limite la taille de la bulle */
+    }
+
+    .stylish-bubble.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .stylish-bubble h4, .stylish-bubble p {
+        margin-bottom: 10px;
+    }
+
+    /* Centrage du titre et du label */
+    .card-header h2 {
+        text-align: center;
+    }
+
+    .form-group {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .form-group label {
+        font-size: 18px;
+        font-weight: bold;
+        display: block;
+    }
+
+    /* Sélecteur stylisé */
+    .stylish-select {
+        border-radius: 8px;
+        border: 2px solid #007bff;
+        padding: 10px;
+        font-size: 16px;
+        background-color: #f8f9fa;
+    }
+
+    /* Animations sur les boutons */
+    .stylish-button {
+        transition: all 0.3s ease;
+    }
+
+    .stylish-button:hover {
+        transform: scale(1.1);
+        background-color: #007bff;
+        color: white !important;
+    }
+
+    /* Badge stylisé */
+    .stylish-badge {
+        font-size: 14px;
+        border-radius: 10px;
+    }
+
+    /* Centrage du tableau */
+    .table {
+        width: 100%;
+        margin: 0 auto;
+        border-collapse: collapse;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .table th, .table td {
+        padding: 12px 15px;
+        text-align: center;
+        vertical-align: middle;
+        border: 1px solid #ddd;
+    }
+
+    .table th {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    .table td {
+        background-color: #f9f9f9;
+        font-size: 14px;
+    }
+</style>
+
+<script>
+    function toggleDetails(date) {
+        console.log("Date cliquée :", date);
+        fetch(`/enseignant/getAppelDetails/?date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                let detailsContainer = document.getElementById("details-container");
+                detailsContainer.classList.add("show"); // Ajoute l'effet d'animation
+                detailsContainer.style.display = "block";
+
+                document.getElementById("details-date").innerText = date;
+                document.getElementById("details-heure-debut").innerText = data.heure_debut || "Non renseigné";
+                document.getElementById("details-heure-fin").innerText = data.heure_fin || "Non renseigné";
+                document.getElementById("details-commentaire").innerText = data.commentaire || "Aucun commentaire";
+            })
+            .catch(error => console.error("Erreur lors de la récupération des détails :", error));
+    }
+</script>

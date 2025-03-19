@@ -112,6 +112,16 @@ class AdministrationAdmin(UserAdmin):
     ordering = ('email',)
     filter_horizontal = ('groups', 'user_permissions')
 
+
+class AppelPresenceAdmin(admin.ModelAdmin):
+    list_display = ('etudiant', 'professeur', 'cours', 'date', 'present', 'heure_debut', 'heure_fin')
+    list_filter = ('professeur', 'cours', 'date', 'present')
+    search_fields = ('etudiant__nom_etudiant', 'etudiant__prenom_etudiant', 'professeur__nom_prof', 'cours__nom_module')
+    list_editable = ('present',)
+    date_hierarchy = 'date'
+
+admin.site.register(Appel, AppelPresenceAdmin)
+
 admin.site.register(Administration, AdministrationAdmin)
 
 

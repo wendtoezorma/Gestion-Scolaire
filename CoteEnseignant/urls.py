@@ -24,6 +24,10 @@ urlpatterns = [
     path('api/get_taches/', get_taches, name='get_taches'),
     path('notifications_prof/',notifications_professeur, name='recuperer_notifications_prof'),
     path('notifications_non_lues_count/', notifications_non_lues_count, name='notifications_non_lues_count'),
-    path('profil/', profil , name= "profil" )
+    path('profil/', profil , name= "profil" ),
+    path('appel/<int:filiere_id>/<str:niveau>',appel_classe, name='appel'),
+    path('listAppel/<int:filiere_id>/<str:niveau>/',listAppel, name = 'listAppel'),
+     path('getAppelDetails/', getAppelDetails, name='getAppelDetails'),  # La route pour récupérer les détails de l'appel
    
 ]
+ 

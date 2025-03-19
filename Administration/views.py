@@ -590,7 +590,6 @@ def ajouter_avancement_etapeA(request, niveau, filiere, module_id):
             avancement.volume_horaire_restant = avancement.volume_horaire_total
         avancement.horaire_restants = avancement.volume_horaire_restant - 0
 
-    # Supprimer après
     somme_pourcentage = avancements.aggregate(
         somme_pourcentage=Sum('pourcentage_avancement')
     )['somme_pourcentage'] or 0

@@ -5,21 +5,10 @@
 
 <style>
     /* Corps de la page */
-    body {
-        font-family: 'Arial', sans-serif; /* Police simple et professionnelle */
-        background-color: #f4f6f9; /* Couleur de fond douce et claire */
-        color: #333; /* Texte sombre pour une bonne lisibilité */
-        margin: 0;
-        padding: 0;
-        text-align: center;
-    }
+    
 
     /* Conteneur principal */
-    .content-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+   
 
     h1 {
         font-size: 2.5rem;
@@ -139,6 +128,13 @@
         <div class="button-container">
             <a href="{% url 'select_module_pour_prof' filiere_id=filiere_id niveau=niveau %}" class="btn-primary">Ajouter des notes</a>
             <a href="{% url 'voir_notes_pro' filiere_id=filiere_id niveau=niveau %}" class="btn-primary">Voir les notes des étudiants</a>
+            
+            <a href="{% url 'appel' filiere_id niveau %}" class="btn-primary">Réaliser l'appel</a>
+            
+            <a href="{% url 'listAppel' filiere_id niveau %}" class="btn-primary">voir la liste de presence</a>
+
+
+
         </div>
     </div>
 {% endif %}

@@ -146,15 +146,29 @@
         <input type="hidden" name="module_id" value="{{ module.Id_module }}">
 
         <table id="notes-table">
-            <thead>
+
+        <thead>
                 <tr>
                     <th>Nom</th>
                     <th>Prénom</th>
                     {% for i in range_list %}
                         <th>Note {{ i }}</th>
+                        
                     {% endfor %}
                 </tr>
+                <tr>
+                    <th>ceoficient</th>
+                    <th></th>
+                    
+                        {% for i in range_list %}
+                            <th>
+                                <input type="number" name="coef_{{ i }}" step="0.01" min="0" value="1" required>
+                            </th>
+                        {% endfor %}
+                   
+                </tr>
             </thead>
+            
             <tbody>
                 {% for etudiant in etudiants %}
                     <tr data-matricule="{{ etudiant.matricule }}">
@@ -163,7 +177,8 @@
                         {% for i in range_list %}
                             <td>
                                 <input type="hidden" name="etudiant_matricules_{{ etudiant.matricule }}" value="{{ etudiant.matricule }}">
-                                <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20" placeholder="Entrez la note">
+                                <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20" placeholder="Entrez la note" value="00">
+                                <input type="hidden" name="coef_{{ etudiant.matricule }}_{{ i }}" value="1"> <!-- Coefficient associé à la note -->
                             </td>
                         {% endfor %}
                     </tr>
@@ -186,7 +201,7 @@
         var thead = table.getElementsByTagName("thead")[0];
         
         // Récupérer le nombre de colonnes existantes
-        var colCount = thead.rows[0].cells.length - 1
+        var colCount = thead.rows[0].cells.length - 1;
         
 
         // Ajouter une colonne à l'en-tête
@@ -216,15 +231,52 @@
             newInput.step = "0.01";
             newInput.max = "20";
             newInput.placeholder = "Entrez la note";
-            
+             // Créer également un input caché pour le coefficient de chaque étudiant
+        var coefInput = document.createElement("input");
+        coefInput.type = "hidden";
+        coefInput.name = "coef_" + matricule + "_" + colCount;
+        coefInput.value = 1; // Valeur par défaut du coefficient
+
+        // Ajouter les inputs à la cellule
+        newTd.appendChild(hiddenInput);
+        newTd.appendChild(newInput);
+        newTd.appendChild(coefInput);
+
+        // Ajouter la cellule dans la ligne
+        rows[i].appendChild(newTd);
+    
             // Ajouter les inputs à la cellule
-            newTd.appendChild(hiddenInput);
-            newTd.appendChild(newInput);
+            //newTd.appendChild(hiddenInput);
+            //newTd.appendChild(newInput);
 
             // Ajouter la cellule dans la ligne
-            rows[i].appendChild(newTd);
+            //rows[i].appendChild(newTd);
         }
     }
+
+    //POPUR LES COEF 
+    
+document.addEventListener("DOMContentLoaded", function () {
+    // Sélectionne tous les inputs de coefficient dans l'en-tête
+    let coefInputs = document.querySelectorAll("input[name^='coef_'][type='number']");
+
+    // Ajoute un écouteur d'événement sur chaque champ coefficient de l'en-tête
+    coefInputs.forEach(function (coefInput) {
+        coefInput.addEventListener("input", function () {
+            let index = this.name.split("_")[1]; // Récupère l'index de la note
+
+            // Sélectionne tous les inputs hidden correspondants aux étudiants
+            let hiddenCoefInputs = document.querySelectorAll(`input[name^='coef_'][name$='_${index}'][type='hidden']`);
+            
+            // Met à jour chaque champ hidden avec la valeur du coefficient de l'en-tête
+            hiddenCoefInputs.forEach(function (hiddenInput) {
+                hiddenInput.value = coefInput.value;
+            });
+        });
+    });
+});
+
+
 </script>
 
 

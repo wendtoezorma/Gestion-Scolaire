@@ -476,3 +476,45 @@ class RechercheEtudiantForm(forms.Form):#pour le bulletin
     ], widget=forms.Select(attrs={
         'class': 'form-control',
     }))
+
+
+
+class AppelForm(forms.ModelForm):
+    class Meta:
+        model = Appel
+        fields = ['cours', 'date', 'heure_debut', 'heure_fin', 'present', 'commentaire', 'professeur']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'heure_debut': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'heure_fin': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'present': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'commentaire': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Récupérer l'argument 'professeur' si disponible dans kwargs
+        professeur = kwargs.pop('professeur', None)
+
+        # Appeler le __init__ de la classe parente
+        super(AppelForm, self).__init__(*args, **kwargs)
+
+        # Si un professeur est fourni, initialiser les champs correspondants
+        if professeur:
+            # Mettre à jour le queryset du champ 'professeur' pour le professeur spécifique
+            self.fields['professeur'].queryset = professeurs.objects.filter(Id_prof=professeur.Id_prof)
+            self.fields['professeur'].initial = professeur
+
+            # Mettre à jour le queryset du champ 'cours' pour ce professeur
+            self.fields['cours'].queryset = Cours_Module.objects.filter(professeur=professeur)
+
+"""
+        def __init__(self, *args, **kwargs):
+            super(AppelForm, self).__init__(*args, **kwargs)
+            if not self.instance.pk:  # Si le formulaire est nouveau
+                self.fields['date'].initial = timezone.now().date().strftime('%Y-%m-%d')
+
+             # Initialiser le champ 'professeur' avec le professeur connecté
+            self.fields['professeur'].initial = kwargs.get('professeur')
+"""
+        
+            

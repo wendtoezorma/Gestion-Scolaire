@@ -344,7 +344,31 @@ class Notes(models.Model):
             models.Index(fields=['etudiant']),
             models.Index(fields=['matiere_module']),
         ]
+    import json
 
+    def save(self, *args, **kwargs):
+        if self.notes:
+            if isinstance(self.notes, str):
+                self.notes = json.loads(self.notes)  # Convertir la chaîne JSON en liste si nécessaire
+
+            if isinstance(self.notes, list) and all(isinstance(n, dict) for n in self.notes):
+                # Vérifier que chaque élément est un dictionnaire contenant "note" et "coef"
+                somme_notes = sum(n["note"] * (n["coef"] / 100) for n in self.notes if "note" in n and "coef" in n)
+                somme_coefficients = sum(n["coef"] / 100 for n in self.notes if "coef" in n)
+
+                self.moyenne = round(somme_notes / somme_coefficients, 2) if somme_coefficients > 0 else 0.0
+            else:
+                self.moyenne = 0.0
+        else:
+            self.moyenne = 0.0
+
+        super(Notes, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.etudiant.nom_etudiant} - {self.matiere_module.nom_module} - Moyenne: {self.moyenne}"
+
+
+"""
     def save(self, *args, **kwargs):
         # Calcul de la moyenne des notes
         if self.notes:
@@ -360,10 +384,8 @@ class Notes(models.Model):
         else:
             self.moyenne = 0.0
         super(Notes, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.etudiant.nom_etudiant} - {self.matiere_module.nom_module} - Moyenne: {self.moyenne}"
-
+"""
+    
 
 
 
@@ -622,3 +644,22 @@ class Notifications(models.Model):
 
     def __str__(self):
         return f"Notification pour {self.destinataire_admin or self.destinataire_prof}: {self.message[:50]}"
+
+
+class Appel(models.Model):
+    id = models.AutoField(primary_key=True)
+    professeur = models.ForeignKey(professeurs, on_delete=models.CASCADE)
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE,related_name="appel")
+    cours = models.ForeignKey(Cours_Module, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    present = models.BooleanField(default=False)
+    heure_debut = models.TimeField()
+    heure_fin = models.TimeField()
+    commentaire = models.TextField(blank=True, null=True)  # Commentaire facultatif
+    class Meta:
+        unique_together = ('etudiant', 'cours', 'date')
+    
+    def __str__(self):
+        return f"{self.etudiant} - {self.cours} ({self.date})"
+
+

@@ -106,12 +106,20 @@ form button:active {
         <div>
             <label for="notes">Notes :</label><br>
             {% for i in note.notes %}
-                <input type="text" name="notes" value="{{ i }}" placeholder="Note {{ loop.index }}" required><br>
+                <input type="text" name="notes" value="{{ i.note|default:0 }}" placeholder="Note {{ loop.index }}" required><br>
+    
+                <input type="hidden" name="coefficients" value="{{ i.coef|default:coefficients_existants.0 }}">
+            {% empty %}
+                <!-- Si l'étudiant n'a pas de notes, récupérer les coefficients existants -->
+                {% for coef in coefficients_existants %}
+                <input type="text" name="notes" value="0" placeholder="Note {{ loop.index }}" required><br>
+                <input type="hidden" name="coefficients" value="{{ coef }}">
+                {% endfor %}
             {% endfor %}
         </div>
-
         <button type="submit">Sauvegarder</button>
     </form>
+    
 
     {% if messages %}
         <div>

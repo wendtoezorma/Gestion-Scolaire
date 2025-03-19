@@ -17,7 +17,7 @@
 
 {% if module_selected %}
     <h2>Notes des Étudiants pour le Module {{ module_selected.nom_module }}</h2>
-
+   <!-- 
     <table class="table table-striped">
         <thead>
             <tr>
@@ -57,6 +57,77 @@
         </tbody>
         
     </table>
+-->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nom Etudiant</th>
+            {% for i in note_range %}
+                <th>Note {{ i }}</th>
+            {% endfor %}
+            <th>Moyenne</th>
+            <th>Actions</th>
+        </tr>
+        <tr>
+            <th>Coefficient</th>
+            {% for coef in coefficients %}
+                <th><input type="text" value="{{ coef }}" readonly class="form-control text-center"></th>
+            {% endfor %}
+            <th>-</th>  <!-- Pas de coefficient pour la moyenne -->
+            <th>-</th>  <!-- Pas de coefficient pour les actions -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for note in notes %}
+            <tr>
+                <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
+                
+            {% if note.notes == "Pas de note pour le moment" %}
+                    <td colspan="{{ note_range|length }}" class="alert alert-warning">
+                        {{ note.etudiant.nom_etudiant }} n'a pas de note pour le moment.
+                    </td>
+            {% else %}
+                {% if forloop.first %}
+                    {% for i in note.notes %}
+                        <td>
+                            {{ i|default:0 }}
+                            {% if i == 0 %}
+                                <input type="hidden" name="coef_hidden_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" value="{{ coefficients|default_if_none:0|slice:forloop.counter0 }}">
+                            {% endif %}
+                        </td>
+                    {% empty %}
+                        <td>0</td>
+                    {% endfor %}
+                {% else %}
+                    {% for i in note.notes %}
+                        <td>
+                           
+                            {{ i |default:0 }}
+                            {% if i.note == 0 %}
+                                <input type="hidden" name="coef_hidden_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" value="{{ coefficients|default_if_none:0|slice:forloop.counter0 }}">
+                            {% endif %}
+                        </td>
+                    {% empty %}
+                        <td>0</td>
+                    {% endfor %}
+            {% endif %}
+        {% endif %}
+                
+                
+                
+                <td>{{ note.moyenne }}</td>
+                <td>
+                    {% if note.id %}
+                        <a href="{% url 'modifier_note_prof' note.id %}" class="btn-edit">Modifier</a>
+                    {% else %}
+                        <span class="text-muted">Aucune note à modifier</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endif %}
 
 {% block styles %}
