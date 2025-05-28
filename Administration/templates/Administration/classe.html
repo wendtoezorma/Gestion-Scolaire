@@ -118,11 +118,11 @@ button:hover {
 {% else %}
     <p>Aucun étudiant présent</p>
 {% endif %}
-<!-- Boutons au lieu des liens -->
+<!-- Boutons au lieu des liens 
 <div class="center-buttons">
     <button onclick="location.href='{% url 'select_module' filiere_id=filiere_id niveau=niveau %}'">
         <i class="fas fa-plus"></i> Ajouter des notes
-    </button>
+    </button>-->
     
     <button onclick="location.href='{% url 'voir_notes' filiere_id=filiere_id niveau=niveau %}'">
         <i class="fas fa-eye"></i> Voir les notes des étudiants

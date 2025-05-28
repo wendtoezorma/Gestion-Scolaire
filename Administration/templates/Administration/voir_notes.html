@@ -19,35 +19,84 @@
 {% if module_selected %}
     <h2>Notes des Étudiants pour le Module {{ module_selected.nom_module }}</h2>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nom Etudiant</th>
-                
-                    {% for i in note_range %}
-                        <th>Note {{ i }}</th>
-                    {% endfor %}
-                    <th>Moyenne</th>
-                    <th>Action</th>
-                
-            </tr>
-        </thead>
-        <tbody>
-                {% for note in notes %}
+    
+<table class="table table-striped">
+    <thead>
         <tr>
-            <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
-            {% for i in note.notes %}
-                <td>{{ i }} </td>
+            <th>Nom Etudiant</th>
+            {% for i in note_range %}
+                <th>Note {{ i }}</th>
             {% endfor %}
-            <td>{{ note.moyenne }} </td>
-            <td><a href="{% url 'modifier_note' note.id %}">Modifier</a></td>
+            <th>Moyenne</th>
+            <!--<th>Actions</th>-->
+        </tr>
+        
+           <tr>
+                <th>Pourcentage</th>
+                {% if notes %}
+                    {% for i in notes.0.notes %}
+                        <th>
+                            <input type="text" value="{{ i.coef|default:'-' }}" readonly class="form-control text-center">%
+                        </th>
+                    {% endfor %}
+                {% endif %}
+                <!-- Pas de coefficient pour la moyenne -->
+                <th>-</th>  <!-- Pas de coefficient pour les actions -->
+            </tr>
 
-            
-    </tr>
-{% endfor %}
+    </thead>
+    <tbody>
+        {% for note in notes %}
+            <tr>
+                <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
+                
+                
+            {% if note.notes == "Pas de note pour le moment" %}
+                    <td colspan="{{ note_range|length }}" class="alert alert-warning">
+                        {{ note.etudiant.nom_etudiant }} n'a pas de note pour le moment.
+                    </td>
+            {% else %}
+                {% if forloop.first %}
+                    {% for i in note.notes %}
+                        <td>
+                              {{ i.note }}
+                            {% if i == 0 %}
+                                <input type="hidden" name="coef_hidden_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" value="{{ coefficients|default_if_none:0|slice:forloop.counter0 }}">
+                            {% endif %}
+                        </td>
+                    {% empty %}
+                        <td>0</td>
+                    {% endfor %}
+                {% else %}
+                    {% for i in note.notes %}
+                        <td>
+                           
+                            {{ i.note }}
+                            {% if i.note == 0 %}
+                                <input type="hidden" name="coef_hidden_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" value="{{ coefficients|default_if_none:0|slice:forloop.counter0 }}">
+                            {% endif %}
+                        </td>
+                    {% empty %}
+                        <td>0</td>
+                    {% endfor %}
+            {% endif %}
+        {% endif %}
+                
+                
+                
+                <td>{{ note.moyenne }}</td>
+                <!--<td>
+                    {% if note.id %}
+                        <a href="{% url 'modifier_note' note.id %}" class="btn-edit">Modifier</a>
+                    {% else %}
+                        <span class="text-muted">Aucune note à modifier</span>
+                    {% endif %}
+                </td>-->
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        </tbody>
-    </table>
     
 
 {% endif %}
@@ -86,6 +135,26 @@ body {
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
+/* Style pour les inputs readonly dans la ligne Pourcentage */
+table thead tr:nth-child(2) input.form-control {
+    width: 60px;                /* Largeur suffisante pour afficher le pourcentage */
+    padding: 5px 8px;
+    border: 2px solid #3399ff; /* Bordure bleue douce */
+    border-radius: 12px;        /* Bords arrondis */
+    background-color: #e6f0ff; /* Fond bleu très clair */
+    color: #0056b3;             /* Texte bleu foncé */
+    font-weight: 600;
+    text-align: center;
+    box-shadow: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;            /* Curseur normal */
+}
+
+table thead tr:nth-child(2) input.form-control:hover {
+    border-color: #007bff;      /* Bordure plus vive au survol */
+    box-shadow: 0 0 6px #80bfff;
+}
+
 
 .background .bubble {
     position: absolute;

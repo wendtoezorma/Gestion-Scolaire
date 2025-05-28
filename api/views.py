@@ -923,6 +923,7 @@ class ListeAvancementsAPI(APIView):
 
         # Sérialiser les avancements
         avancements_serializer = AvancementCoursSerializer(avancements, many=True)
+        
 
         return Response({
             'etudiant': {

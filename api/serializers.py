@@ -273,6 +273,7 @@ from rest_framework import serializers
 from django.core.exceptions import ValidationError
 from PIL import Image as PILImage
 import io
+from django.core.files.uploadedfile import UploadedFile as DjangoUploadedFile
 
 from rest_framework import serializers
 
@@ -328,13 +329,14 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
             try:
                 pil_image = PILImage.open(image)
                 pil_image.verify()  # Vérifie que l'image est valide
-                pil_image.close()
+                  # Après verify(), repositionner le pointeur pour que le fichier soit relu plus tard
+                image.file.seek(0)
+                #pil_image.close()
             except Exception:
                 raise ValidationError({'image': 'L\'image doit être valide.'})
 
             # Vérification du type InMemoryUploadedFile
-            if not isinstance(image, InMemoryUploadedFile):
-                raise ValidationError({'image': 'L\'image doit être un fichier valide.'})
+           
         
         return data
 
@@ -355,8 +357,9 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
         if image_data:
             try:
                 # Vérifier que l'image est bien un InMemoryUploadedFile
-                if isinstance(image_data, InMemoryUploadedFile):
-                    image_instance = Image.objects.create(image=image_data)
+                if isinstance(image_data, DjangoUploadedFile):
+                    #image_instance = Image.objects.create(image=image_data)
+                    pass
                 else:
                     raise ValidationError("Le fichier d'image n'est pas valide.")
             except Exception as e:
@@ -366,8 +369,9 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
         image2_instance = None
         if image2_data:
             try:
-                if isinstance(image2_data, InMemoryUploadedFile):
-                    image2_instance = image2_data  #AvancementCours.objects.create(image=image2_data)
+                if isinstance(image2_data, DjangoUploadedFile):
+                    #image2_instance = image2_data  #AvancementCours.objects.create(image=image2_data)
+                    pass
                 else:
                     raise ValidationError("Le fichier d'image 2 n'est pas valide.")
             except Exception as e:
@@ -376,8 +380,9 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
         image3_instance = None
         if image3_data:
             try:
-                if isinstance(image3_data, InMemoryUploadedFile):
-                    image3_instance = image3_data  #AvancementCours.objects.create(image=image2_data)
+                if isinstance(image3_data, DjangoUploadedFile):
+                    #image3_instance = image3_data  #AvancementCours.objects.create(image=image2_data)
+                    pass
                 else:
                     raise ValidationError("Le fichier d'image 3 n'est pas valide.")
             except Exception as e:
@@ -393,6 +398,17 @@ class AvancementCoursSerializer(serializers.ModelSerializer):
         validated_data['volume_horaire_restant'] = self.calculate_volume_horaire_restant(
             etudiant, cours_module, validated_data.get('volume_horaire_realise')
         )
+                
+        # Injecter image principale et images secondaires si elles existent
+        if image_instance:
+            validated_data['image'] = image_instance.image  # ou juste image_instance selon ton modèle
+
+        if image2_instance:
+            validated_data['image2'] = image2_instance
+
+        if image3_instance:
+            validated_data['image3'] = image3_instance
+
          # Calculer le pourcentage d'avancement
         total_realise = AvancementCours.objects.filter(
             etudiant=etudiant,

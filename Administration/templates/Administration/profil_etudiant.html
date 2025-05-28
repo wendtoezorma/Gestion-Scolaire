@@ -154,8 +154,7 @@ h2 {
         <thead>
             <tr>
                 <th>Module</th>
-                <th>Note 1</th>
-                <th>Note 2</th>
+
                 <th>Moyenne</th>
             </tr>
         </thead>
@@ -163,8 +162,7 @@ h2 {
             {% for note in notes %}
             <tr>
                 <td>{{ note.matiere_module.nom_module }}</td>
-                <td>{{ note.Note1 }}</td>
-                <td>{{ note.Note2 }}</td>
+                
                 <td>{{ note.moyenne }}</td>
             </tr>
             {% endfor %}

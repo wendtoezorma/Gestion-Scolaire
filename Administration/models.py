@@ -57,6 +57,14 @@ class professeurs(models.Model):
     #filiere = models.ForeignKey(Filiere,related_name='filiereprof',on_delete=models.CASCADE,null=True)
     #module_enseigner = models.ForeignKey(Cours_Module,related_name='coursenseigner',on_delete=models.CASCADE,null=True)
     date_ajout = models.DateField(auto_now=True)
+    dernier_diplome = models.FileField(upload_to='documents/', blank=True, null=True)
+    attestion_cames = models.FileField(upload_to='documents/', blank=True, null=True)
+    numero_autorisation_enseignement = models.FileField(upload_to='documents/', blank=True, null=True)
+    ordre_mission = models.FileField(upload_to='documents/', blank=True, null=True)
+    CV = models.FileField(upload_to='documents/', blank=True, null=True)
+    CNIB = models.FileField(upload_to='documents/', blank=True, null=True)
+    Contrat_paiement = models.FileField(upload_to='documents/', blank=True, null=True)
+
     class Meta:
         ordering = ['-date_ajout']
         verbose_name = "professeur"
@@ -129,7 +137,6 @@ import random
 def generate_random_password(length=8):
     characters = string.ascii_letters + string.digits + '@#'
     return ''.join(random.choice(characters) for i in range(length))
-
 
 
 class Etudiant(models.Model):
@@ -663,3 +670,12 @@ class Appel(models.Model):
         return f"{self.etudiant} - {self.cours} ({self.date})"
 
 
+class Disponibilite(models.Model):
+    professeur = models.ForeignKey(professeurs, on_delete=models.CASCADE)
+    module = models.ForeignKey(Cours_Module, on_delete=models.CASCADE)
+    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE)
+    niveau = models.CharField(max_length=10)
+    date_debut = models.DateField()
+    date_fin = models.DateField()
+    commentaire = models.TextField(blank=True, null=True)
+    date_ajout = models.DateTimeField(auto_now_add=True)

@@ -17,47 +17,7 @@
 
 {% if module_selected %}
     <h2>Notes des Étudiants pour le Module {{ module_selected.nom_module }}</h2>
-   <!-- 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nom Etudiant</th>
-                {% for i in note_range %}
-                    <th>Note {{ i }}</th>
-                {% endfor %}
-                <th>Moyenne</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for note in notes %}
-                <tr>
-                    <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
-                    
-                    {% if note.notes == "Pas de note pour le moment" %}
-                        <td colspan="{{ note_range|length }}" class="alert alert-warning">
-                            {{ note.etudiant.nom_etudiant }} n'a pas de note pour le moment.
-                        </td>
-                    {% else %}
-                        {% for i in note.notes %}
-                            <td>{{ i }}</td>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <td>{{ note.moyenne }}</td>
-                    <td>
-                        {% if note.id %}
-                            <a href="{% url 'modifier_note_prof' note.id %}" class="btn-edit">Modifier</a>
-                        {% else %}
-                            <span class="text-muted">Aucune note à modifier</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-        
-    </table>
--->
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -69,9 +29,9 @@
             <th>Actions</th>
         </tr>
         <tr>
-            <th>Coefficient</th>
+            <th>Pourcentage</th>
             {% for coef in coefficients %}
-                <th><input type="text" value="{{ coef }}" readonly class="form-control text-center"></th>
+                <th><input type="text" value="{{ coef }}" readonly class="form-control text-center">%</th>
             {% endfor %}
             <th>-</th>  <!-- Pas de coefficient pour la moyenne -->
             <th>-</th>  <!-- Pas de coefficient pour les actions -->
@@ -81,6 +41,7 @@
         {% for note in notes %}
             <tr>
                 <td>{{ note.etudiant.nom_etudiant }} {{ note.etudiant.prenom_etudiant }}</td>
+                
                 
             {% if note.notes == "Pas de note pour le moment" %}
                     <td colspan="{{ note_range|length }}" class="alert alert-warning">
@@ -281,6 +242,27 @@ a.btn-edit:hover {
     100% { transform: translate(0, 0); }
 }
 </style>
-
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // On récupère toutes les cellules de la table
+        const coefficientCells = document.querySelectorAll("th input[type='text']");
+        const noteCells = document.querySelectorAll("td");
+    
+        // On boucle sur chaque coefficient
+        coefficientCells.forEach((cell, index) => {
+            const coefficientValue = parseFloat(cell.value);
+    
+            // Si le coefficient est égal à 0, on cache la colonne correspondante
+            if (coefficientValue === 0) {
+                // Masquer la colonne des coefficients
+                const coefColumn = document.querySelectorAll("th:nth-child(" + (index + 2) + "), td:nth-child(" + (index + 2) + ")");
+                coefColumn.forEach(col => col.style.display = 'none');
+            }
+        });
+    
+        // On peut également ajouter une logique pour masquer les notes correspondantes à la colonne cachée
+    });
+    </script>
+    
 {% endblock %}
 {% endblock profcontent %}

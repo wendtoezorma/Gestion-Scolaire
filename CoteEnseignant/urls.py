@@ -27,7 +27,11 @@ urlpatterns = [
     path('profil/', profil , name= "profil" ),
     path('appel/<int:filiere_id>/<str:niveau>',appel_classe, name='appel'),
     path('listAppel/<int:filiere_id>/<str:niveau>/',listAppel, name = 'listAppel'),
-     path('getAppelDetails/', getAppelDetails, name='getAppelDetails'),  # La route pour récupérer les détails de l'appel
+    path('getAppelDetails/', getAppelDetails, name='getAppelDetails'),  # La route pour récupérer les détails de l'appel
+    path('disponibilite',disponibilite,name='disponibilite'),
+    path('liste_disponibilites/', liste_disponibilites, name='liste_disponibilites'),
+    path('disponibilite_data/', api_donnees_disponibilite, name='api_disponibilite_data'),
+
    
 ]
  

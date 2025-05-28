@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'CoteEnseignant',
     'dal',
     'dal_select2',
+    'planning',
 ]
 
 MIDDLEWARE = [

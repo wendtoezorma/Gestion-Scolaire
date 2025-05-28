@@ -21,7 +21,13 @@ class Adminmodule(admin.ModelAdmin):
     list_display=("nom_module","credit_module","volume_horaire","date_ajout",'niveau','professeur', 'filiere' )
     
 class AdminProfesseur(admin.ModelAdmin):
-    list_display=("nom_prof","prenom_prof","email_prof","niveau_prof","mdp_prof","numero_prof",'date_ajout')
+    list_display=("date_ajout","dernier_diplome","attestion_cames","numero_autorisation_enseignement","CV","CNIB","ordre_mission","Contrat_paiement","nom_prof","prenom_prof","email_prof","niveau_prof","mdp_prof","numero_prof",'date_ajout')
+     
+
+class AdminDisponible(admin.ModelAdmin):
+    list_display=("professeur","module","filiere","niveau","commentaire","date_ajout",'date_debut','date_fin')
+     
+ 
  
 class AdminBoursier(admin.ModelAdmin):
     list_display=('type_bourse','reduction')
@@ -137,5 +143,6 @@ admin.site.register(Enseignement,AdminEnseignement)
 admin.site.register(Scolarite,AdminScolarite)
 admin.site.register(Infos,AdminInfos)
 admin.site.register(Boursier,AdminBoursier)
-admin.site.register(ProfesseurFiliere,AdminPROFFILIERE)
+admin.site.register(ProfesseurFiliere,AdminPROFFILIERE) 
+admin.site.register(Disponibilite,AdminDisponible)
 

@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Disponibilité</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f7f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    form {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 600;
+    }
+    select, input[type="date"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .date-range {
+      display: flex;
+      gap: 10px;
+    }
+    .date-range div {
+      flex: 1;
+    }
+    .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-secondary:hover {
+  background-color: #d5d5d5;
+  transform: translateY(-2px);
+}
+.icon {
+  width: 20px;
+  height: 20px;
+}
+form a.btn-secondary {
+  display: block;
+  text-align: center;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <form method="POST">
+    {% csrf_token %}
+    <h1>Ajouter une Disponibilité</h1>
+
+    <label for="filiere">Filière</label>
+    <select name="filiere" id="filiere" required>
+      <option value="">Sélectionner une filière</option>
+      {% for filiere in filieres %}
+        <option value="{{ filiere.Id_filiere }}" {% if filiere.Id_filiere == filiere_id %}selected{% endif %}>{{ filiere.nom_filiere }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="niveau">Niveau</label>
+    <select name="niveau" id="niveau" required>
+      <option value="">Sélectionner un niveau</option>
+      {% for niveau in niveaux %}
+        <option value="{{ niveau.niveau }}" {% if niveau.niveau == niveau %}selected{% endif %}>{{ niveau.niveau }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="module">Module</label>
+    <select name="module" id="module" required>
+      <option value="">Sélectionner un module</option>
+      {% for module in modules %}
+        <option value="{{ module.Id_module }}">{{ module.nom_module }}</option>
+      {% endfor %}
+    </select>
+
+    <div class="date-range">
+      <div>
+        <label for="date_debut">Date début</label>
+        <input type="date" name="date_debut" id="date_debut" required>
+      </div>
+      <div>
+        <label for="date_fin">Date fin</label>
+        <input type="date" name="date_fin" id="date_fin" required>
+      </div>
+    </div>
+
+    <label for="commentaire">Commentaire</label>
+    <textarea name="commentaire" id="commentaire" placeholder="Entrez un commentaire (facultatif)"></textarea>
+
+    <button type="submit">Enregistrer</button>
+
+
+    <a href="{% url 'liste_disponibilites' %}" class="btn-secondary">
+      <img src="{% static 'Administration/images/iconedossier.png' %}" alt="icon dossier" class="icon">
+      Liste des disponibilités
+    </a>
+    
+    
+
+    {% if erreur %}
+      <p class="error">{{ erreur }}</p>
+    {% endif %}
+  </form>
+
+</body>
+</html>

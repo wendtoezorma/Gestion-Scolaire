@@ -73,12 +73,12 @@ def afficher_classe(request, filiere_id, niveau, professeur_id):
         })
     
     # Vérifier si le professeur enseigne un cours dans la filière demandée
-    print(f"filiere_id: {filiere_id}, professeur_id: {professeur.Id_prof}, niveau: {niveau}")
+    #print(f"filiere_id: {filiere_id}, professeur_id: {professeur.Id_prof}, niveau: {niveau}")
     modules = Cours_Module.objects.filter(filiere_id=filiere_id, professeur_id=professeur.Id_prof,niveau=niveau)
     #filiere = modules.first().filiere  # Récupérer la filière du premier module trouvé
-    print(modules)
+    #print(modules)
     filiere = getattr(modules.first(), 'filiere', None)
-    print(filiere)
+    #print(filiere)
     if not modules.exists():
         return render(request, 'Prof/classes.html', {
             'error_message': "Vous n'avez pas le droit d'ouvrir cette classe."
@@ -201,154 +201,10 @@ from django.contrib import messages
 
 
 from django.urls import reverse
-#from .models import 
-"""
+
 def creer_note_prof(request):
-
+    notes_existantes = {} 
     if request.method == 'POST':
-        print(request.POST)
-        etudiants = []
-        notes_data = {}
-        range_list = range(1, 6)
-        
-
-
-        # Récupérer les matricules des étudiants
-        for key in request.POST:
-            if key.startswith('etudiant_matricules_'):
-                matricule = request.POST.get(key)
-                etudiants.append(matricule)
-        for matricule in request.POST.getlist('etudiant_matricules'):
-            for i in range_list:
-                note = request.POST.get(f'note_{matricule}_{i}')
-                coef = request.POST.get(f'coef_{matricule}_{i}')
-                
-        print("Etudiants récupérés:", etudiants)
-
-        # Récupérer les notes pour chaque étudiant
-        for etudiant in etudiants:
-            notes_data[etudiant] = []
-            for key in request.POST:
-                if key.startswith(f'note_{etudiant}_'):
-                    note_index = key.split('_')[-1]  # Extraire l'index de la note
-                    #coef_key = f'coef_{{ etudiant.matricule }}_{{ i }}'#'coef_{etudiant}_{note_index}'
-                    #coef_value = request.POST.get(coef, 1)  # Valeur par défaut du coefficient = 1
-                    coef_value = request.POST.get(f'coef_{etudiant}_{note_index}', 1)  # Valeur par défaut du coefficient = 1
- 
-                    note_value = request.POST.get(key)
-                    if note_value and note_value.isdigit():
-                        try:
-                            notes_data[etudiant].append({   
-                                "note": float(note_value),
-                                "coef": float(coef_value)
-                            })
-                            #notes_data[etudiant].append(float(note_value))
-                        
-                        except ValueError:
-                            print(f"Erreur de conversion pour la note de l'étudiant {etudiant} : {note_value}")
-                            pass  # Ignorer si la valeur n'est pas une note valide
-                    else:
-                        print(f"Note invalide pour l'étudiant {etudiant} : {note_value}")
-        print("Notes Data:", notes_data)
-
-        # Trouver le nombre maximal de notes pour un étudiant
-        max_notes_count = max(len(notes) for notes in notes_data.values())
-
-        # Remplir les notes manquantes avec 0
-        for etudiant, notes in notes_data.items():
-            while len(notes) < max_notes_count:
-                notes.append(0)
-
-        # Récupérer l'ID du module
-        module_id = request.POST.get('module_id')
-
-        # Traitez les données comme vous le faisiez dans votre code
-        etudiants_modifies = []
-        try:
-            module = Cours_Module.objects.get(Id_module=module_id)
-            nom_module = module.nom_module
-            professeur = module.professeur
-            professeurs = module.professeur.Id_prof
-            administrateurs = Administration.objects.filter(is_superuser=True)
-            filiere_id = module.filiere.Id_filiere  # Récupérer l'ID de la filière
-            niveau = module.niveau  # Récupérer le niveau
-        except Cours_Module.DoesNotExist:
-            messages.error(request, "Le module spécifié n'existe pas.")
-            return redirect('Professeur_dashboard')
-
-        # Ajouter ou modifier les notes pour chaque étudiant
-        for etudiant_matricule, notes in notes_data.items():
-            note, created = Notes.objects.get_or_create(
-                etudiant_id=etudiant_matricule,
-                matiere_module_id=module_id,
-                defaults={'notes': notes}
-            )
-
-            if not created:
-                print(f"Mise à jour des notes pour l'étudiant {etudiant_matricule}")
-                note.notes = notes  # Mettre à jour les notes si elles existent déjà
-                note.save()
-
-            etudiant = Etudiant.objects.get(pk=etudiant_matricule)
-            etudiants_modifies.append(etudiant.nom_etudiant)
-
-        # Message de notification pour le professeur
-        message = f"Des notes ont été ajoutées ou modifiées pour les étudiants suivants dans le  module {nom_module} : {', '.join(etudiants_modifies)}."
-        admin = administrateurs
-        creer_notification(
-            destinataire_prof=professeur,
-            destinataire_admin=None,
-            
-            message=message
-        )
-        # Créer une notification pour chaque administrateur
-        for admin in administrateurs:
-            creer_notification(
-                destinataire_admin=admin,  # Chaque administrateur est spécifié individuellement
-                destinataire_prof=None,    # Aucun destinataire professeur pour cette notification
-                message=message
-            )
-
-        messages.success(request, 'Les notes ont été enregistrées avec succès.')
-         # Rediriger vers 'liste_etudiants_par_classe' avec les paramètres appropriés
-        return redirect(reverse('liste_etudiants_par_classe', kwargs={'filiere_id': filiere_id, 'niveau': niveau, 'professeur_id': professeurs }))
-
-        #return redirect('Professeur_dashboard')
-
-    # Si c'est une requête GET, afficher le formulaire pour ajouter les notes
-    if request.method == 'GET':
-        filiere_id = request.GET.get('filiere_id')
-        niveau = request.GET.get('niveau')
-        module_id = request.GET.get('module_id')
-        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
-
-        try:
-            module = Cours_Module.objects.get(Id_module=module_id)
-        except Cours_Module.DoesNotExist:
-            messages.error(request, "Le module spécifié n'existe pas.")
-            return redirect('Professeur_dashboard')
-
-        # Vérifie si le professeur enseigne ce module
-        if module.professeur.Id_prof != request.session.get('professeur_id'):
-            messages.error(request, "Vous ne pouvez pas ajouter de notes pour ce module car vous ne l'enseignez pas.")
-            return redirect('Professeur_dashboard')
-
-        context = {
-            'etudiants': etudiants,
-            'module': module,
-            'filiere_id': filiere_id,
-            'niveau': niveau,
-            'range_list': range(1, 6)  # Exemple de la gamme de notes
-        }
-        return render(request, 'prof/add_note_prof.html', context)
-
-    # Retourner une erreur si la méthode n'est ni GET ni POST
-    #return redirect('Professeur_dashboard')
-    return redirect(reverse('classe_pour_prof', kwargs={'filiere_id': filiere_id, 'niveau': niveau}))
-"""
-def creer_note_prof(request):
-    if request.method == 'POST':
-        print(request.POST)
         etudiants = []
         notes_data = {}
         range_list = range(1, 6)
@@ -358,8 +214,6 @@ def creer_note_prof(request):
             if key.startswith('etudiant_matricules_'):
                 matricule = request.POST.get(key)
                 etudiants.append(matricule)
-
-        print("Etudiants récupérés:", etudiants)
 
         # Récupérer les notes pour chaque étudiant
         for etudiant in etudiants:
@@ -369,29 +223,31 @@ def creer_note_prof(request):
                 coef_key = f'coef_{etudiant}_{i}'
 
                 note_value = request.POST.get(note_key, '0')  # Valeur par défaut 0 si vide
-                coef_value = request.POST.get(coef_key, '1')  # Valeur par défaut du coefficient = 1
+                coef_value = request.POST.get(coef_key, '0')  # Valeur par défaut du coefficient = 1
 
                 try:
                     note_value = float(note_value) if note_value else 0
-                    coef_value = float(coef_value) if coef_value else 1
+                    coef_value = float(coef_value) if coef_value else 0
                 except ValueError:
                     note_value = 0  # Si la conversion échoue, on met 0
 
                 # Ajout de la note et du coefficient dans les données
-                notes_data[etudiant].append({
+                """notes_data[etudiant].append({
                     'note': note_value,
                     'coef': coef_value
+                })"""
+                if coef_value != 0:
+                    notes_data[etudiant].append({
+                        'note': note_value,
+                        'coef': coef_value
                 })
-
-        
-
         # Trouver le nombre maximal de notes pour un étudiant
         max_notes_count = max(len(notes) for notes in notes_data.values())
 
         # Remplir les notes manquantes avec 0
         for etudiant, notes in notes_data.items():
             while len(notes) < max_notes_count:
-                notes.append({'note': 0, 'coef': 1})  # Ajouter une note et un coefficient par défaut
+                notes.append({'note': 0, 'coef': 0})  # Ajouter une note et un coefficient par défaut
 
         # Récupérer l'ID du module
         module_id = request.POST.get('module_id')
@@ -410,18 +266,32 @@ def creer_note_prof(request):
             messages.error(request, "Le module spécifié n'existe pas.")
             return redirect('Professeur_dashboard')
 
+        # Vérifier si des notes sont déjà enregistrées pour les étudiants dans ce module
+        notes_existantes = {}
+        for etudiant_matricule in etudiants:
+            try:
+                note = Notes.objects.get(
+                    etudiant_id=etudiant_matricule,
+                    matiere_module_id=module_id
+                )
+                notes_existantes[etudiant_matricule] = note
+            except Notes.DoesNotExist:
+                notes_existantes[etudiant_matricule] = None
+
         # Ajouter ou modifier les notes pour chaque étudiant
         for etudiant_matricule, notes in notes_data.items():
-            note, created = Notes.objects.get_or_create(
-                etudiant_id=etudiant_matricule,
-                matiere_module_id=module_id,
-                defaults={'notes': notes}
-            )
-
-            if not created:
-                
+            note = notes_existantes.get(etudiant_matricule)
+            
+            if note:
                 note.notes = notes  # Mettre à jour les notes si elles existent déjà
                 note.save()
+            else:
+                # Si aucune note n'existe, créer une nouvelle entrée
+                Notes.objects.create(
+                    etudiant_id=etudiant_matricule,
+                    matiere_module_id=module_id,
+                    notes=notes
+                )
 
             etudiant = Etudiant.objects.get(pk=etudiant_matricule)
             etudiants_modifies.append(etudiant.nom_etudiant)
@@ -446,11 +316,11 @@ def creer_note_prof(request):
         return redirect(reverse('liste_etudiants_par_classe', kwargs={'filiere_id': filiere_id, 'niveau': niveau, 'professeur_id': professeurs }))
 
     # Si c'est une requête GET, afficher le formulaire pour ajouter les notes
+
     if request.method == 'GET':
         filiere_id = request.GET.get('filiere_id')
         niveau = request.GET.get('niveau')
         module_id = request.GET.get('module_id')
-        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
 
         try:
             module = Cours_Module.objects.get(Id_module=module_id)
@@ -463,17 +333,39 @@ def creer_note_prof(request):
             messages.error(request, "Vous ne pouvez pas ajouter de notes pour ce module car vous ne l'enseignez pas.")
             return redirect('Professeur_dashboard')
 
+        etudiants = Etudiant.objects.filter(filiere_id=filiere_id, niveau_etudiant=niveau)
+        
+        # Vérifie s'il existe déjà des moyennes pour ces étudiants dans ce module
+        moyenne_existe = False
+        for etudiant in etudiants:
+            if Notes.objects.filter(etudiant=etudiant, matiere_module=module, moyenne__isnull=False).exists():
+                moyenne_existe = True
+                break  # Une seule suffit à bloquer
+
+        if moyenne_existe:
+            messages.error(request, "Des moyennes ont déjà été enregistrées pour ce module. Vous ne pouvez plus ajouter de notes.")
+            #return redirect('Professeur_dashboard')
+            #return redirect(reverse('liste_etudiants_par_classe', kwargs={'filiere_id': filiere_id, 'niveau': niveau, 'professeur_id': module.professeur.Id_prof }))
+            return redirect(reverse('voir_notes_pro', kwargs={
+                'filiere_id': filiere_id,
+                'niveau': niveau
+            }))
+
+
+        # Si pas de moyenne, afficher le formulaire
+        notes_map = {etudiant.matricule: etudiant.notes.all() for etudiant in etudiants}
+
         context = {
             'etudiants': etudiants,
             'module': module,
             'filiere_id': filiere_id,
             'niveau': niveau,
-            'range_list': range(1, 6)  # Exemple de la gamme de notes
+            'range_list': range(1, 6),
+            'notes_existantes': notes_map
         }
         return render(request, 'prof/add_note_prof.html', context)
 
     return redirect(reverse('classe_pour_prof', kwargs={'filiere_id': filiere_id, 'niveau': niveau}))
-
 
 def voir_notes_prof(request, filiere_id, niveau):
     if request.method == 'GET':
@@ -510,7 +402,7 @@ def voir_notes_prof(request, filiere_id, niveau):
                 } for note in notes_queryset
             }
             for note in notes_queryset:
-                print(note.notes)  # Avant json.loads()
+                #print(note.notes)  # Avant json.loads()
 
                 # Désérialisation des notes si elles sont stockées en JSON
                 notes_list = json.loads(note.notes) if isinstance(note.notes, str) else note.notes
@@ -930,7 +822,7 @@ def appel_classe(request, filiere_id, niveau):
 
             appel.save()
 
-        return redirect('Professeur_dashboard')
+        return redirect('voir_notes')
 
 
     context = {
@@ -961,7 +853,7 @@ def listAppel(request, filiere_id, niveau):
     modules = Cours_Module.objects.filter(professeur=professeur)  # Récupérer les modules du professeur
 
     module_id = request.GET.get('module_id')  # Récupérer l'ID sélectionné dans le formulaire
-    print("Module ID récupéré :", module_id)  # Vérification
+    #print("Module ID récupéré :", module_id)  # Vérification
 
     appels = []
     etudiants = []
@@ -1023,3 +915,264 @@ def getAppelDetails(request):
         data = {"error": "Aucun appel trouvé pour cette date."}
 
     return JsonResponse(data)
+
+
+def disponibilite(request):
+    professeur_id = request.session.get('professeur_id')
+
+    # Récupération de tous les modules que ce professeur enseigne
+    modules = Cours_Module.objects.filter(professeur_id=professeur_id)
+
+    # Récupération des filières associées à ces modules
+    filieres = Filiere.objects.all()
+
+    # Récupération des niveaux associés à ces modules
+    niveaux = Cours_Module.objects.filter(professeur_id=professeur_id).values('niveau').distinct()
+
+    context = {
+        'modules': modules,
+        'filieres': filieres,
+        'niveaux': niveaux,
+        'erreur': None
+    }
+
+    if request.method == 'POST':
+        module_id = request.POST.get('module')
+        filiere_id = request.POST.get('filiere')
+        niveau = request.POST.get('niveau')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+        
+        commentaire = request.POST.get('commentaire')
+
+        if all([module_id, filiere_id, niveau, date_debut, date_fin]):
+            # Vérifier si une disponibilité similaire existe déjà
+            existe = Disponibilite.objects.filter(
+                professeur_id=professeur_id,
+                module_id=module_id,
+                filiere_id=filiere_id,
+                niveau=niveau
+            ).exists()
+
+            if existe:
+                context['erreur'] = "Vous avez déjà renseigné une disponibilité pour ce module, filière et niveau."
+            else:
+                Disponibilite.objects.create(
+                    professeur_id=professeur_id,
+                    module_id=module_id,
+                    filiere_id=filiere_id,
+                    niveau=niveau,
+                    date_debut=date_debut,
+                    date_fin=date_fin,
+                    commentaire=commentaire
+                )
+                return redirect('liste_disponibilites')
+        else:
+            context['erreur'] = "Tous les champs obligatoires doivent être remplis."
+
+    return render(request, "prof/disponibilite.html", context)
+###pour la recup 
+
+import random
+from faker import Faker
+from django.http import JsonResponse
+ # adapte selon l'import exact
+from django.views.decorators.csrf import csrf_exempt
+
+fake = Faker()
+
+@csrf_exempt  # utile si tu veux tester sans csrf en POST aussi plus tard
+def api_donnees_disponibilite(request):
+    # 1. Génération aléatoire des modules
+    modules = []
+    for i in range(10):
+        nom = fake.catch_phrase()
+        niveau = random.choice([1, 2, 3])
+        # Création en base
+        module_obj = Cours_Module.objects.create(
+            nom_module=nom,
+            niveau=niveau,
+            professeur_id=1  # ⚠️ à adapter, ou à rendre facultatif
+        )
+        modules.append({
+            'Id_module': module_obj.Id_module,
+            'nom_module': module_obj.nom_module,
+            'niveau': module_obj.niveau
+        })
+
+    # 2. Génération aléatoire des filières
+    filieres = []
+    for i in range(7):
+        nom = fake.job()
+        filiere_obj = Filiere.objects.create(
+            nom_filiere=nom
+        )
+        filieres.append({
+            'Id_filiere': filiere_obj.Id_filiere,
+            'nom_filiere': filiere_obj.nom_filiere
+        })
+
+    # 3. Niveaux distincts à partir des modules
+    niveaux = list(set([mod['niveau'] for mod in modules]))
+
+    return JsonResponse({
+        'modules': modules,
+        'filieres': filieres,
+        'niveaux': niveaux
+    })
+
+
+
+import plotly.express as px
+import pandas as pd
+from django.utils.html import mark_safe
+"""
+def liste_disponibilites(request):
+    filieres = Filiere.objects.all()
+    niveau_filter = request.GET.get('niveau')
+    filiere_filter = request.GET.get('filiere')
+
+    disponibilites = Disponibilite.objects.all().select_related('professeur', 'module', 'filiere')
+    
+    # Appliquer le filtre uniquement si les deux valeurs sont renseignées
+    if niveau_filter and filiere_filter:
+        disponibilites = disponibilites.filter(niveau=niveau_filter, filiere_id=filiere_filter)
+    else :
+        erreur = "Aucune disponibilité trouvée pour les critères sélectionnés."
+
+
+
+    niveaux = Etudiant._meta.get_field('niveau_etudiant').choices
+    erreur = None
+    if not disponibilites.exists():
+        erreur = "Aucune disponibilité trouvée pour les critères sélectionnés."
+
+    # Préparer les données pour le diagramme de Gantt
+    data = []
+    for dispo in disponibilites:
+        data.append({
+            'Enseignant': f"{dispo.professeur.nom_prof} ({dispo.module.nom_module})",
+            'Start': dispo.date_debut,
+            'Finish': dispo.date_fin,
+        })
+
+    df = pd.DataFrame(data)
+    gantt_fig = px.timeline(df, x_start="Start", x_end="Finish", y="Enseignant", title="Disponibilités des enseignants")
+    gantt_fig.update_yaxes(autorange="reversed")  # Pour que le premier enseignant soit en haut
+
+    gantt_html = mark_safe(gantt_fig.to_html(full_html=False))
+
+    context = {
+        'disponibilites': disponibilites,
+        'filieres': filieres,
+        'niveaux': niveaux,
+        'erreur': erreur,
+        'gantt_graph': gantt_html,
+    }
+
+    return render(request, "prof/liste_disponibilites.html", context)
+
+"""
+
+def liste_disponibilites(request):
+    filieres = Filiere.objects.all()
+    niveaux = Etudiant._meta.get_field('niveau_etudiant').choices
+
+    niveau_filter = request.GET.get('niveau')
+    filiere_filter = request.GET.get('filiere')
+
+    base_disponibilites = Disponibilite.objects.all().select_related('professeur', 'module', 'filiere')
+    disponibilites = base_disponibilites  
+  
+
+
+    
+    erreur = None
+    gantt_html = None                   
+
+    # Si les deux sont sélectionnés
+    if niveau_filter and filiere_filter:
+        disponibilites = base_disponibilites.filter(niveau=niveau_filter, filiere_id=filiere_filter)
+        if not disponibilites.exists():
+            erreur = "Aucune disponibilité trouvée pour les critères sélectionnés."
+            disponibilites = Disponibilite.objects.none()
+        else:
+            # Générer graphique filtré
+            gantt_html = build_gantt_chart(disponibilites)
+
+    # Si un seul des deux est sélectionné
+    elif niveau_filter or filiere_filter:
+        if niveau_filter:
+            disponibilites = base_disponibilites.filter(niveau=niveau_filter)
+        if filiere_filter:
+            disponibilites = disponibilites.filter(filiere_id=filiere_filter)
+        gantt_html = build_gantt_chart(disponibilites)
+
+    # Si aucun filtre n’est sélectionné
+    else:
+        disponibilites = base_disponibilites
+        gantt_html = build_gantt_chart(disponibilites)
+
+    context = {
+        'disponibilites': disponibilites,
+        'filieres': filieres,
+        'niveaux': niveaux,
+        'erreur': erreur,
+        'gantt_graph': gantt_html,
+        
+    }
+
+    return render(request, "prof/liste_disponibilites.html", context)
+
+def build_gantt_chart(disponibilites):
+    import pandas as pd
+    import plotly.express as px
+    from django.utils.safestring import mark_safe
+
+    data = []
+    for dispo in disponibilites:
+        data.append({
+            'Prof': f"{dispo.professeur.nom_prof} ({dispo.module.nom_module})",
+            'VHG' : dispo.module.volume_horaire,
+            'Start': dispo.date_debut,
+            'Finish': dispo.date_fin,
+           
+        })
+
+    if not data:
+        return None
+
+    df = pd.DataFrame(data)
+    from datetime import timedelta
+
+    df['color'] = 'Normal'
+
+    # On suppose que les colonnes 'Start' et 'Finish' sont de type datetime
+    prof_groups = df.groupby('Prof')
+
+    for name, group in prof_groups:
+        for idx1, row1 in group.iterrows():
+            window_start = row1['Start'] - timedelta(days=3)
+            window_end = row1['Finish'] + timedelta(days=3)
+            
+            for idx2, row2 in group.iterrows():
+                if idx1 == idx2:
+                    continue  # ne pas comparer un cours avec lui-même
+                
+                # Vérifier si l'autre cours tombe dans la fenêtre de ±3 jours
+                if row2['Start'] <= window_end and row2['Finish'] >= window_start:
+                    # Et vérifier s’il y a un chevauchement réel de temps
+                    if row1['Start'] < row2['Finish'] and row2['Start'] < row1['Finish']:
+                        df.loc[idx1, 'color'] = 'Chevauchement'
+                        df.loc[idx2, 'color'] = 'Chevauchement'
+
+        
+ 
+
+    # Générer le Gantt avec couleurs
+    fig = px.timeline(df, x_start="Start", x_end="Finish", y="Prof", color="color", title="Disponibilités des enseignants")
+    fig.update_yaxes(autorange="reversed")
+
+    return mark_safe(fig.to_html(full_html=False))
+
+

@@ -10,7 +10,8 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/vendors.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'Administration/prof/assetsPROF/css/style.css' %}" />
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
     <!-- jQuery et Bootstrap JS pour faire fonctionner le menu hamburger -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -180,6 +181,18 @@
 .navbar-toggler-icon {
     background-color: #000;
 }
+/* Espacer l'icône du texte dans le menu */
+.sidebar-nav .icon {
+    margin-right: 10px; /* Ajuste à ta convenance */
+    width: 20px; /* Pour forcer une largeur uniforme si besoin */
+    text-align: center;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+}
+
 
     </style>
 </head>
@@ -217,7 +230,8 @@
             </header>
             
             <!-- Sidebar -->
-            <aside class="app-navbar">
+            <aside class="app-navbar" id="sidebar">
+
                 <div class="sidebar-nav scrollbar scroll_light">
                     <ul class="metismenu" id="sidebarNav">
                         <li class="nav-static-title">Menu</li>
@@ -253,11 +267,18 @@
                             </a>
                         </li>   
                         <li>
+                            <a href="{% url 'disponibilite' %}">
+                                <span class="icon fas fa-user-clock"></span>
+                                <span class="title">disponibilite</span>
+                            </a>
+                        </li>   
+                        <li>
                             <a href="{% url 'logout_prof' %}">
-                                <span class="icon fas fa-calendar-alt"></span>
+                                <span class="icon icon fas fa-sign-out-alt"></span>
                                 <span class="title">Deconnexion</span>
                             </a>
-                        </li>         
+                        </li>       
+                          
                     </ul>
                 </div>
             </aside>
@@ -336,7 +357,13 @@
 
 window.onload = updateNotificationBadge;
 
-    
+
+    document.querySelector('.navbar-toggler').addEventListener('click', function () {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('d-none');
+    });
+
+
     </script>
 </body>
 

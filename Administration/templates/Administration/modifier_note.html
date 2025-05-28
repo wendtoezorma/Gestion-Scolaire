@@ -116,7 +116,7 @@
         <div class="form-group">
             <label for="notes">Notes :</label><br>
             {% for i in note.notes %}
-                <input type="text" name="notes" value="{{ i }}" placeholder="Note {{ loop.index }}" required><br>
+                <input type="text" name="notes" value="{{ i.note }}" placeholder="Note {{ loop.index }}" required><br>
             {% endfor %}
         </div>
 

@@ -149,20 +149,19 @@
 
         <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
+                    <th colspan="2">Nom et Prenom</th>
+                    
                     {% for i in range_list %}
                         <th>Note {{ i }}</th>
                         
                     {% endfor %}
                 </tr>
                 <tr>
-                    <th>ceoficient</th>
-                    <th></th>
+                    <th colspan="2">Pourcentage</th>
                     
                         {% for i in range_list %}
                             <th>
-                                <input type="number" name="coef_{{ i }}" step="0.01" min="0" value="1" required>
+                                <input type="number" name="coef_{{ i }}" step="0.01" min="0" value="0" required>
                             </th>
                         {% endfor %}
                    
@@ -178,7 +177,7 @@
                             <td>
                                 <input type="hidden" name="etudiant_matricules_{{ etudiant.matricule }}" value="{{ etudiant.matricule }}">
                                 <input type="number" name="note_{{ etudiant.matricule }}_{{ i }}" step="0.01" max="20" placeholder="Entrez la note" value="00">
-                                <input type="hidden" name="coef_{{ etudiant.matricule }}_{{ i }}" value="1"> <!-- Coefficient associé à la note -->
+                                <input type="hidden" name="coef_{{ etudiant.matricule }}_{{ i }}" value="0"> <!-- Coefficient associé à la note -->
                             </td>
                         {% endfor %}
                     </tr>
@@ -192,6 +191,8 @@
         </div>
     </form>
 </div>
+
+
 <script>
     // Fonction pour ajouter une nouvelle colonne "Note X" à la table
     function ajouterNote() {
@@ -235,7 +236,7 @@
         var coefInput = document.createElement("input");
         coefInput.type = "hidden";
         coefInput.name = "coef_" + matricule + "_" + colCount;
-        coefInput.value = 1; // Valeur par défaut du coefficient
+        coefInput.value = 0; // Valeur par défaut du coefficient
 
         // Ajouter les inputs à la cellule
         newTd.appendChild(hiddenInput);

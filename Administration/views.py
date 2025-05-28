@@ -1893,9 +1893,10 @@ def reinscription_etudiant(request):
                     'annee_academique': scolarite_precedente.annee_academique,
                     'total': scolarite_precedente.total,
                     'Montant_restant': scolarite_precedente.Montant_restant,
-                    'tranche_1': scolarite_precedente.tranche_1,
-                    'tranche_2': scolarite_precedente.tranche_2,
-                    'tranche_3': scolarite_precedente.tranche_3,
+                    'tranches': scolarite_precedente.tranches,
+                    #'tranche_1': scolarite_precedente.tranche_1,
+                    #'tranche_2': scolarite_precedente.tranche_2,
+                    #'tranche_3': scolarite_precedente.tranche_3,
                 }
                 
                 # Enregistrer les anciennes données dans un fichier JSON
@@ -1915,13 +1916,17 @@ def reinscription_etudiant(request):
                 nouvelle_scolarite = Scolarite(
                     etudiant=etudiant,
                     annee_academique=nouvelle_annee_academique,
-                    tranche_1=0.0,
-                    tranche_2=0.0,
-                    tranche_3=0.0,
+                    #tranche_1=0.0,
+                    #tranche_2=0.0,
+                    #tranche_3=0.0,
+                    tranches=[],
+                    total=0.0,
+                    Montant_restant=0.0,
+                    montant_total_verse=0.0
                 )
 
                 # Calculer le total basé sur l'étudiant actuel
-                nouvelle_scolarite.total = nouvelle_scolarite.calculate_total()  # Utiliser l'instance pour calculer le total
+                nouvelle_scolarite.total = 0#nouvelle_scolarite.calculate_total()  # Utiliser l'instance pour calculer le total
                 nouvelle_scolarite.Montant_restant = nouvelle_scolarite.total
               
                 # Enregistrer les modifications de l'étudiant et la nouvelle scolarité
